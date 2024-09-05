@@ -31,10 +31,41 @@ export default function Home() {
   }, [])
 
   return (
-    <div>
-      <div>Welcome, {user.username}</div>
-      <div>Clients counter: {clientsCounter}</div>
-    </div>
+    <div className="mainContainer">
+      <div className={styles.contentContainer}>
+        <h1>Welcome, {user.username}!</h1>
 
+
+        <div className={styles.lobbyContainer}>
+          <h2>Availible games: </h2>
+          <table>
+            <tr>
+              <th>Control</th>
+              <th>Time bonus<br />(sec.)</th>
+              <th>User</th>
+              <th>Rating</th>
+            </tr>
+            {rooms?.map((room, _) =>
+              <tr>
+                <td>
+                  {room.control}
+                </td>
+                <td>
+                  {room.bonus}
+                </td>
+                <td>
+                  {room.ownerName}
+                </td>
+                <td>
+                  {room.ownerRating}
+                </td>
+              </tr>
+            )}
+          </table>
+        </div >
+      </div>
+
+      <div>Players online: {clientsCounter}</div>
+    </div>
   )
 }
