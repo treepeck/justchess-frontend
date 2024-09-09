@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client"
 import "./index.css"
 
 import Home from "./pages/home/Home"
+import Play from "./pages/play/Play"
 
 import {
   Route,
@@ -16,6 +17,7 @@ import { UserProvider } from "./context/useAuth"
 const routes = createRoutesFromElements(
   <Route element={<UserProvider />}>
     <Route path="/" element={<Home />} />
+    <Route path="/play/:id" element={<Play />} />
   </Route>
 )
 
