@@ -4,8 +4,8 @@
   margin-left: auto;
   margin-right: auto;
   margin-top: 2rem;
-  gap: 2rem;
   text-align: center;
+  gap: 2rem;
 }
 
 .lobbyContainer {
@@ -14,7 +14,16 @@
   flex-direction: inherit;
   margin-left: auto;
   margin-right: auto;
+  margin-top: 1rem;
   text-align: center;
+}
+
+
+.filters {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(2, 7rem 7rem);
+  grid-template-rows: 2rem, 2rem;
 }
 
 table {
@@ -35,4 +44,9 @@ table th {
 table th {
   background-color: #1f1b25;
   padding: 1rem;
+}
+
+.playersCounter {
+  position: absolute;
+  right: 0;
 }

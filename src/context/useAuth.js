@@ -9,6 +9,7 @@ import { Outlet } from "react-router-dom"
 
 import User from "../api/user"
 import { v4 as uuidv4 } from "uuid"
+import API from "../api/api"
 
 const UserContext = createContext()
 
@@ -17,18 +18,24 @@ export function UserProvider() {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    const uid = uuidv4()
-    const user = new User({
-      id: uid,
-      username: "Guest-" + uid.substring(0, 8),
-      gamesCount: 0,
-      blitzRating: 400,
-      rapidRating: 400,
-      bulletRating: 400,
-    })
 
-    setUser(user)
-    setIsReady(true)
+    const fetchMe = async () => {
+      const api = new API()
+      const resUser = await api.getUserByCookie()
+
+      if (typeof resUser !== "string") {
+        setUser(resUser)
+        setIsReady(true)
+      } else {
+        const uid = uuidv4()
+        const newUser = await api.createGuest(uid)
+        if (typeof newUser !== "string") {
+          setUser(newUser)
+          setIsReady(true)
+        }
+      }
+    }
+    fetchMe()
   }, [])
 
   return (
