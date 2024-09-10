@@ -1,6 +1,9 @@
 import styles from "./home.module.css"
 import Button from "../../components/button/Button"
 
+import error from "../../assets/error.png"
+import check from "../../assets/check.png"
+
 import {
   useRef,
   useState,
@@ -8,7 +11,7 @@ import {
 } from "react"
 import { useNavigate } from "react-router-dom"
 
-import WS from "../../api/ws"
+import HubWS from "../../api/ws"
 import { useAuth } from "../../context/useAuth"
 
 export default function Home() {
@@ -21,15 +24,25 @@ export default function Home() {
   const [clientsCounter, setClientsCounter] = useState(0)
   const [control, setControl] = useState("bullet")
   const [bonus, setBonus] = useState(0)
+  const [isConnected, setIsConnected] = useState(false)
 
   const ws = useRef()
 
   useEffect(() => {
-    ws.current = new WS(user.id)
+    ws.current = new HubWS(user.id)
 
     // set up event handlers
     ws.current.setEventHandler("UPDATE_CLIENTS_COUNTER", setClientsCounter)
     ws.current.setEventHandler("UPDATE_ROOMS", setRooms)
+    ws.current.setEventHandler("CHANGE_ROOM", handleChangeRoom)
+    ws.current.socket.onclose = () => {
+      setIsConnected(false)
+      setClientsCounter(0)
+    }
+    ws.current.socket.onopen = () => {
+      setIsConnected(true)
+      ws.current.getRooms()
+    }
 
     return () => {
       ws.current.closeConnection()
@@ -37,19 +50,26 @@ export default function Home() {
   }, [])
 
   function handleCreateRoom() {
-    // TODO: check if the user is already in the room. if so, deny the request
-    ws.current.createRoom(control, bonus)
-    navigate(`play/${user.id}`)
+    if (isConnected) {
+      // TODO: check if the user is already in the room. if so, deny the request
+      ws.current.createRoom(control, bonus, user)
+    } else {
+      alert("Connection with the server was lost. Please, try to reload the page.")
+    }
   }
 
   function handleJoinRoom(roomId) {
-    // TODO: check if the user is already in the room. if so, deny the request
-    console.log(roomId)
-    ws.current.joinRoom(roomId)
+    if (isConnected) {
+      // TODO: check if the user is already in the room. if so, deny the request
+      ws.current.joinRoom(roomId)
+    } else {
+      alert("Connection with the server was lost. Please, try to reload the page.")
+    }
   }
 
   function handleChangeRoom(roomId) {
-    console.log("Current room: ", roomId)
+    roomId = roomId.replace("\"", "")
+    roomId = roomId.replace("\"", "")
     navigate(`play/${roomId}`)
   }
 
@@ -66,13 +86,13 @@ export default function Home() {
                 <tr>
                   <th>Control</th>
                   <th>Time bonus<br />(sec.)</th>
-                  <th>Player</th>
+                  <th>Owner</th>
                   <th>Rating</th>
                 </tr>
               </thead>
               <tbody>
                 {rooms.map((room, _) =>
-                  <tr key={room.ownerId}>
+                  <tr key={room.id}>
                     <td>
                       {room.control}
                     </td>
@@ -80,17 +100,17 @@ export default function Home() {
                       {room.bonus}
                     </td>
                     <td>
-                      {room.ownerName}
+                      {room.owner.username}
                     </td>
                     <td>
-                      {room.ownerRating}
+                      {room.owner[`${control}Rating`]}
                     </td>
-                    {room.ownerId === user.id ?
+                    {room.owner.id === user.id ?
                       null :
                       <td>
                         <Button
                           onClickHandler={() => {
-                            handleJoinRoom(room.ownerId)
+                            handleJoinRoom(room.id)
                           }}
                           text="Join"
                         />
@@ -140,7 +160,16 @@ export default function Home() {
           text="CreateGame"
         />
       </div>
-      <div className={styles.playersCounter}>Players online: {clientsCounter}</div>
+      <div className={styles.playersCounter}>
+        Players online: {clientsCounter}
+      </div>
+      <div className={styles.playerStatus}>
+        Connection: {
+          isConnected
+            ? <img src={check} alt="yes" />
+            : <img src={error} alt="no" />
+        }
+      </div>
     </div>
   )
 }

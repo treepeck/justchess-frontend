@@ -1,9 +1,9 @@
 import Event from "./event"
 
-/** Describes the interactions using WebSockets.  */
-export default class WS {
+/** Describes the interactions with the HubManager using WebSockets.  */
+export default class HubWS {
   /**
-   * Establishes a WebSocket connection with the server.
+   * Establishes a WebSocket connection with the HubManager.
    * The connection is stored in the socket field.
    * It also defines the serverUrl and WebSocket`s protocol fields.
    * @param {string} userId
@@ -18,15 +18,6 @@ export default class WS {
     // establish a WebSocket connection
     this.socket =
       new WebSocket(`${this.protocol}${this.serverUrl}/ws?id=${userId}`)
-
-    this.socket.onerror = () => {
-      // TODO: implement error handling
-    }
-
-    this.socket.onopen = () => {
-      const event = new Event("GET_ROOMS", null)
-      this.sendEvent(event)
-    }
 
     this.socket.onmessage = (ev) => {
       // recieve and process all messages from the server
@@ -74,11 +65,13 @@ export default class WS {
    * Creates a room with the specified parameters.
    * @param {string} control 
    * @param {number} bonus 
+   * @param {User} owner
    */
-  createRoom(control, bonus) {
+  createRoom(control, bonus, owner) {
     const e = new Event("CREATE_ROOM", {
       control: control,
       bonus: bonus,
+      owner: owner,
     })
     this.sendEvent(e)
   }
@@ -90,5 +83,10 @@ export default class WS {
   joinRoom(roomId) {
     const e = new Event("JOIN_ROOM", JSON.stringify(roomId))
     this.sendEvent(e)
+  }
+
+  getRooms() {
+    const event = new Event("GET_ROOMS", null)
+    this.sendEvent(event)
   }
 }
