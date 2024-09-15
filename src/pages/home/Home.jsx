@@ -1,76 +1,70 @@
 import styles from "./home.module.css"
+import Popup from "../../components/popup/Popup"
 import Button from "../../components/button/Button"
 
 import error from "../../assets/error.png"
 import check from "../../assets/check.png"
 
 import {
-  useRef,
   useState,
   useEffect,
 } from "react"
 import { useNavigate } from "react-router-dom"
 
-import HubWS from "../../api/ws"
 import { useAuth } from "../../context/useAuth"
+import { useConnection } from "../../context/connection"
 
 export default function Home() {
 
   const { user } = useAuth()
+  const { ws, clientsCounter, isConnected } = useConnection()
 
   const navigate = useNavigate()
 
-  const [rooms, setRooms] = useState([])
-  const [clientsCounter, setClientsCounter] = useState(0)
-  const [control, setControl] = useState("bullet")
   const [bonus, setBonus] = useState(0)
-  const [isConnected, setIsConnected] = useState(false)
-
-  const ws = useRef()
+  const [rooms, setRooms] = useState([])
+  const [control, setControl] = useState("bullet")
+  const [popupMessage, setPopupMessage] = useState("")
+  const [isPopupActive, setIsPopupActive] = useState(false)
 
   useEffect(() => {
-    ws.current = new HubWS(user.id)
+    if (isConnected) {
+      // set up event handlers
+      ws.setEventHandler("UPDATE_ROOMS", setRooms)
+      ws.setEventHandler("CHANGE_ROOM", handleChangeRoom)
 
-    // set up event handlers
-    ws.current.setEventHandler("UPDATE_CLIENTS_COUNTER", setClientsCounter)
-    ws.current.setEventHandler("UPDATE_ROOMS", setRooms)
-    ws.current.setEventHandler("CHANGE_ROOM", handleChangeRoom)
-    ws.current.socket.onclose = () => {
-      setIsConnected(false)
-      setClientsCounter(0)
-    }
-    ws.current.socket.onopen = () => {
-      setIsConnected(true)
-      ws.current.getRooms()
+      // get all availible rooms
+      ws.getRooms()
     }
 
     return () => {
-      ws.current.closeConnection()
+      ws.clearEventHandler("UPDATE_ROOMS")
+      ws.clearEventHandler("CHANGE_ROOMS")
     }
   }, [])
 
   function handleCreateRoom() {
     if (isConnected) {
-      // TODO: check if the user is already in the room. if so, deny the request
-      ws.current.createRoom(control, bonus, user)
+      ws.createRoom(control, bonus, user)
     } else {
-      alert("Connection with the server was lost. Please, try to reload the page.")
-    }
-  }
-
-  function handleJoinRoom(roomId) {
-    if (isConnected) {
-      // TODO: check if the user is already in the room. if so, deny the request
-      ws.current.joinRoom(roomId)
-    } else {
-      alert("Connection with the server was lost. Please, try to reload the page.")
+      setIsPopupActive(true)
+      setPopupMessage("Connection with the server was lost. Please, try to reload the page.")
     }
   }
 
   function handleChangeRoom(roomId) {
-    roomId = roomId.replace("\"", "")
-    roomId = roomId.replace("\"", "")
-    navigate(`play/${roomId}`)
+    navigate(`/play/${roomId}`)
+  }
+
+  function handleJoinRoom(roomId) {
+    if (isConnected) {
+      roomId = roomId.replace("\"", "")
+      roomId = roomId.replace("\"", "")
+      navigate(`play/${roomId}`)
+    } else {
+      setIsPopupActive(true)
+      setPopupMessage("Connection with the server was lost. Please, try to reload the page.")
+    }
   }
 
   return (
@@ -103,7 +97,7 @@ export default function Home() {
                       {room.owner.username}
                     </td>
                     <td>
-                      {room.owner[`${control}Rating`]}
+                      {room.owner[`${room.control}Rating`]}
                     </td>
                     {room.owner.id === user.id ?
                       null :
@@ -157,19 +151,28 @@ export default function Home() {
 
         <Button
           onClickHandler={handleCreateRoom}
-          text="CreateGame"
+          text="Create game"
         />
       </div>
-      <div className={styles.playersCounter}>
-        Players online: {clientsCounter}
+      <div className="playersCounter">
+        Players in lobby: {clientsCounter}
       </div>
-      <div className={styles.playerStatus}>
+      <div className="playerStatus">
         Connection: {
           isConnected
             ? <img src={check} alt="yes" />
             : <img src={error} alt="no" />
         }
       </div>
-    </div>
+
+      {
+        isPopupActive
+          ? <Popup
+            setIsActive={setIsPopupActive}
+            message={popupMessage}
+          />
+          : null
+      }
+    </div >
   )
 }

@@ -13,11 +13,14 @@ import {
 } from "react-router-dom"
 
 import { UserProvider } from "./context/useAuth"
+import ConnectionProvider from "./context/connection"
 
 const routes = createRoutesFromElements(
   <Route element={<UserProvider />}>
-    <Route path="/" element={<Home />} />
-    <Route path="/play/:id" element={<Play />} />
+    <Route element={<ConnectionProvider />}>
+      <Route path="/" element={<Home />} />
+      <Route path="/play/:id" element={<Play />} />
+    </Route>
   </Route>
 )
 

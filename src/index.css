@@ -15,4 +15,25 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: row;
+  font-size: x-large;
+}
+
+.playersCounter {
+  position: absolute;
+  left: 0;
+  margin: 0.5rem;
+}
+
+.playerStatus {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  margin: 0.5rem;
+}
+
+.playerStatus img {
+  width: 1.5rem;
+  height: 1.5rem;
 }

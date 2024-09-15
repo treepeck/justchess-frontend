@@ -1,0 +1,29 @@
+.layout {
+  display: inherit;
+  flex-direction: column;
+}
+
+.board {
+  border-radius: 5px;
+  display: grid;
+  grid-template-columns: repeat(8, 5rem);
+  grid-template-rows: repeat(8, 5rem);
+
+}
+
+.board img {
+  width: 4rem;
+  height: 4rem;
+  margin: auto;
+  cursor: pointer;
+}
+
+.board .whiteSquare {
+  display: flex;
+  background-color: #e8edf9;
+}
+
+.board .blackSquare {
+  display: flex;
+  background-color: #b7c0d8db;
+}

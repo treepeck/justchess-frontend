@@ -1,0 +1,12 @@
+.miniprofile {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 1.5rem;
+  text-align: center;
+}
+
+img {
+  height: 3rem;
+  width: 3rem;
+}
