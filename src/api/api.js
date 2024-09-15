@@ -26,6 +26,22 @@ export default class API {
     }
   }
 
+  async getUserById(userId) {
+    try {
+      const res = await fetch(`${this.serverUrl}/user/id/${userId}`, {
+        method: "GET",
+        credentials: "include",
+      })
+      if (!res.ok) {
+        return "User not found"
+      }
+      const user = await res.json()
+      return user
+    } catch {
+      return "Internal server error"
+    }
+  }
+
   async createGuest(userId) {
     try {
       const res = await fetch(`${this.serverUrl}/auth/guest`, {

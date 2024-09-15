@@ -7,7 +7,6 @@ import {
 
 import { Outlet } from "react-router-dom"
 
-import User from "../api/user"
 import { v4 as uuidv4 } from "uuid"
 import API from "../api/api"
 
@@ -18,7 +17,6 @@ export function UserProvider() {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-
     const fetchMe = async () => {
       const api = new API()
       const resUser = await api.getUserByCookie()

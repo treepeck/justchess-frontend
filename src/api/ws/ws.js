@@ -1,7 +1,7 @@
 import Event from "./event"
 
 /** Describes the interactions with the HubManager using WebSockets.  */
-export default class HubWS {
+export default class WS {
   /**
    * Establishes a WebSocket connection with the HubManager.
    * The connection is stored in the socket field.
@@ -37,6 +37,13 @@ export default class HubWS {
   }
 
   /**
+   * Clears the handlers map.
+   */
+  clearEventHandler(action) {
+    this.handlers.delete(action)
+  }
+
+  /**
    * Routes the incomming event.
    * @param {Event} event 
    */
@@ -65,7 +72,7 @@ export default class HubWS {
    * Creates a room with the specified parameters.
    * @param {string} control 
    * @param {number} bonus 
-   * @param {User} owner
+   * @param {User}   owner
    */
   createRoom(control, bonus, owner) {
     const e = new Event("CREATE_ROOM", {
