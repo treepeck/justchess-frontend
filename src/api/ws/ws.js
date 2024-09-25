@@ -44,15 +44,13 @@ export default class WS {
   }
 
   /**
-   * Routes the incomming event.
+   * Routes the incomming event. Ignores the events which didn`t have a handler.
    * @param {Event} event 
    */
   routeEvent(event) {
     const handler = this.handlers.get(event.action)
     if (handler) {
       handler(event.payload)
-    } else {
-      alert("Event cannot be handled")
     }
   }
 
@@ -88,12 +86,17 @@ export default class WS {
    * @param {string} roomId 
    */
   joinRoom(roomId) {
-    const e = new Event("JOIN_ROOM", JSON.stringify(roomId))
+    const e = new Event("JOIN_ROOM", roomId)
     this.sendEvent(e)
   }
 
   getRooms() {
     const event = new Event("GET_ROOMS", null)
+    this.sendEvent(event)
+  }
+
+  move(startPos, endPos) {
+    const event = new Event("MOVE", { startPos: startPos, endPos: endPos })
     this.sendEvent(event)
   }
 }

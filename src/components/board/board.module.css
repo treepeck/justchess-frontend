@@ -6,24 +6,26 @@
 .board {
   border-radius: 5px;
   display: grid;
+  grid-auto-flow: row dense;
   grid-template-columns: repeat(8, 5rem);
   grid-template-rows: repeat(8, 5rem);
+}
 
+.sideWhite {
+  transform: rotate(0);
+}
+
+.sideBlack {
+  transform: rotate(0.5turn);
+}
+
+.sideBlack img {
+  transform: rotate(-0.5turn);
 }
 
 .board img {
-  width: 4rem;
-  height: 4rem;
+  width: 90%;
+  height: 90%;
   margin: auto;
   cursor: pointer;
-}
-
-.board .whiteSquare {
-  display: flex;
-  background-color: #e8edf9;
-}
-
-.board .blackSquare {
-  display: flex;
-  background-color: #b7c0d8db;
 }

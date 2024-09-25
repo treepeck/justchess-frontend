@@ -60,7 +60,7 @@ export default function Home() {
     if (isConnected) {
       roomId = roomId.replace("\"", "")
       roomId = roomId.replace("\"", "")
-      navigate(`play/${roomId}`)
+      ws.joinRoom(roomId)
     } else {
       setIsPopupActive(true)
       setPopupMessage("Connection with the server was lost. Please, try to reload the page.")
@@ -88,16 +88,16 @@ export default function Home() {
                 {rooms.map((room, _) =>
                   <tr key={room.id}>
                     <td>
-                      {room.control}
+                      {room.game.control}
                     </td>
                     <td>
-                      {room.bonus}
+                      {room.game.bonus}
                     </td>
                     <td>
                       {room.owner.username}
                     </td>
                     <td>
-                      {room.owner[`${room.control}Rating`]}
+                      {room.owner[`${room.game.control}Rating`]}
                     </td>
                     {room.owner.id === user.id ?
                       null :
