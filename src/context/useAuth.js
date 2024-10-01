@@ -1,4 +1,4 @@
-import {
+import React, {
   useState,
   useEffect,
   useContext,
@@ -9,11 +9,42 @@ import { Outlet } from "react-router-dom"
 
 import { v4 as uuidv4 } from "uuid"
 import API from "../api/api"
+import User from "../api/user"
 
-const UserContext = createContext()
+class UserCtx {
+  /** @type {User} */
+  user
+  /** @type {Function} */
+  setUser
+
+  /**
+   * @param {User} user 
+   * @param {Function} setUser 
+   */
+  constructor(user, setUser) {
+    this.user = user
+    this.setUser = setUser
+  }
+}
+
+/**
+ * @type {React.Context<UserCtx>}
+ */
+const UserContext = createContext(new UserCtx(
+  new User("err", "err", 0, 0, 0, 0),
+  () => { }
+))
 
 export function UserProvider() {
-  const [user, setUser] = useState(UserContext)
+  /**
+   * Stores the User.
+   * @type {[User, Function]} 
+   */
+  const [user, setUser] = useState(useContext(UserContext).user)
+  /**
+   * Stores the current state of completing the async operation.
+   * @type {[boolean, Function]} 
+   */
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
@@ -37,12 +68,10 @@ export function UserProvider() {
   }, [])
 
   return (
-    <UserContext.Provider value={{ user: user, setUser }}>
-      {
-        isReady ? (
-          <Outlet />
-        ) : null
-      }
+    <UserContext.Provider value={new UserCtx(user, setUser)}>
+      {isReady ? (
+        <Outlet />
+      ) : null}
     </UserContext.Provider>
   )
 }

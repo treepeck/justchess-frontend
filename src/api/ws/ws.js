@@ -1,7 +1,17 @@
 import Event from "./event"
+import User from "../user"
 
-/** Describes the interactions with the HubManager using WebSockets.  */
+/** Describes the interactions with the Manager using WebSockets. */
 export default class WS {
+  /** @type {string} */
+  #serverUrl
+  /** @type {string} */
+  #protocol
+  /** @type {Map<string, Function>} */
+  #handlers
+  /** @type {WebSocket} */
+  socket
+
   /**
    * Establishes a WebSocket connection with the HubManager.
    * The connection is stored in the socket field.
@@ -10,14 +20,14 @@ export default class WS {
    */
   constructor(userId) {
     // define the server url and ws protocol
-    this.serverUrl = "localhost:3502"
-    this.protocol = "ws://" // TODO: change to the wss after deploying backend
+    this.#serverUrl = "localhost:3502"
+    this.#protocol = "ws://" // TODO: change to the wss after deploying backend
     this.userId = userId
-    this.handlers = new Map()
+    this.#handlers = new Map()
 
     // establish a WebSocket connection
     this.socket =
-      new WebSocket(`${this.protocol}${this.serverUrl}/ws?id=${userId}`)
+      new WebSocket(`${this.#protocol}${this.#serverUrl}/ws?id=${userId}`)
 
     this.socket.onmessage = (ev) => {
       // recieve and process all messages from the server
@@ -30,17 +40,18 @@ export default class WS {
   /**
    * Invokes the handler when the action is emmited.
    * @param {string} action 
-   * @param {callback} handler
+   * @param {Function} handler
    */
   setEventHandler(action, handler) {
-    this.handlers.set(action, handler)
+    this.#handlers.set(action, handler)
   }
 
   /**
-   * Clears the handlers map.
+   * Deletes the event handler.
+   * @param {string} action
    */
   clearEventHandler(action) {
-    this.handlers.delete(action)
+    this.#handlers.delete(action)
   }
 
   /**
@@ -48,8 +59,8 @@ export default class WS {
    * @param {Event} event 
    */
   routeEvent(event) {
-    const handler = this.handlers.get(event.action)
-    if (handler) {
+    const handler = this.#handlers.get(event.action)
+    if (handler !== undefined) {
       handler(event.payload)
     }
   }
@@ -57,7 +68,7 @@ export default class WS {
   /** Sends the specified Event to the server.
    * @param {Event} event
   */
-  sendEvent(event) {
+  #sendEvent(event) {
     this.socket.send(JSON.stringify(event))
   }
 
@@ -78,7 +89,7 @@ export default class WS {
       bonus: bonus,
       owner: owner,
     })
-    this.sendEvent(e)
+    this.#sendEvent(e)
   }
 
   /**
@@ -87,16 +98,38 @@ export default class WS {
    */
   joinRoom(roomId) {
     const e = new Event("JOIN_ROOM", roomId)
-    this.sendEvent(e)
+    this.#sendEvent(e)
   }
 
-  getRooms() {
-    const event = new Event("GET_ROOMS", null)
-    this.sendEvent(event)
+  /**
+   * Gets all availible rooms with the specified parameters.
+   * @param {string} control 
+   * @param {string} bonus 
+   */
+  getRooms(control, bonus) {
+    const e = new Event("GET_ROOMS", { control: control, bonus: bonus })
+    this.#sendEvent(e)
   }
 
-  move(startPos, endPos) {
-    const event = new Event("MOVE", { startPos: startPos, endPos: endPos })
-    this.sendEvent(event)
+  /**
+   * Gets game info by gameId.
+   * @param {string} gameId 
+   */
+  getGame(gameId) {
+    const e = new Event("GET_GAME", gameId)
+    this.#sendEvent(e)
+  }
+
+  /**
+   * Sends the MOVE event with the specified move.
+   * @param {string} beginPos 
+   * @param {string} endPos 
+   */
+  move(beginPos, endPos) {
+    const e = new Event("MOVE", {
+      beginPos: beginPos,
+      endPos: endPos
+    })
+    this.#sendEvent(e)
   }
 }

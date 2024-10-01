@@ -1,89 +1,82 @@
 import styles from "./board.module.css"
-import Square from "../Square/Square"
-import { useState, useEffect } from "react"
+import BoardSquare from "../square/BoardSquare"
+import React, { useState, useEffect } from "react"
 
-import { useConnection } from "../../context/connection"
+import Square from "../../game/square"
+import Piece from "../../game/pieces/piece"
+import Position from "../../game/position"
 
-import getAvailibleMoves from "../../game/moves"
+import buildPiece from "../../game/pieces/piecesBuilder"
 
-export default function Board({ pieces, side }) {
-
-  const { ws } = useConnection()
-
-  const [selectedSquare, setSelectedSquare] = useState()
-  const [availibleMoves, setAvailibleMoves] = useState([])
+/**
+ * @typedef {Object} BoardProps 
+ * @property {Function} handleTakeMove
+ * @property {Object.<string, Piece>} pieces
+ * @property {string} side 
+ * @property {string} currentTurn
+ * 
+ * @param {BoardProps} props - The properties passed to the Board component.
+ * @returns {JSX.Element}
+ */
+export default function Board(props) {
+  /**
+   * Stores the currently selected square on the board.
+   * @type {[Square | null, Function]} 
+   */
+  const [selectedSquare, setSelectedSquare] = useState(null)
+  /**
+   * Stores all availible squares on the board.
+   * @type {[string[] | null, Function]} 
+   */
+  const [availibleMoves, setAvailibleMoves] = useState(null)
+  /**
+   * Stores all visible squares.
+   * @type {[Square[][] | null, Function]} 
+   */
   const [board, setBoard] = useState([])
-
-  const [orientation, setOrientation] = useState(side)
 
   // TODO: add a "Custom options" context which provides a board-orientation
   // property, color theme, last sidebar position etc... 
 
   useEffect(() => {
     redrawBoard()
-  }, [pieces])
+  }, [props.pieces])
 
+  /** @param {Square} square */
   function handleClickSquare(square) {
-    if (selectedSquare && square.piece?.color !== side) {
-      if (square.isAvailible) {
-        ws.move(selectedSquare, square.pos)
+    debugger
+    if (selectedSquare && square.piece?.color !== props.side) {
+      if (square.isAvailible && props.currentTurn === props.side) {
+        props.handleTakeMove(selectedSquare.pos, square.pos)
       } else {
-        setSelectedSquare()
+        setSelectedSquare(null)
         setAvailibleMoves([])
       }
     } else {
-      if (square.piece?.color === side) {
-        setSelectedSquare(square.pos)
-        const moves = getAvailibleMoves(pieces, square.piece)
-        setAvailibleMoves(moves)
+      if (square.piece?.color === props.side) {
+        setSelectedSquare(square)
+        setAvailibleMoves(square.piece.getAvailibleMoves(props.pieces))
       }
     }
   }
 
-  function posFromInd(i, j) {
-    const pos = { file: 0, rank: 0 }
-    switch (j) {
-      case 0:
-        pos.file = "a"
-        break
-      case 1:
-        pos.file = "b"
-        break
-      case 2:
-        pos.file = "c"
-        break
-      case 3:
-        pos.file = "d"
-        break
-      case 4:
-        pos.file = "e"
-        break
-      case 5:
-        pos.file = "f"
-        break
-      case 6:
-        pos.file = "g"
-        break
-      case 7:
-        pos.file = "h"
-        break
-      default:
-        return
-    }
-    pos.rank = 8 - i
-    return pos
-  }
-
   function redrawBoard() {
+    debugger
+    if (!props.pieces) {
+      return
+    }
+
+    setAvailibleMoves(null)
+    setSelectedSquare(null)
+
     const newBoard = []
-    for (let i = 0; i < 8; i++) {
+    for (let i = 8; i >= 1; i--) {
       const row = []
-      for (let j = 0; j < 8; j++) {
-        const pos = posFromInd(i, j)
-        const color = (i + j) % 2 === 1 ? "black" : "white"
-        const posStr = `${pos.file}${pos.rank}`
-        const piece = pieces[posStr] ? pieces[posStr] : null
-        row.push({ pos: pos, color: color, piece: piece, isAvailible: false })
+      for (let j = 1; j <= 8; j++) {
+        const pos = new Position(j, i)
+        const color = (i + j) % 2 === 1 ? "white" : "black"
+        const piece = buildPiece(props.pieces[pos.toString()])
+        row.push(new Square(piece, pos, color, false, false))
       }
       newBoard.push(row)
     }
@@ -92,25 +85,28 @@ export default function Board({ pieces, side }) {
 
   return (
     <div className={styles.layout}>
-      <div className={`${styles.board} ${orientation === "white" ? styles.sideWhite : styles.sideBlack}`}>
+      <div className={`${styles.board} ${props.side === "black" ?
+        styles.sideBlack : null}`
+      }>
         {board.map(row => row.map((square, ind) => (
-          <Square
+          <BoardSquare
             key={ind}
             piece={square.piece}
             pos={square.pos}
             color={square.color}
             onClickHandler={() => handleClickSquare(square)}
             isSelected={
-              selectedSquare?.file === square.pos.file &&
-                selectedSquare?.rank === square.pos.rank ?
+              // @ts-ignore
+              // at this case selectedSqaure can be a valid Square.
+              selectedSquare?.pos.toString() === square.pos.toString() ?
                 true : false
             }
             isAvailible={
+              // @ts-ignore
+              // at this case selectedSqaure can be a valid Square[][].
               availibleMoves?.find((p) => {
                 square.isAvailible = false
-                if (p.file === square.pos.file &&
-                  p.rank === square.pos.rank
-                ) {
+                if (p === square.pos.toString()) {
                   square.isAvailible = true
                   return true
                 }

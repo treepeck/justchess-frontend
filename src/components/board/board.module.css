@@ -11,12 +11,11 @@
   grid-template-rows: repeat(8, 5rem);
 }
 
-.sideWhite {
-  transform: rotate(0);
-}
-
 .sideBlack {
-  transform: rotate(0.5turn);
+  -moz-transform: scale(-1, -1);
+  -o-transform: scale(-1, -1);
+  -webkit-transform: scale(-1, -1);
+  transform: scale(-1, -1);
 }
 
 .sideBlack img {

@@ -1,5 +1,20 @@
-/** This class represents the user DTO. */
+/**
+ * Represents the user.
+ */
 export default class User {
+  /** @type {string} */
+  id
+  /** @type {string} */
+  username
+  /** @type {number} */
+  gamesCount
+  /** @type {number} */
+  blitzRating
+  /** @type {number} */
+  rapidRating
+  /** @type {number} */
+  bulleRating
+
   /**
    * Creates a new user.
    * @param {string} id 
@@ -9,11 +24,14 @@ export default class User {
    * @param {number} rapidRating 
    * @param {number} bulletRating
    */
-  constructor(
-    options
+  constructor(id, username, gamesCount,
+    blitzRating, rapidRating, bulletRating
   ) {
-    for (const key in options) {
-      this[key] = options[key]
-    }
+    this.id = id
+    this.username = username
+    this.gamesCount = gamesCount
+    this.blitzRating = blitzRating
+    this.rapidRating = rapidRating
+    this.bulleRating = bulletRating
   }
 }

@@ -1,7 +1,8 @@
-import styles from "./square.module.css"
+import React from "react"
+import styles from "./boardSquare.module.css"
 import { useEffect, useState } from "react"
 
-export default function Square({ piece, pos, color, onClickHandler, isSelected, isAvailible }) {
+export default function BoardSquare({ piece, pos, color, onClickHandler, isSelected, isAvailible }) {
 
   const [asset, setAsset] = useState(null)
 
@@ -33,7 +34,7 @@ export default function Square({ piece, pos, color, onClickHandler, isSelected, 
       }
 
       if (isAvailible) {
-        if (piece === null) {
+        if (!piece) {
           className += " " + styles.emptyAvailible
         } else {
           className += " " + styles.availible
@@ -52,7 +53,7 @@ export default function Square({ piece, pos, color, onClickHandler, isSelected, 
     >
       {piece && (
         <img
-          src={asset}
+          src={asset ? asset : ""}
           alt={piece.name}
         />
       )}
