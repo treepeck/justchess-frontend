@@ -1,15 +1,14 @@
 .contentContainer {
   display: inherit;
   flex-direction: column;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 2rem;
+  margin: auto;
+  padding: 3rem;
   text-align: center;
   gap: 2rem;
 }
 
 .lobbyContainer {
-  gap: 1rem;
+  gap: 2rem;
   display: inherit;
   flex-direction: inherit;
   margin-left: auto;
@@ -18,11 +17,11 @@
   text-align: center;
 }
 
-
 .filters {
   display: grid;
-  align-items: center;
-  grid-template-columns: repeat(2, 10rem 10rem);
+  text-align: left;
+  gap: 2%;
+  grid-template-columns: repeat(2, 20% 20%);
   grid-template-rows: 2rem, 2rem;
 }
 
@@ -44,4 +43,15 @@ table th {
 table th {
   background-color: #1f1b25;
   padding: 1rem;
+}
+
+select {
+
+  font-size: large;
+}
+
+button {
+  margin: auto;
+  height: 5rem;
+  width: 20rem;
 }

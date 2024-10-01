@@ -1,13 +1,13 @@
-import styles from "./table.module.css"
+import styles from "./movesTable.module.css"
 
-export default function Table({ tableHeaders, tableData }) {
+export default function MovesTable({ moves }) {
 
   return (
     <table>
       <tr>
         {tableHeaders.map((header, _) =>
           <th>
-            {header}
+            <td></td>
           </th>
         )}
       </tr>

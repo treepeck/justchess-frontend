@@ -1,0 +1,17 @@
+.customSelect {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+}
+
+.customSelect label {
+  white-space: nowrap;
+}
+
+.customSelect select {
+  color: white;
+  background-color: #3692e7;
+  outline: none;
+  border: 2px solid #294a68;
+  transition: border-color 0.3s ease;
+}
