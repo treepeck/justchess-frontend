@@ -16,8 +16,6 @@ export default class Bishop extends Piece {
   name
   /** @type {string} */
   color
-  /** @type {boolean} */
-  isCaptured
   /** @type {string} */
   asset
 
@@ -31,7 +29,6 @@ export default class Bishop extends Piece {
     this.pos = pos
     this.name = "bishop"
     this.color = color
-    this.isCaptured = false
     this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
@@ -55,18 +52,20 @@ export default class Bishop extends Piece {
    * @returns {Map<string, MoveType>}
    */
   getPossibleMoves(pieces) {
-    const possibleMoves = []
+    const possibleMoves = new Map()
 
     let rank = this.pos.rank
     for (let i = this.pos.file - 1; i >= 1; i--) {
       rank++
-      let nextMove = new Position(i, rank)
+      const nextMove = new Position(i, rank)
       if (nextMove.isInBoard()) {
-        if (!pieces[nextMove.toString()]) {
-          possibleMoves.push(nextMove.toString())
+        if (!pieces.get(nextMove.toString())) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
           continue
-        } else if (pieces[nextMove.toString()]?.color !== this.color) {
-          possibleMoves.push(nextMove.toString())
+        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
+        } else if (pieces.get(nextMove.toString())?.color === this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Defend)
         }
       }
       break
@@ -75,13 +74,15 @@ export default class Bishop extends Piece {
     rank = this.pos.rank
     for (let i = this.pos.file - 1; i >= 1; i--) {
       rank--
-      let nextMove = new Position(i, rank)
+      const nextMove = new Position(i, rank)
       if (nextMove.isInBoard()) {
-        if (!pieces[nextMove.toString()]) {
-          possibleMoves.push(nextMove.toString())
+        if (!pieces.get(nextMove.toString())) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
           continue
-        } else if (pieces[nextMove.toString()]?.color !== this.color) {
-          possibleMoves.push(nextMove.toString())
+        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
+        } else if (pieces.get(nextMove.toString())?.color === this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Defend)
         }
       }
       break
@@ -90,13 +91,15 @@ export default class Bishop extends Piece {
     rank = this.pos.rank
     for (let i = this.pos.file + 1; i <= 8; i++) {
       rank++
-      let nextMove = new Position(i, rank)
+      const nextMove = new Position(i, rank)
       if (nextMove.isInBoard()) {
-        if (!pieces[nextMove.toString()]) {
-          possibleMoves.push(nextMove.toString())
+        if (!pieces.get(nextMove.toString())) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
           continue
-        } else if (pieces[nextMove.toString()]?.color !== this.color) {
-          possibleMoves.push(nextMove.toString())
+        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
+        } else if (pieces.get(nextMove.toString())?.color === this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Defend)
         }
       }
       break
@@ -105,18 +108,20 @@ export default class Bishop extends Piece {
     rank = this.pos.rank
     for (let i = this.pos.file + 1; i <= 8; i++) {
       rank--
-      let nextMove = new Position(i, rank)
+      const nextMove = new Position(i, rank)
       if (nextMove.isInBoard()) {
-        if (!pieces[nextMove.toString()]) {
-          possibleMoves.push(nextMove.toString())
+        if (!pieces.get(nextMove.toString())) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
           continue
-        } else if (pieces[nextMove.toString()]?.color !== this.color) {
-          possibleMoves.push(nextMove.toString())
+        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Basic)
+        } else if (pieces.get(nextMove.toString())?.color === this.color) {
+          possibleMoves.set(nextMove.toString(), MoveType.Defend)
         }
       }
       break
     }
 
-    return new Map()
+    return possibleMoves
   }
 }

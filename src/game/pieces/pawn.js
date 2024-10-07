@@ -17,9 +17,7 @@ export default class Pawn extends Piece {
   /** @type {string} */
   color
   /** @type {boolean} */
-  enPassant
-  /** @type {boolean} */
-  isCaptured
+  isEnPassant
   /** @type {number} */
   movesCounter
   /** @type {string} */
@@ -29,16 +27,15 @@ export default class Pawn extends Piece {
    * Creates a Pawn.
    * @param {Position} pos 
    * @param {string} color 
-   * @param {boolean} enPassant
+   * @param {boolean} isEnPassant
    * @param {number} movesCounter
    */
-  constructor(pos, color, enPassant, movesCounter) {
+  constructor(pos, color, isEnPassant, movesCounter) {
     super()
     this.pos = pos
     this.name = "pawn"
     this.color = color
-    this.enPassant = enPassant
-    this.isCaptured = false
+    this.isEnPassant = isEnPassant
     this.movesCounter = movesCounter
     this.asset = color === "white" ? whiteAsset : blackAsset
   }

@@ -6,6 +6,7 @@ import Bishop from "./bishop"
 
 import blackAsset from "../../assets/pieces/black/queen.png"
 import whiteAsset from "../../assets/pieces/white/queen.png"
+import { MoveType } from "../move"
 
 /**
  * Represents a Queen.
@@ -18,8 +19,6 @@ export default class Queen extends Piece {
   name
   /** @type {string} */
   color
-  /** @type {boolean} */
-  isCaptured
   /** @type {string} */
   asset
 
@@ -33,7 +32,6 @@ export default class Queen extends Piece {
     this.pos = pos
     this.name = "queen"
     this.color = color
-    this.isCaptured = false
     this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
@@ -53,13 +51,21 @@ export default class Queen extends Piece {
   }
 
   /**
-   * @param {Object.<string, Piece>} pieces 
-   * @returns {string[]}
+   * @param {Map<string, Piece>} pieces 
+   * @returns {Map<string, MoveType>}
    */
   getPossibleMoves(pieces) {
     const rook = new Rook(this.pos, this.color)
     const bishop = new Bishop(this.pos, this.color)
-    return [...rook.getPossibleMoves(pieces),
-    ...bishop.getPossibleMoves(pieces)]
+
+    /** @type {Map<string, MoveType>} */
+    const possibleMoves = new Map()
+    for (const [pos, moveType] of rook.getPossibleMoves(pieces)) {
+      possibleMoves.set(pos, moveType)
+    }
+    for (const [pos, moveType] of bishop.getPossibleMoves(pieces)) {
+      possibleMoves.set(pos, moveType)
+    }
+    return possibleMoves
   }
 }
