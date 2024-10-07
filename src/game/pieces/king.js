@@ -1,6 +1,9 @@
 import Piece from "./piece"
 import Position from "../position"
 
+import blackAsset from "../../assets/pieces/black/king.png"
+import whiteAsset from "../../assets/pieces/white/king.png"
+
 /**
  * Represents a King.
  * @extends {Piece}
@@ -14,6 +17,8 @@ export default class King extends Piece {
   color
   /** @type {boolean} */
   isCaptured
+  /** @type {string} */
+  asset
 
   /**
    * Creates a King.
@@ -26,6 +31,7 @@ export default class King extends Piece {
     this.name = "king"
     this.color = color
     this.isCaptured = false
+    this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
   /** @returns {string} */
@@ -45,9 +51,9 @@ export default class King extends Piece {
 
   /**
    * @param {Object.<string, Piece>} pieces 
-   * @returns {string[]}
+   * @returns {Map<Position, string>}
    */
-  getAvailibleMoves(pieces) {
-    return []
+  getPossibleMoves(pieces) {
+    return new Map()
   }
 }

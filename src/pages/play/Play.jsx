@@ -12,7 +12,7 @@ import React, {
 } from "react"
 
 import { useParams } from "react-router-dom"
-import Game from "../../game/game"
+import Game, { GameDTO } from "../../game/game"
 
 // @ts-ignore
 import moveSound from "../../assets/sounds/move.wav"
@@ -20,6 +20,7 @@ import moveSound from "../../assets/sounds/move.wav"
 import startSound from "../../assets/sounds/start.wav"
 // @ts-ignore
 import captureSound from "../../assets/sounds/capture.wav"
+import Move from "../../game/move"
 
 export default function Play() {
   const { id } = useParams()
@@ -42,19 +43,6 @@ export default function Play() {
   }
 
   useEffect(() => {
-    if (game?.moves.moves.length % 2 === 0) {
-      setCurrentTurn("white")
-    } else {
-      setCurrentTurn("black")
-    }
-    if (game?.moves.moves.length > 0) {
-      sounds["move"].play()
-    } else if (game?.moves.moves.length === 0) {
-      sounds["start"].play()
-    }
-  }, [game?.moves])
-
-  useEffect(() => {
     // set up event handlers
     ws?.setEventHandler("UPDATE_GAME", handleUpdateGame)
 
@@ -68,17 +56,34 @@ export default function Play() {
     }
   }, [])
 
-  /**
-   * @param {Game} g 
+  /** 
+   * @param {GameDTO} gameDTO 
    */
-  function handleUpdateGame(g) {
+  function handleUpdateGame(gameDTO) {
 
-    if (g.status != "waiting") {
+    if (gameDTO.status !== "waiting") {
       setIsWaiting(false)
     }
 
-    setGame(g)
-    if (g.whiteId === user.id) {
+    const nGame = new Game(gameDTO.id, gameDTO.control,
+      gameDTO.bonus, gameDTO.status, gameDTO.whiteId,
+      gameDTO.blackId, gameDTO.playedAt, gameDTO.moves,
+      new Map()
+    )
+
+    // convert Object.<string, Piece> to a Map<string, Piece>
+    for (const posStr in gameDTO.pieces) {
+      nGame.pieces.set(posStr, gameDTO.pieces[posStr])
+    }
+    setGame(nGame)
+
+    if (nGame.moves.moves.length % 2 === 0) {
+      setCurrentTurn("white")
+    } else {
+      setCurrentTurn("black")
+    }
+
+    if (gameDTO.whiteId === user.id) {
       setSide("white")
     } else {
       setSide("black")
@@ -87,12 +92,10 @@ export default function Play() {
 
   /**
    * Handles the User`s moves.
-   * @param {string} beginPos 
-   * @param {string} endPos 
+   * @param {Move} move 
    */
-  function handleTakeMove(beginPos, endPos) {
-    console.log("I`m here")
-    ws?.move(beginPos, endPos)
+  function handleTakeMove(move) {
+    ws?.move(move)
   }
 
   return (
@@ -113,7 +116,11 @@ export default function Play() {
           : null}
 
         {game && !isWaiting ?
-          <Board handleTakeMove={handleTakeMove} pieces={game.pieces} side={side} currentTurn={currentTurn} />
+          <Board handleTakeMove={handleTakeMove}
+            pieces={game.pieces}
+            side={side}
+            currentTurn={currentTurn}
+          />
           : null
         }
         {/* {game ? <MovesTable moves={game.moves} /> : null} */}

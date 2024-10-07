@@ -1,6 +1,10 @@
 import Piece from "./piece"
 import Position from "../position"
 
+import blackAsset from "../../assets/pieces/black/bishop.png"
+import whiteAsset from "../../assets/pieces/white/bishop.png"
+import { MoveType } from "../move"
+
 /**
  * Represents a Bishop.
  * @extends {Piece}
@@ -14,6 +18,8 @@ export default class Bishop extends Piece {
   color
   /** @type {boolean} */
   isCaptured
+  /** @type {string} */
+  asset
 
   /**
    * Creates a Bishop.
@@ -26,6 +32,7 @@ export default class Bishop extends Piece {
     this.name = "bishop"
     this.color = color
     this.isCaptured = false
+    this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
   /** @returns {string} */
@@ -44,21 +51,23 @@ export default class Bishop extends Piece {
   }
 
   /**
-   * @param {Object.<string, Piece>} pieces 
-   * @returns {string[]}
+   * @param {Map<string, Piece>} pieces 
+   * @returns {Map<string, MoveType>}
    */
-  getAvailibleMoves(pieces) {
-    const availibleMoves = []
+  getPossibleMoves(pieces) {
+    const possibleMoves = []
 
     let rank = this.pos.rank
     for (let i = this.pos.file - 1; i >= 1; i--) {
       rank++
       let nextMove = new Position(i, rank)
-      if (!pieces[nextMove.toString()]) {
-        availibleMoves.push(nextMove.toString())
-        continue
-      } else if (pieces[nextMove.toString()]?.color !== this.color) {
-        availibleMoves.push(nextMove.toString())
+      if (nextMove.isInBoard()) {
+        if (!pieces[nextMove.toString()]) {
+          possibleMoves.push(nextMove.toString())
+          continue
+        } else if (pieces[nextMove.toString()]?.color !== this.color) {
+          possibleMoves.push(nextMove.toString())
+        }
       }
       break
     }
@@ -67,11 +76,13 @@ export default class Bishop extends Piece {
     for (let i = this.pos.file - 1; i >= 1; i--) {
       rank--
       let nextMove = new Position(i, rank)
-      if (!pieces[nextMove.toString()]) {
-        availibleMoves.push(nextMove.toString())
-        continue
-      } else if (pieces[nextMove.toString()]?.color !== this.color) {
-        availibleMoves.push(nextMove.toString())
+      if (nextMove.isInBoard()) {
+        if (!pieces[nextMove.toString()]) {
+          possibleMoves.push(nextMove.toString())
+          continue
+        } else if (pieces[nextMove.toString()]?.color !== this.color) {
+          possibleMoves.push(nextMove.toString())
+        }
       }
       break
     }
@@ -80,11 +91,13 @@ export default class Bishop extends Piece {
     for (let i = this.pos.file + 1; i <= 8; i++) {
       rank++
       let nextMove = new Position(i, rank)
-      if (!pieces[nextMove.toString()]) {
-        availibleMoves.push(nextMove.toString())
-        continue
-      } else if (pieces[nextMove.toString()]?.color !== this.color) {
-        availibleMoves.push(nextMove.toString())
+      if (nextMove.isInBoard()) {
+        if (!pieces[nextMove.toString()]) {
+          possibleMoves.push(nextMove.toString())
+          continue
+        } else if (pieces[nextMove.toString()]?.color !== this.color) {
+          possibleMoves.push(nextMove.toString())
+        }
       }
       break
     }
@@ -93,15 +106,17 @@ export default class Bishop extends Piece {
     for (let i = this.pos.file + 1; i <= 8; i++) {
       rank--
       let nextMove = new Position(i, rank)
-      if (!pieces[nextMove.toString()]) {
-        availibleMoves.push(nextMove.toString())
-        continue
-      } else if (pieces[nextMove.toString()]?.color !== this.color) {
-        availibleMoves.push(nextMove.toString())
+      if (nextMove.isInBoard()) {
+        if (!pieces[nextMove.toString()]) {
+          possibleMoves.push(nextMove.toString())
+          continue
+        } else if (pieces[nextMove.toString()]?.color !== this.color) {
+          possibleMoves.push(nextMove.toString())
+        }
       }
       break
     }
 
-    return availibleMoves
+    return new Map()
   }
 }

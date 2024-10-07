@@ -95,69 +95,70 @@ export default function Home() {
         <h1>Welcome, {user.username}!</h1>
 
         <div className={styles.lobbyContainer}>
-          <h2>Availible games:</h2>
-          <div className={styles.filters}>
-            <Select
-              htmlFor="control"
-              labelText="Control:"
-              options={["All", "Bullet", "Blitz", "Rapid"]}
-              onChangeHandler={setControl}
-            />
-
-            <Select
-              htmlFor="bonus"
-              labelText="Time bonus:"
-              options={["All", "0", "1", "2", "10"]}
-              onChangeHandler={setBonus}
-            />
-          </div>
-
           {rooms && rooms.length > 0 ?
-            <table>
-              <thead>
-                <tr>
-                  <th>Control</th>
-                  <th>Time bonus<br />(sec.)</th>
-                  <th>Owner</th>
-                  <th>Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rooms.map((room, index) =>
-                  <tr
-                    key={index}
-                    onClick={room.owner.id !== user.id ?
-                      () => { handleJoinRoom(room.id) } : () => { }}
-                  >
-                    <td>
-                      {room.game.control}
-                    </td>
-                    <td>
-                      {room.game.bonus}
-                    </td>
-                    <td>
-                      {room.owner.username}
-                    </td>
-                    <td>
-                      {room.owner[`${room.game.control}Rating`]}
-                    </td>
+            <>
+              <h2>Availible games:</h2>
+              <div className={styles.filters}>
+                <Select
+                  htmlFor="control"
+                  labelText="Control:"
+                  options={["All", "Bullet", "Blitz", "Rapid"]}
+                  onChangeHandler={setControl}
+                />
+
+                <Select
+                  htmlFor="bonus"
+                  labelText="Time bonus:"
+                  options={["All", "0", "1", "2", "10"]}
+                  onChangeHandler={setBonus}
+                />
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Control</th>
+                    <th>Time bonus<br />(sec.)</th>
+                    <th>Owner</th>
+                    <th>Rating</th>
                   </tr>
-                )}
-              </tbody>
-            </table> :
+                </thead>
+                <tbody>
+                  {rooms.map((room, index) =>
+                    <tr
+                      key={index}
+                      onClick={room.owner.id !== user.id ?
+                        () => { handleJoinRoom(room.id) } : () => { }}
+                    >
+                      <td>
+                        {room.game.control}
+                      </td>
+                      <td>
+                        {room.game.bonus}
+                      </td>
+                      <td>
+                        {room.owner.username}
+                      </td>
+                      <td>
+                        {room.owner[`${room.game.control}Rating`]}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </> :
             <div>
-              No availible games. To create a game, press the "Create game" button.
+              No availible games. To create a game, press the button bellow.
             </div>
           }
         </div>
 
         <Button
           onClickHandler={() => setIsDialogActive(true)}
-          text="Create game"
+          text="Create a game"
         />
       </div>
       <div className="playersCounter">
-        Players in lobby: {clientsCounter}
+        Players online: {clientsCounter}
       </div>
       <div className="playerStatus">
         Connection: {

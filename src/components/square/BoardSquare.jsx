@@ -1,40 +1,36 @@
 import React from "react"
 import styles from "./boardSquare.module.css"
-import { useEffect, useState } from "react"
+import { useState } from "react"
+import Piece from "../../game/pieces/piece"
+import Position from "../../game/position"
 
-export default function BoardSquare({ piece, pos, color, onClickHandler, isSelected, isAvailible }) {
-
-  const [asset, setAsset] = useState(null)
-
-  useEffect(() => {
-    if (piece) {
-      const fetchAsset = async () => {
-        try {
-          const res = await
-            import(`../../assets/pieces/${piece.color}/${piece.name}.png`)
-          setAsset(res.default)
-        } catch (err) {
-          console.log(err)
-        }
-      }
-
-      fetchAsset()
-    }
-  }, [piece])
-
+/**
+ * @typedef {Object} SquareProps 
+ * @property {Piece | null} piece
+ * @property {string} side
+ * @property {Position} pos
+ * @property {string} color 
+ * @property {Function} onClickHandler 
+ * @property {boolean} isSelected
+ * @property {boolean} isAvailible
+ * 
+ * @param {SquareProps} props - The properties passed to the Square component.
+ * @returns {JSX.Element}
+ */
+export default function BoardSquare(props) {
   function getClassName() {
     let className = ""
-    if (isSelected) {
+    if (props.isSelected) {
       return styles.selected
     } else {
-      if (color === "white") {
+      if (props.color === "white") {
         className += styles.white
       } else {
         className += styles.black
       }
 
-      if (isAvailible) {
-        if (!piece) {
+      if (props.isAvailible) {
+        if (!props.piece) {
           className += " " + styles.emptyAvailible
         } else {
           className += " " + styles.availible
@@ -44,17 +40,35 @@ export default function BoardSquare({ piece, pos, color, onClickHandler, isSelec
     return className
   }
 
+  // function getIsGraggable() {
+  //   if (!props.piece) {
+  //     return false
+  //   }
+  //   return props.piece.color === props.side
+  // }
+
   return (
     <div
-      className={
-        getClassName()
-      }
-      onClick={() => { onClickHandler(pos) }}
+      className={getClassName()}
+      onClick={() => { props.onClickHandler(props.pos) }}
+      draggable={false}
     >
-      {piece && (
+      {props.piece && (
         <img
-          src={asset ? asset : ""}
-          alt={piece.name}
+          src={props.piece ? props.piece.asset : ""}
+          alt={props.piece.name}
+          // onDrag={e => {
+          //   e.dataTransfer.clearData()
+          //   props.onClickHandler(props.pos)
+
+          //   e.dataTransfer.setData("application/json", JSON.stringify({
+          //     pos: props.piece?.pos,
+          //     color: props.piece?.color,
+          //   }))
+
+          // }}
+          draggable={false}
+          className={props.piece?.color === props.side ? styles.drag : ""}
         />
       )}
     </div>
