@@ -1,3 +1,4 @@
+import Move, { MoveType } from "../move"
 import Position from "../position"
 
 /**
@@ -7,10 +8,12 @@ import Position from "../position"
 export default class Piece {
   /** @type {Position} */
   pos
-  /** @type {string} name */
+  /** @type {string} */
   name
-  /** @type {string} color */
+  /** @type {string} */
   color
+  /** @type {string} */
+  asset
 
   constructor() {
     if (this.constructor == Piece) {
@@ -19,10 +22,10 @@ export default class Piece {
   }
 
   /**
-   * @param {Object.<Position, Piece>} _ 
-   * @returns {string[]}
+   * @param {Map<string, Piece>} _ 
+   * @returns {Map<string, MoveType>}
    */
-  getAvailibleMoves(_) {
-    throw new Error("getAvailibleMoves must be implemented.")
+  getPossibleMoves(_) {
+    throw new Error("getPossibleMoves must be implemented.")
   }
 }

@@ -14,7 +14,7 @@
   position: relative;
 }
 
-img {
+.drag {
   cursor: pointer;
 }
 
@@ -26,6 +26,8 @@ img {
   height: 100%;
   border-radius: 0;
 }
+
+
 
 .emptyAvailible::after {
   margin: auto;

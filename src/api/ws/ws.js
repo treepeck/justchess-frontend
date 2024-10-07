@@ -1,5 +1,6 @@
 import Event from "./event"
 import User from "../user"
+import Move from "../../game/move"
 
 /** Describes the interactions with the Manager using WebSockets. */
 export default class WS {
@@ -122,14 +123,10 @@ export default class WS {
 
   /**
    * Sends the MOVE event with the specified move.
-   * @param {string} beginPos 
-   * @param {string} endPos 
+   * @param {Move} move
    */
-  move(beginPos, endPos) {
-    const e = new Event("MOVE", {
-      beginPos: beginPos,
-      endPos: endPos
-    })
+  move(move) {
+    const e = new Event("MOVE", move)
     this.#sendEvent(e)
   }
 }

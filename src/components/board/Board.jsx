@@ -5,13 +5,14 @@ import React, { useState, useEffect } from "react"
 import Square from "../../game/square"
 import Piece from "../../game/pieces/piece"
 import Position from "../../game/position"
+import Move, { MoveType } from "../../game/move"
 
 import buildPiece from "../../game/pieces/piecesBuilder"
 
 /**
  * @typedef {Object} BoardProps 
  * @property {Function} handleTakeMove
- * @property {Object.<string, Piece>} pieces
+ * @property {Map<string, Piece>} pieces
  * @property {string} side 
  * @property {string} currentTurn
  * 
@@ -20,15 +21,15 @@ import buildPiece from "../../game/pieces/piecesBuilder"
  */
 export default function Board(props) {
   /**
-   * Stores the currently selected square on the board.
-   * @type {[Square | null, Function]} 
-   */
+  * Stores the currently selected square on the board.
+  * @type {[Square | null, Function]} 
+  */
   const [selectedSquare, setSelectedSquare] = useState(null)
   /**
-   * Stores all availible squares on the board.
-   * @type {[string[] | null, Function]} 
+   * Stores all availible to move squares on the board.
+   * @type {[Map<string, MoveType> | null, Function]} 
    */
-  const [availibleMoves, setAvailibleMoves] = useState(null)
+  const [possibleMoves, setPossibleMoves] = useState(null)
   /**
    * Stores all visible squares.
    * @type {[Square[][] | null, Function]} 
@@ -44,29 +45,34 @@ export default function Board(props) {
 
   /** @param {Square} square */
   function handleClickSquare(square) {
-    debugger
     if (selectedSquare && square.piece?.color !== props.side) {
-      if (square.isAvailible && props.currentTurn === props.side) {
-        props.handleTakeMove(selectedSquare.pos, square.pos)
+      const move = possibleMoves?.get(square.pos.toString())
+      if (!move) {
+        return
+      }
+      if (move !== MoveType.Defend) {
+        if (move === MoveType.Promotion) {
+          // TODO: handle Promotion case
+        }
+        if (props.currentTurn === props.side) {
+          props.handleTakeMove(new Move(square.pos, selectedSquare.pos,
+            "",
+          ))
+        }
       } else {
         setSelectedSquare(null)
-        setAvailibleMoves([])
+        setPossibleMoves(null)
       }
     } else {
       if (square.piece?.color === props.side) {
         setSelectedSquare(square)
-        setAvailibleMoves(square.piece.getAvailibleMoves(props.pieces))
+        setPossibleMoves(square.piece.getPossibleMoves(props.pieces))
       }
     }
   }
 
   function redrawBoard() {
-    debugger
-    if (!props.pieces) {
-      return
-    }
-
-    setAvailibleMoves(null)
+    setPossibleMoves(null)
     setSelectedSquare(null)
 
     const newBoard = []
@@ -75,8 +81,8 @@ export default function Board(props) {
       for (let j = 1; j <= 8; j++) {
         const pos = new Position(j, i)
         const color = (i + j) % 2 === 1 ? "white" : "black"
-        const piece = buildPiece(props.pieces[pos.toString()])
-        row.push(new Square(piece, pos, color, false, false))
+        const piece = buildPiece(props.pieces.get(pos.toString()))
+        row.push(new Square(piece, pos, color))
       }
       newBoard.push(row)
     }
@@ -85,13 +91,15 @@ export default function Board(props) {
 
   return (
     <div className={styles.layout}>
-      <div className={`${styles.board} ${props.side === "black" ?
-        styles.sideBlack : null}`
-      }>
+      <div
+        className={`${styles.board} ${props.side === "black" ?
+          styles.sideBlack : null}`}
+      >
         {board.map(row => row.map((square, ind) => (
           <BoardSquare
             key={ind}
             piece={square.piece}
+            side={props.side}
             pos={square.pos}
             color={square.color}
             onClickHandler={() => handleClickSquare(square)}
@@ -103,15 +111,10 @@ export default function Board(props) {
             }
             isAvailible={
               // @ts-ignore
-              // at this case selectedSqaure can be a valid Square[][].
-              availibleMoves?.find((p) => {
-                square.isAvailible = false
-                if (p === square.pos.toString()) {
-                  square.isAvailible = true
-                  return true
-                }
-                return false
-              }) ? true : false
+              possibleMoves?.get(square.pos.toString()) &&
+                // @ts-ignore
+                possibleMoves?.get(square.pos.toString()) !== MoveType.Defend ?
+                true : false
             }
           />
         ))

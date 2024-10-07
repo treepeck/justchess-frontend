@@ -1,6 +1,9 @@
 import Piece from "./piece"
 import Position from "../position"
 
+import blackAsset from "../../assets/pieces/black/knight.png"
+import whiteAsset from "../../assets/pieces/white/knight.png"
+
 /**
  * Represents a Knight.
  * @extends {Piece}
@@ -14,6 +17,8 @@ export default class Knight extends Piece {
   color
   /** @type {boolean} */
   isCaptured
+  /** @type {string} */
+  asset
 
   /**
    * Creates a Knight.
@@ -26,6 +31,7 @@ export default class Knight extends Piece {
     this.name = "knight"
     this.color = color
     this.isCaptured = false
+    this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
   /** @returns {string} */
@@ -45,11 +51,11 @@ export default class Knight extends Piece {
 
   /**
    * @param {Object.<string, Piece>} pieces 
-   * @returns {string[]}
+   * @returns {Map<Position, string>}
    */
-  getAvailibleMoves(pieces) {
+  getPossibleMoves(pieces) {
     /** @type {Position[]} */
-    const possibleMoves = [
+    const possiblePos = [
       new Position(this.pos.file + 2, this.pos.rank + 1),
       new Position(this.pos.file + 2, this.pos.rank - 1),
       new Position(this.pos.file - 2, this.pos.rank + 1),
@@ -60,16 +66,21 @@ export default class Knight extends Piece {
       new Position(this.pos.file + 1, this.pos.rank + 2),
     ]
 
-    const availibleMoves = []
-    for (const move of possibleMoves) {
-      if (move.isInBoard()) {
-        if (!pieces[move.toString()] ||
-          pieces[move.toString()].color !== this.color) {
-          availibleMoves.push(move.toString())
+    /** @type {Map<Position, string>} */
+    const possibleMoves = new Map()
+    for (const pos of possiblePos) {
+      if (pos.isInBoard()) {
+        const piece = pieces[pos.toString()]
+        if (!piece) {
+          possibleMoves.set(pos, "basic")
+        } else if (piece.color !== this.color) {
+          possibleMoves.set(pos, "capture")
+        } else {
+          possibleMoves.set(pos, "defend")
         }
       }
     }
 
-    return availibleMoves
+    return possibleMoves
   }
 }

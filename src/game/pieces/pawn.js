@@ -1,6 +1,10 @@
 import Piece from "./piece"
 import Position from "../position"
 
+import blackAsset from "../../assets/pieces/black/pawn.png"
+import whiteAsset from "../../assets/pieces/white/pawn.png"
+import Move, { MoveType } from "../move"
+
 /**
  * Represents a Pawn.
  * @extends {Piece}
@@ -18,6 +22,8 @@ export default class Pawn extends Piece {
   isCaptured
   /** @type {number} */
   movesCounter
+  /** @type {string} */
+  asset
 
   /**
    * Creates a Pawn.
@@ -34,6 +40,7 @@ export default class Pawn extends Piece {
     this.enPassant = enPassant
     this.isCaptured = false
     this.movesCounter = movesCounter
+    this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
   /** @returns {string} */
@@ -52,61 +59,71 @@ export default class Pawn extends Piece {
   }
 
   /**
-   * @param {Object.<string, Piece>} pieces 
-   * @returns {string[]}
+   * @param {Map<string, Piece>} pieces 
+   * @returns {Map<string, MoveType>}
    */
-  getAvailibleMoves(pieces) {
+  getPossibleMoves(pieces) {
     let dir = 1
     if (this.color === "black") {
       dir = -1
     }
 
-    const availibleMoves = []
+    /** @type {Map<string, MoveType>} */
+    const possibleMoves = new Map()
 
     // check if can move forward
     let forward = new Position(this.pos.file, this.pos.rank + dir)
     if (forward.isInBoard()) {
-      if (!pieces[forward.toString()]) {
-        availibleMoves.push(forward.toString())
+      if (!pieces.get(forward.toString())) {
+        if (forward.rank > 1 && forward.rank < 8) {
+          possibleMoves.set(forward.toString(), MoveType.Basic)
+        } else {
+          possibleMoves.set(forward.toString(), MoveType.Promotion)
+        }
       }
 
       if (this.movesCounter == 0) {
         let doubleForward = new Position(
           this.pos.file, this.pos.rank + dir * 2
         )
-        if (!pieces[doubleForward.toString()]) {
-          availibleMoves.push(doubleForward.toString())
+        if (!pieces.get(doubleForward.toString())) {
+          possibleMoves.set(doubleForward.toString(), MoveType.Basic)
         }
       }
     }
 
-    // left diagonal = -1, right diagonal = 1
-    for (const df of [-1, 1]) {
-      const diagonal = new Position(this.pos.file + df, this.pos.rank + dir)
-      const enPassantDiagonal = new Position(diagonal.file, this.pos.rank)
+    // left file = -1, right file = 1
+    for (const f of [-1, 1]) {
+      const diagonal = new Position(this.pos.file + f, this.pos.rank + dir)
+      const possibleEnPassant = new Position(diagonal.file, this.pos.rank)
 
       if (diagonal.isInBoard()) {
-        const targetPiece = pieces[diagonal.toString()]
+        // in any case the pawn defends the square
+        possibleMoves.set(diagonal.toString(), MoveType.Defend)
 
+        const targetPiece = pieces.get(diagonal.toString())
         if (!targetPiece) {
-          const enPassant = pieces[enPassantDiagonal.toString()]
+          const ep = pieces.get(possibleEnPassant.toString())
 
-          if (enPassant && enPassant.name === "pawn" &&
-            enPassant.color !== this.color) {
+          if (ep && ep.name === "pawn" &&
+            ep.color !== this.color) {
             // @ts-ignore
             // at this case, we know that the enPassant Piece is a Pawn. 
-            if (enPassant.enPassant) {
-              availibleMoves.push(diagonal.toString())
+            if (ep.isEnPassant) {
+              possibleMoves.set(diagonal.toString(), MoveType.EnPassant)
             }
           }
         } else {
           if (targetPiece.color !== this.color) {
-            availibleMoves.push(diagonal.toString())
+            possibleMoves.set(diagonal.toString(), "capture")
+            if (diagonal.rank === 1 || diagonal.rank === 8) {
+              possibleMoves.set(diagonal.toString(), MoveType.Promotion)
+            }
           }
         }
       }
     }
 
-    return availibleMoves
+    return possibleMoves
   }
 }

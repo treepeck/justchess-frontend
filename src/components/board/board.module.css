@@ -11,6 +11,10 @@
   grid-template-rows: repeat(8, 5rem);
 }
 
+.dragging {
+  cursor: pointer;
+}
+
 .sideBlack {
   -moz-transform: scale(-1, -1);
   -o-transform: scale(-1, -1);
@@ -19,12 +23,11 @@
 }
 
 .sideBlack img {
-  transform: rotate(-0.5turn);
+  transform: scale(-1, -1);
 }
 
 .board img {
   width: 90%;
   height: 90%;
   margin: auto;
-  cursor: pointer;
 }

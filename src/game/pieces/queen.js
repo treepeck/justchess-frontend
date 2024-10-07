@@ -1,6 +1,12 @@
 import Piece from "./piece"
 import Position from "../position"
 
+import Rook from "./rook"
+import Bishop from "./bishop"
+
+import blackAsset from "../../assets/pieces/black/queen.png"
+import whiteAsset from "../../assets/pieces/white/queen.png"
+
 /**
  * Represents a Queen.
  * @extends {Piece}
@@ -14,6 +20,8 @@ export default class Queen extends Piece {
   color
   /** @type {boolean} */
   isCaptured
+  /** @type {string} */
+  asset
 
   /**
    * Creates a Queen.
@@ -26,6 +34,7 @@ export default class Queen extends Piece {
     this.name = "queen"
     this.color = color
     this.isCaptured = false
+    this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
   /** @returns {string} */
@@ -47,7 +56,10 @@ export default class Queen extends Piece {
    * @param {Object.<string, Piece>} pieces 
    * @returns {string[]}
    */
-  getAvailibleMoves(pieces) {
-    return []
+  getPossibleMoves(pieces) {
+    const rook = new Rook(this.pos, this.color)
+    const bishop = new Bishop(this.pos, this.color)
+    return [...rook.getPossibleMoves(pieces),
+    ...bishop.getPossibleMoves(pieces)]
   }
 }

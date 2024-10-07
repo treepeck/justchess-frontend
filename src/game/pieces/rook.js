@@ -1,6 +1,9 @@
 import Piece from "./piece"
 import Position from "../position"
 
+import blackAsset from "../../assets/pieces/black/rook.png"
+import whiteAsset from "../../assets/pieces/white/rook.png"
+
 /**
  * Represents a rook.
  * @extends {Piece}
@@ -16,6 +19,8 @@ export default class Rook extends Piece {
   isCaptured
   /** @type {number} */
   movesCounter
+  /** @type {string} */
+  asset
 
   /**
    * Creates a rook.
@@ -29,6 +34,7 @@ export default class Rook extends Piece {
     this.color = color
     this.isCaptured = false
     this.movesCounter = 0
+    this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
   /** @returns {string} */
@@ -50,8 +56,8 @@ export default class Rook extends Piece {
    * @param {Object.<string, Piece>} pieces 
    * @returns {string[]}
    */
-  getAvailibleMoves(pieces) {
-    const availibleMoves = []
+  getPossibleMoves(pieces) {
+    const possibleMoves = []
 
     // bottom ranks
     for (let i = this.pos.rank - 1; i >= 1; i--) {
@@ -61,10 +67,10 @@ export default class Rook extends Piece {
       if (!nextMove.isInBoard() || piece?.color == this.color) {
         break
       } else if (piece && piece.color != this.color) {
-        availibleMoves.push(nextMove.toString())
+        possibleMoves.push(nextMove.toString())
         break
       }
-      availibleMoves.push(nextMove.toString())
+      possibleMoves.push(nextMove.toString())
     }
 
     // upper ranks
@@ -75,10 +81,10 @@ export default class Rook extends Piece {
       if (!nextMove.isInBoard() || piece?.color == this.color) {
         break
       } else if (piece && piece.color != this.color) {
-        availibleMoves.push(nextMove.toString())
+        possibleMoves.push(nextMove.toString())
         break
       }
-      availibleMoves.push(nextMove.toString())
+      possibleMoves.push(nextMove.toString())
     }
 
     // left files
@@ -89,10 +95,10 @@ export default class Rook extends Piece {
       if (!nextMove.isInBoard() || piece?.color == this.color) {
         break
       } else if (piece && piece.color != this.color) {
-        availibleMoves.push(nextMove.toString())
+        possibleMoves.push(nextMove.toString())
         break
       }
-      availibleMoves.push(nextMove.toString())
+      possibleMoves.push(nextMove.toString())
     }
 
     // right files
@@ -103,12 +109,12 @@ export default class Rook extends Piece {
       if (!nextMove.isInBoard() || piece?.color == this.color) {
         break
       } else if (piece && piece.color != this.color) {
-        availibleMoves.push(nextMove.toString())
+        possibleMoves.push(nextMove.toString())
         break
       }
-      availibleMoves.push(nextMove.toString())
+      possibleMoves.push(nextMove.toString())
     }
 
-    return availibleMoves
+    return possibleMoves
   }
 }
