@@ -7,6 +7,7 @@ import Position from "./position";
 */
 export const MoveType = {
   Basic: "basic",
+  PawnForward: "pawnForward",
   Defend: "defend",
   LongCastling: "longCastling",
   ShortCastling: "shortCastling",

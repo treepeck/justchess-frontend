@@ -3,6 +3,7 @@ import Position from "../position"
 
 import blackAsset from "../../assets/pieces/black/rook.png"
 import whiteAsset from "../../assets/pieces/white/rook.png"
+import { MoveType } from "../move"
 
 /**
  * Represents a rook.
@@ -15,8 +16,6 @@ export default class Rook extends Piece {
   name
   /** @type {string} */
   color
-  /** @type {boolean} */
-  isCaptured
   /** @type {number} */
   movesCounter
   /** @type {string} */
@@ -32,7 +31,6 @@ export default class Rook extends Piece {
     this.pos = pos
     this.name = "rook"
     this.color = color
-    this.isCaptured = false
     this.movesCounter = 0
     this.asset = color === "white" ? whiteAsset : blackAsset
   }
@@ -53,66 +51,79 @@ export default class Rook extends Piece {
   }
 
   /**
-   * @param {Object.<string, Piece>} pieces 
-   * @returns {string[]}
+   * @param {Map<string, Piece>} pieces 
+   * @returns {Map<string, MoveType>}
    */
   getPossibleMoves(pieces) {
-    const possibleMoves = []
+    /** @type {Map<string, MoveType>} */
+    const possibleMoves = new Map()
 
     // bottom ranks
     for (let i = this.pos.rank - 1; i >= 1; i--) {
       const nextMove = new Position(this.pos.file, i)
-      const piece = pieces[nextMove.toString()]
+      const piece = pieces.get(nextMove.toString())
 
-      if (!nextMove.isInBoard() || piece?.color == this.color) {
+      if (!nextMove.isInBoard()) {
+        break
+      } else if (piece?.color == this.color) {
+        possibleMoves.set(nextMove.toString(), MoveType.Defend)
         break
       } else if (piece && piece.color != this.color) {
-        possibleMoves.push(nextMove.toString())
+        possibleMoves.set(nextMove.toString(), MoveType.Basic)
         break
       }
-      possibleMoves.push(nextMove.toString())
+      possibleMoves.set(nextMove.toString(), MoveType.Basic)
     }
 
     // upper ranks
     for (let i = this.pos.rank + 1; i <= 8; i++) {
       const nextMove = new Position(this.pos.file, i)
-      const piece = pieces[nextMove.toString()]
+      const piece = pieces.get(nextMove.toString())
 
-      if (!nextMove.isInBoard() || piece?.color == this.color) {
+      if (!nextMove.isInBoard()) {
+        break
+      } else if (piece?.color == this.color) {
+        possibleMoves.set(nextMove.toString(), MoveType.Defend)
         break
       } else if (piece && piece.color != this.color) {
-        possibleMoves.push(nextMove.toString())
+        possibleMoves.set(nextMove.toString(), MoveType.Basic)
         break
       }
-      possibleMoves.push(nextMove.toString())
+      possibleMoves.set(nextMove.toString(), MoveType.Basic)
     }
 
     // left files
     for (let i = this.pos.file - 1; i >= 1; i--) {
       const nextMove = new Position(i, this.pos.rank)
-      const piece = pieces[nextMove.toString()]
+      const piece = pieces.get(nextMove.toString())
 
-      if (!nextMove.isInBoard() || piece?.color == this.color) {
+      if (!nextMove.isInBoard()) {
+        break
+      } else if (piece?.color == this.color) {
+        possibleMoves.set(nextMove.toString(), MoveType.Defend)
         break
       } else if (piece && piece.color != this.color) {
-        possibleMoves.push(nextMove.toString())
+        possibleMoves.set(nextMove.toString(), MoveType.Basic)
         break
       }
-      possibleMoves.push(nextMove.toString())
+      possibleMoves.set(nextMove.toString(), MoveType.Basic)
     }
 
     // right files
     for (let i = this.pos.file + 1; i <= 8; i++) {
       const nextMove = new Position(i, this.pos.rank)
-      const piece = pieces[nextMove.toString()]
+      const piece = pieces.get(nextMove.toString())
 
-      if (!nextMove.isInBoard() || piece?.color == this.color) {
+      if (!nextMove.isInBoard()) {
+        break
+      } else if (piece?.color == this.color) {
+        possibleMoves.set(nextMove.toString(), MoveType.Defend)
         break
       } else if (piece && piece.color != this.color) {
-        possibleMoves.push(nextMove.toString())
+        possibleMoves.set(nextMove.toString(), MoveType.Basic)
         break
       }
-      possibleMoves.push(nextMove.toString())
+      possibleMoves.set(nextMove.toString(), MoveType.Basic)
     }
 
     return possibleMoves

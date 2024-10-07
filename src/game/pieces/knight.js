@@ -3,6 +3,7 @@ import Position from "../position"
 
 import blackAsset from "../../assets/pieces/black/knight.png"
 import whiteAsset from "../../assets/pieces/white/knight.png"
+import { MoveType } from "../move"
 
 /**
  * Represents a Knight.
@@ -15,8 +16,6 @@ export default class Knight extends Piece {
   name
   /** @type {string} */
   color
-  /** @type {boolean} */
-  isCaptured
   /** @type {string} */
   asset
 
@@ -30,7 +29,6 @@ export default class Knight extends Piece {
     this.pos = pos
     this.name = "knight"
     this.color = color
-    this.isCaptured = false
     this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
@@ -50,8 +48,8 @@ export default class Knight extends Piece {
   }
 
   /**
-   * @param {Object.<string, Piece>} pieces 
-   * @returns {Map<Position, string>}
+   * @param {Map<string, Piece>} pieces 
+   * @returns {Map<string, MoveType>}
    */
   getPossibleMoves(pieces) {
     /** @type {Position[]} */
@@ -66,17 +64,17 @@ export default class Knight extends Piece {
       new Position(this.pos.file + 1, this.pos.rank + 2),
     ]
 
-    /** @type {Map<Position, string>} */
+    /** @type {Map<string, MoveType>} */
     const possibleMoves = new Map()
     for (const pos of possiblePos) {
       if (pos.isInBoard()) {
-        const piece = pieces[pos.toString()]
+        const piece = pieces.get(pos.toString())
         if (!piece) {
-          possibleMoves.set(pos, "basic")
+          possibleMoves.set(pos.toString(), MoveType.Basic)
         } else if (piece.color !== this.color) {
-          possibleMoves.set(pos, "capture")
+          possibleMoves.set(pos.toString(), MoveType.Basic)
         } else {
-          possibleMoves.set(pos, "defend")
+          possibleMoves.set(pos.toString(), MoveType.Defend)
         }
       }
     }

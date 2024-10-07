@@ -60,9 +60,9 @@ export default function Play() {
    * @param {GameDTO} gameDTO 
    */
   function handleUpdateGame(gameDTO) {
-
-    if (gameDTO.status !== "waiting") {
+    if (gameDTO.status !== "waiting" && isWaiting) {
       setIsWaiting(false)
+      sounds["start"].play()
     }
 
     const nGame = new Game(gameDTO.id, gameDTO.control,
@@ -81,6 +81,17 @@ export default function Play() {
       setCurrentTurn("white")
     } else {
       setCurrentTurn("black")
+    }
+
+    const lastMove = nGame.moves.moves[nGame.moves.moves.length - 1]
+    if (lastMove?.isCheckmate) {
+      sounds["checkmate"].play()
+    } else if (lastMove?.isCheck) {
+      sounds["check"].play()
+    } else if (lastMove?.isCapture) {
+      sounds["capture"].play()
+    } else {
+      sounds["move"].play()
     }
 
     if (gameDTO.whiteId === user.id) {
