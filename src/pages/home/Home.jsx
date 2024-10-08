@@ -147,7 +147,7 @@ export default function Home() {
               </table>
             </> :
             <div>
-              No availible games. To create a game, press the button bellow.
+              There is no games yet. To create a game, press the button below.
             </div>
           }
         </div>
