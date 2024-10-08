@@ -19,7 +19,7 @@ export default function buildPiece(piece) {
     case "pawn":
       return new Pawn(piece.pos, piece.color, piece.enPassant, piece.movesCounter)
     case "rook":
-      return new Rook(piece.pos, piece.color)
+      return new Rook(piece.pos, piece.color, piece.movesCounter)
     case "knight":
       return new Knight(piece.pos, piece.color)
     case "bishop":
@@ -27,7 +27,7 @@ export default function buildPiece(piece) {
     case "queen":
       return new Queen(piece.pos, piece.color)
     case "king":
-      return new King(piece.pos, piece.color)
+      return new King(piece.pos, piece.color, piece.isChecked, piece.movesCounter)
     default:
       return null
   }

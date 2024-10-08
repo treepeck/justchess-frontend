@@ -19,18 +19,26 @@ export default class King extends Piece {
   color
   /** @type {string} */
   asset
+  /** @type {boolean} */
+  isChecked
+  /** @type {number} */
+  movesCounter
 
   /**
    * Creates a King.
    * @param {Position} pos 
    * @param {string} color 
+   * @param {boolean} isChecked
+   * @param {number} movesCounter
    */
-  constructor(pos, color) {
+  constructor(pos, color, isChecked, movesCounter) {
     super()
     this.pos = pos
     this.name = "king"
     this.color = color
     this.asset = color === "white" ? whiteAsset : blackAsset
+    this.isChecked = false
+    this.movesCounter = movesCounter
   }
 
   /** @returns {string} */
@@ -117,6 +125,52 @@ export default class King extends Piece {
           } else {
             possibleMoves.set(pos.toString(), MoveType.Defend)
           }
+        }
+      }
+    }
+
+
+    if (!this.isChecked && this.movesCounter == 0) {
+      // check 0-0
+      let canShortCastle = true
+      for (let i = 1; i <= 2; i++) {
+        const pos = new Position(this.pos.file + i, this.pos.rank)
+
+        if (pieces.get(pos.toString()) ||
+          inaccessibleSquares.get(pos.toString())) {
+          canShortCastle = false
+        }
+      }
+      if (canShortCastle) {
+        const rookPos = new Position(this.pos.file + 3, this.pos.rank)
+        const p = pieces.get(rookPos.toString())
+        // @ts-ignore
+        if (p && p.name === "rook" && p.movesCounter == 0) {
+          possibleMoves.set(
+            new Position(this.pos.file + 2, this.pos.rank).toString(),
+            MoveType.ShortCastling
+          )
+        }
+      }
+      // check 0-0-0
+      let canLongCastle = true
+      for (let i = 1; i <= 3; i++) {
+        const pos = new Position(this.pos.file - i, this.pos.rank)
+
+        if (pieces.get(pos.toString()) ||
+          inaccessibleSquares.get(pos.toString())) {
+          canLongCastle = false
+        }
+      }
+      if (canLongCastle) {
+        const rookPos = new Position(this.pos.file - 4, this.pos.rank)
+        const p = pieces.get(rookPos.toString())
+        // @ts-ignore
+        if (p && p.name === "rook" && p.movesCounter == 0) {
+          possibleMoves.set(
+            new Position(this.pos.file - 2, this.pos.rank).toString(),
+            MoveType.LongCastling
+          )
         }
       }
     }

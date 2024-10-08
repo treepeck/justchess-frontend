@@ -24,14 +24,15 @@ export default class Rook extends Piece {
   /**
    * Creates a rook.
    * @param {Position} pos 
-   * @param {string} color 
+   * @param {string} color
+   * @param {number} movesCounter 
    */
-  constructor(pos, color) {
+  constructor(pos, color, movesCounter) {
     super()
     this.pos = pos
     this.name = "rook"
     this.color = color
-    this.movesCounter = 0
+    this.movesCounter = movesCounter
     this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
