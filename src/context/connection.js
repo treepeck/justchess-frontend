@@ -5,10 +5,11 @@ import React, {
   createContext
 } from "react"
 
-import { Outlet } from "react-router-dom"
+import { useNavigate, useLocation, Outlet } from "react-router-dom"
 
 import WS from "../api/ws/ws"
 import { useAuth } from "./useAuth"
+import { EventAction } from "../api/ws/event"
 
 class ConnCtx {
   /** @type {WS | null} */
@@ -61,7 +62,6 @@ export default function ConnectionProvider() {
    */
   const [clientsCounter, setClientsCounter] = useState(0)
 
-
   const user = useAuth()?.user
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export default function ConnectionProvider() {
     // at this point we know that the user is a valid User object.
     const ws = new WS(user.id)
 
-    ws.setEventHandler("UPDATE_CLIENTS_COUNTER", setClientsCounter)
+    ws.setEventHandler(EventAction.CLIENTS_COUNTER, setClientsCounter)
 
     ws.socket.onclose = () => {
       setIsConnected(false)

@@ -1,18 +1,15 @@
 import React from "react"
 import styles from "./boardSquare.module.css"
-import { useState } from "react"
-import Piece from "../../game/pieces/piece"
-import Position from "../../game/position"
+import Square from "../../game/square"
 
 /**
  * @typedef {Object} SquareProps 
- * @property {Piece | null} piece
  * @property {string} side
- * @property {Position} pos
- * @property {string} color 
+ * @property {Square} square
  * @property {Function} onClickHandler 
  * @property {boolean} isSelected
  * @property {boolean} isAvailible
+ * @property {Function} onDropHandler
  * 
  * @param {SquareProps} props - The properties passed to the Square component.
  * @returns {JSX.Element}
@@ -23,14 +20,14 @@ export default function BoardSquare(props) {
     if (props.isSelected) {
       return styles.selected
     } else {
-      if (props.color === "white") {
+      if (props.square.color === "white") {
         className += styles.white
       } else {
         className += styles.black
       }
 
       if (props.isAvailible) {
-        if (!props.piece) {
+        if (!props.square.piece) {
           className += " " + styles.emptyAvailible
         } else {
           className += " " + styles.availible
@@ -40,35 +37,30 @@ export default function BoardSquare(props) {
     return className
   }
 
-  // function getIsGraggable() {
-  //   if (!props.piece) {
-  //     return false
-  //   }
-  //   return props.piece.color === props.side
-  // }
+  function getIsGraggable() {
+    if (!props.square.piece) {
+      return false
+    }
+    return props.square.piece.color === props.side
+  }
 
   return (
     <div
       className={getClassName()}
-      onClick={() => { props.onClickHandler(props.pos) }}
-      draggable={false}
+      onClick={() => { props.onClickHandler(props.square.pos) }}
+      onDrop={e => { props.onDropHandler(props.square) }}
+      onDragOver={e => e.preventDefault()}
     >
-      {props.piece && (
+      {props.square.piece && (
         <img
-          src={props.piece ? props.piece.asset : ""}
-          alt={props.piece.name}
-          // onDrag={e => {
-          //   e.dataTransfer.clearData()
-          //   props.onClickHandler(props.pos)
-
-          //   e.dataTransfer.setData("application/json", JSON.stringify({
-          //     pos: props.piece?.pos,
-          //     color: props.piece?.color,
-          //   }))
-
-          // }}
-          draggable={false}
-          className={props.piece?.color === props.side ? styles.drag : ""}
+          src={props.square.piece ? props.square.piece.asset : ""}
+          alt={props.square.piece.name}
+          draggable={getIsGraggable()}
+          onDragStart={e => {
+            e.dataTransfer.clearData()
+            props.onClickHandler(props.square.pos)
+          }}
+          className={getIsGraggable() ? styles.draggable : ""}
         />
       )}
     </div>

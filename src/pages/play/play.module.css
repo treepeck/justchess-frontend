@@ -5,6 +5,17 @@
   gap: 1rem;
 }
 
+.soundToggle {
+  position: absolute;
+  top: 0;
+  margin: 0.5rem;
+}
+
+.soundToggle img {
+  width: 2rem;
+  height: 2rem;
+}
+
 .loader {
   position: fixed;
   top: 0;
