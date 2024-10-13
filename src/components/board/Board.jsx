@@ -89,6 +89,13 @@ export default function Board(props) {
     setBoard(newBoard)
   }
 
+  /**
+   * @param {Square} dropSquare
+   */
+  function onDropPiece(dropSquare) {
+    handleClickSquare(dropSquare)
+  }
+
   return (
     <div className={styles.layout}>
       <div
@@ -98,10 +105,8 @@ export default function Board(props) {
         {board.map(row => row.map((square, ind) => (
           <BoardSquare
             key={ind}
-            piece={square.piece}
+            square={square}
             side={props.side}
-            pos={square.pos}
-            color={square.color}
             onClickHandler={() => handleClickSquare(square)}
             isSelected={
               // @ts-ignore
@@ -116,6 +121,7 @@ export default function Board(props) {
                 possibleMoves?.get(square.pos.toString()) !== MoveType.Defend ?
                 true : false
             }
+            onDropHandler={onDropPiece}
           />
         ))
         )}

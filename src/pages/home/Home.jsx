@@ -1,3 +1,5 @@
+// @ts-nocheck - Used to avoid stupid typescript warnings about "never" 
+// type of rooms. 
 import styles from "./home.module.css"
 import Popup from "../../components/popup/Popup"
 import Button from "../../components/button/Button"
@@ -15,6 +17,7 @@ import { useNavigate } from "react-router-dom"
 
 import { useAuth } from "../../context/useAuth"
 import { useConnection } from "../../context/connection"
+import { EventAction } from "../../api/ws/event"
 
 export default function Home() {
 
@@ -24,31 +27,60 @@ export default function Home() {
 
   const navigate = useNavigate()
 
+  // const [bonus, setBonus] = useState("All")
+  // const [control, setControl] = useState("All")
   /**
    * Stores all availible rooms.
-   * @type {[Object[] | null, Function]} 
+   * @type {[[], Function]} 
    */
-  const [rooms, setRooms] = useState(/** @type {Object[] | null}*/(null))
-  const [bonus, setBonus] = useState("All")
-  const [control, setControl] = useState("All")
+  const [rooms, setRooms] = useState([])
   const [popupMessage, setPopupMessage] = useState("")
   const [isPopupActive, setIsPopupActive] = useState(false)
   const [isDialogActive, setIsDialogActive] = useState(false)
 
   useEffect(() => {
-    ws?.getRooms(control, bonus)
-  }, [control, bonus])
-
-  useEffect(() => {
-    if (isConnected) {
-      // set up event handlers
-      ws?.setEventHandler("UPDATE_ROOMS", setRooms)
-      ws?.setEventHandler("CHANGE_ROOM", handleChangeRoom)
+    if (!isConnected) {
+      return
     }
 
+    ws?.getRooms()
+
+    /** set up event handlers for this page. */
+    // ADD_ROOM adds a room to currently avalible rooms.
+    ws?.setEventHandler(EventAction.ADD_ROOM, (r) => {
+      // here the new array is created since React will only
+      // re-render rooms if a new value is being set
+      rooms.push(r)
+      setRooms([...rooms])
+    })
+
+    // REMOVE_ROOM removes a room from currently avalible rooms.
+    ws?.setEventHandler(EventAction.REMOVE_ROOM, (r) => {
+      const nr = []
+      for (const room of rooms) {
+        if (room.id != r.id) {
+          nr.push(room)
+        }
+      }
+      setRooms(nr)
+    })
+
+    // Create room error arises when the user tries to create multiple rooms.
+    ws?.setEventHandler(EventAction.CREATE_ROOM_ERR, () => {
+      setIsPopupActive(true)
+      setPopupMessage("Multiple rooms creation is prohibited.")
+    })
+
+    // Redirect to room redirects the user to the specified room.
+    ws?.setEventHandler(EventAction.REDIRECT, (roomId) => {
+      navigate(`/play/${roomId}`)
+    })
+
     return () => {
-      ws?.clearEventHandler("UPDATE_ROOMS")
-      ws?.clearEventHandler("CHANGE_ROOMS")
+      // clear event handlers which are needed only for this page.
+      ws?.clearEventHandler(EventAction.ADD_ROOM)
+      ws?.clearEventHandler(EventAction.REDIRECT)
+      ws?.clearEventHandler(EventAction.CREATE_ROOM_ERR)
     }
   }, [])
 
@@ -67,19 +99,12 @@ export default function Home() {
   }
 
   /**
-   * Redirects the User to the other room.
-   * @param {string} roomId 
-   */
-  function handleChangeRoom(roomId) {
-    navigate(`/play/${roomId}`)
-  }
-
-  /**
    * Tries to joing the specified room. 
    * @param {string} roomId 
    */
   function handleJoinRoom(roomId) {
     if (isConnected) {
+      // remove double quotes from the room id.
       roomId = roomId.replace("\"", "")
       roomId = roomId.replace("\"", "")
       ws?.joinRoom(roomId)
@@ -95,7 +120,7 @@ export default function Home() {
         <h1>Welcome, {user.username}!</h1>
 
         <div className={styles.lobbyContainer}>
-          {rooms && rooms.length > 0 ?
+          {rooms.length ?
             <>
               <h2>Availible games:</h2>
               <div className={styles.filters}>
@@ -103,14 +128,14 @@ export default function Home() {
                   htmlFor="control"
                   labelText="Control:"
                   options={["All", "Bullet", "Blitz", "Rapid"]}
-                  onChangeHandler={setControl}
+                  onChangeHandler={() => { }}
                 />
 
                 <Select
                   htmlFor="bonus"
                   labelText="Time bonus:"
                   options={["All", "0", "1", "2", "10"]}
-                  onChangeHandler={setBonus}
+                  onChangeHandler={() => { }}
                 />
               </div>
               <table>
@@ -130,16 +155,16 @@ export default function Home() {
                         () => { handleJoinRoom(room.id) } : () => { }}
                     >
                       <td>
-                        {room.game.control}
+                        {room.control}
                       </td>
                       <td>
-                        {room.game.bonus}
+                        {room.bonus}
                       </td>
                       <td>
                         {room.owner.username}
                       </td>
                       <td>
-                        {room.owner[`${room.game.control}Rating`]}
+                        {room.owner[`${room.control}Rating`]}
                       </td>
                     </tr>
                   )}

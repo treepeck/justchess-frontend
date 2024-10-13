@@ -1,4 +1,4 @@
-import Event from "./event"
+import Event, { EventAction } from "./event"
 import User from "../user"
 import Move from "../../game/move"
 
@@ -8,7 +8,7 @@ export default class WS {
   #serverUrl
   /** @type {string} */
   #protocol
-  /** @type {Map<string, Function>} */
+  /** @type {Map<EventAction, Function>} */
   #handlers
   /** @type {WebSocket} */
   socket
@@ -49,7 +49,7 @@ export default class WS {
 
   /**
    * Deletes the event handler.
-   * @param {string} action
+   * @param {EventAction} action
    */
   clearEventHandler(action) {
     this.#handlers.delete(action)
@@ -85,7 +85,7 @@ export default class WS {
    * @param {User}   owner
    */
   createRoom(control, bonus, owner) {
-    const e = new Event("CREATE_ROOM", {
+    const e = new Event(EventAction.CREATE_ROOM, {
       control: control,
       bonus: bonus,
       owner: owner,
@@ -98,26 +98,32 @@ export default class WS {
    * @param {string} roomId 
    */
   joinRoom(roomId) {
-    const e = new Event("JOIN_ROOM", roomId)
+    const e = new Event(EventAction.JOIN_ROOM, roomId)
     this.#sendEvent(e)
   }
 
   /**
-   * Gets all availible rooms with the specified parameters.
-   * @param {string} control 
-   * @param {string} bonus 
+   * Leaves a current room.
    */
-  getRooms(control, bonus) {
-    const e = new Event("GET_ROOMS", { control: control, bonus: bonus })
+  leaveRoom() {
+    const e = new Event(EventAction.LEAVE_ROOM, null)
     this.#sendEvent(e)
   }
 
   /**
-   * Gets game info by gameId.
+   * Starts a process of getting all availible rooms one by one.
+   */
+  getRooms() {
+    const e = new Event(EventAction.GET_ROOMS, null)
+    this.#sendEvent(e)
+  }
+
+  /**
+   * Gets the latest data about the specified game.
    * @param {string} gameId 
    */
   getGame(gameId) {
-    const e = new Event("GET_GAME", gameId)
+    const e = new Event(EventAction.GET_GAME, gameId)
     this.#sendEvent(e)
   }
 
@@ -126,7 +132,7 @@ export default class WS {
    * @param {Move} move
    */
   move(move) {
-    const e = new Event("MOVE", move)
+    const e = new Event(EventAction.MOVE, move)
     this.#sendEvent(e)
   }
 }

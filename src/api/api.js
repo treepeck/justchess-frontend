@@ -1,3 +1,4 @@
+import { GameDTO } from "../game/game"
 import User from "./user"
 
 /** Describes the interactions with the API.  */
@@ -7,7 +8,7 @@ export default class API {
 
   /** Initializes the server url constant. */
   constructor() {
-    this.serverUrl = "http://localhost:3502"
+    this.#serverUrl = "http://localhost:3502"
   }
 
   /**
@@ -16,7 +17,7 @@ export default class API {
    */
   async getUserByCookie() {
     try {
-      const res = await fetch(`${this.serverUrl}/auth/cookie`, {
+      const res = await fetch(`${this.#serverUrl}/auth/cookie`, {
         method: "GET",
         credentials: "include",
       })
@@ -39,7 +40,7 @@ export default class API {
    */
   async getUserById(userId) {
     try {
-      const res = await fetch(`${this.serverUrl}/user/id/${userId}`, {
+      const res = await fetch(`${this.#serverUrl}/user/id/${userId}`, {
         method: "GET",
         credentials: "include",
       })
@@ -62,7 +63,7 @@ export default class API {
    */
   async createGuest(userId) {
     try {
-      const res = await fetch(`${this.serverUrl}/auth/guest`, {
+      const res = await fetch(`${this.#serverUrl}/auth/guest`, {
         method: "POST",
         credentials: "include",
         headers: {

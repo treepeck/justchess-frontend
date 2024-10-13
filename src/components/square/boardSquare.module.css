@@ -14,10 +14,6 @@
   position: relative;
 }
 
-.drag {
-  cursor: pointer;
-}
-
 .emptyAvailible:hover::after {
   margin: auto;
   content: "";
@@ -27,7 +23,10 @@
   border-radius: 0;
 }
 
+.draggable {
+  cursor: pointer;
 
+}
 
 .emptyAvailible::after {
   margin: auto;
