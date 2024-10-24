@@ -5,7 +5,7 @@ import React, {
   createContext
 } from "react"
 
-import { useNavigate, useLocation, Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 
 import WS from "../api/ws/ws"
 import { useAuth } from "./useAuth"

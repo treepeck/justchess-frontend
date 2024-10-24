@@ -37,7 +37,7 @@ export default function BoardSquare(props) {
     return className
   }
 
-  function getIsGraggable() {
+  function getIsDraggable() {
     if (!props.square.piece) {
       return false
     }
@@ -48,19 +48,20 @@ export default function BoardSquare(props) {
     <div
       className={getClassName()}
       onClick={() => { props.onClickHandler(props.square.pos) }}
-      onDrop={e => { props.onDropHandler(props.square) }}
-      onDragOver={e => e.preventDefault()}
+      onDrop={() => {
+        props.onDropHandler(props.square)
+      }}
+      onDragOver={e => { e.preventDefault() }}
     >
       {props.square.piece && (
         <img
           src={props.square.piece ? props.square.piece.asset : ""}
-          alt={props.square.piece.name}
-          draggable={getIsGraggable()}
-          onDragStart={e => {
+          alt={props.square.piece.type}
+          draggable={getIsDraggable()}
+          onDragStart={(e) => {
             e.dataTransfer.clearData()
             props.onClickHandler(props.square.pos)
           }}
-          className={getIsGraggable() ? styles.draggable : ""}
         />
       )}
     </div>

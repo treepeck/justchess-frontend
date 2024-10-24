@@ -6,7 +6,6 @@ import Bishop from "./bishop"
 
 import blackAsset from "../../assets/pieces/black/queen.png"
 import whiteAsset from "../../assets/pieces/white/queen.png"
-import { MoveType } from "../move"
 
 /**
  * Represents a Queen.
@@ -16,56 +15,71 @@ export default class Queen extends Piece {
   /** @type {Position} */
   pos
   /** @type {string} */
-  name
+  type
   /** @type {string} */
   color
   /** @type {string} */
   asset
+  /** @type {number} */
+  movesCounter
 
   /**
    * Creates a Queen.
    * @param {Position} pos 
    * @param {string} color 
+   * @param {number} movesCounter
    */
-  constructor(pos, color) {
+  constructor(pos, color, movesCounter) {
     super()
     this.pos = pos
-    this.name = "queen"
+    this.type = "queen"
     this.color = color
     this.asset = color === "white" ? whiteAsset : blackAsset
+    this.movesCounter = movesCounter
   }
 
-  /** @returns {string} */
-  getName() {
-    return this.name
+  /**
+   * @param {Map<string, Piece>} pieces
+   * @returns {Map<Position, string>}
+   */
+  getPossibleMoves(pieces) {
+    /** @type {Map<Position, string>} */
+    const pm = new Map()
+
+    const rook = new Rook(this.pos, this.color, 0)
+    const bishop = new Bishop(this.pos, this.color, 0)
+
+    for (const [pos, mt] of rook.getPossibleMoves(pieces)) {
+      pm.set(pos, mt)
+    }
+    for (const [pos, mt] of bishop.getPossibleMoves(pieces)) {
+      pm.set(pos, mt)
+    }
+    return pm
   }
 
-  /** @returns {string} */
+  /** @param {Position} to */
+  move(to) {
+    this.pos = to
+  }
+
+  getMovesCounter() {
+    return this.movesCounter
+  }
+
+  setMovesCounter(mc) {
+    this.movesCounter = mc
+  }
+
+  getType() {
+    return this.type
+  }
+
   getColor() {
     return this.color
   }
 
-  /** @returns {Position} */
-  getPos() {
+  getPosition() {
     return this.pos
-  }
-
-  /**
-   * @param {Map<string, Piece>} pieces 
-   * @returns {Map<string, MoveType>}
-   */
-  getPossibleMoves(pieces) {
-    const rook = new Rook(this.pos, this.color)
-    const bishop = new Bishop(this.pos, this.color)
-
-    /** @type {Map<string, MoveType>} */
-    const possibleMoves = new Map()
-    for (const [pos, moveType] of rook.getPossibleMoves(pieces)) {
-      possibleMoves.set(pos, moveType)
-    }
-    for (const [pos, moveType] of bishop.getPossibleMoves(pieces)) {
-      possibleMoves.set(pos, moveType)
-    }
-    return possibleMoves
   }
 }

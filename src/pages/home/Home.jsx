@@ -1,5 +1,3 @@
-// @ts-nocheck - Used to avoid stupid typescript warnings about "never" 
-// type of rooms. 
 import styles from "./home.module.css"
 import Popup from "../../components/popup/Popup"
 import Button from "../../components/button/Button"
@@ -20,7 +18,6 @@ import { useConnection } from "../../context/connection"
 import { EventAction } from "../../api/ws/event"
 
 export default function Home() {
-
   const { user } = useAuth()
 
   const { ws, isConnected, clientsCounter } = useConnection()
@@ -172,7 +169,7 @@ export default function Home() {
               </table>
             </> :
             <div>
-              There is no games yet. To create a game, press the button below.
+              There are no games yet. To create a game, press the button below.
             </div>
           }
         </div>

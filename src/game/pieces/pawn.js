@@ -3,7 +3,7 @@ import Position from "../position"
 
 import blackAsset from "../../assets/pieces/black/pawn.png"
 import whiteAsset from "../../assets/pieces/white/pawn.png"
-import Move, { MoveType } from "../move"
+import Move from "../move"
 
 /**
  * Represents a Pawn.
@@ -13,7 +13,7 @@ export default class Pawn extends Piece {
   /** @type {Position} */
   pos
   /** @type {string} */
-  name
+  type
   /** @type {string} */
   color
   /** @type {boolean} */
@@ -27,100 +27,101 @@ export default class Pawn extends Piece {
    * Creates a Pawn.
    * @param {Position} pos 
    * @param {string} color 
-   * @param {boolean} isEnPassant
    * @param {number} movesCounter
    */
-  constructor(pos, color, isEnPassant, movesCounter) {
+  constructor(pos, color, movesCounter, isEnPassant) {
     super()
     this.pos = pos
-    this.name = "pawn"
+    this.type = "pawn"
     this.color = color
     this.isEnPassant = isEnPassant
     this.movesCounter = movesCounter
     this.asset = color === "white" ? whiteAsset : blackAsset
   }
 
-  /** @returns {string} */
-  getName() {
-    return this.name
-  }
-
-  /** @returns {string} */
-  getColor() {
-    return this.color
-  }
-
-  /** @returns {Position} */
-  getPos() {
-    return this.pos
-  }
-
   /**
-   * @param {Map<string, Piece>} pieces 
-   * @returns {Map<string, MoveType>}
+   * @param {Map<string, Piece>} pieces
+   * @returns {Map<Position, string>}
    */
   getPossibleMoves(pieces) {
+    /** @type {Map<Position, string>} */
+    const pm = new Map()
+
     let dir = 1
-    if (this.color === "black") {
+    if (this.color == "black") {
       dir = -1
     }
 
-    /** @type {Map<string, MoveType>} */
-    const possibleMoves = new Map()
-
-    // check if can move forward
-    let forward = new Position(this.pos.file, this.pos.rank + dir)
+    const forward = new Position(this.pos.file, this.pos.rank + dir)
     if (forward.isInBoard()) {
       if (!pieces.get(forward.toString())) {
         if (forward.rank > 1 && forward.rank < 8) {
-          possibleMoves.set(forward.toString(), MoveType.Basic)
+          pm.set(forward, "pawnForward")
         } else {
-          possibleMoves.set(forward.toString(), MoveType.Promotion)
+          pm.set(forward, "promotion")
         }
       }
 
       if (this.movesCounter == 0) {
-        let doubleForward = new Position(
-          this.pos.file, this.pos.rank + dir * 2
-        )
+        const doubleForward = new Position(this.pos.file, this.pos.rank + dir * 2)
         if (!pieces.get(doubleForward.toString())) {
-          possibleMoves.set(doubleForward.toString(), MoveType.Basic)
+          pm.set(doubleForward, "pawnForward")
         }
       }
     }
 
-    // left file = -1, right file = 1
-    for (const f of [-1, 1]) {
-      const diagonal = new Position(this.pos.file + f, this.pos.rank + dir)
-      const possibleEnPassant = new Position(diagonal.file, this.pos.rank)
+    for (const dF of [-1, 1]) {
+      const diagonal = new Position(this.pos.file + dF, this.pos.rank + dir)
+      const possibleEP = new Position(diagonal.file, this.pos.rank)
 
       if (diagonal.isInBoard()) {
-        // in any case the pawn defends the square
-        possibleMoves.set(diagonal.toString(), MoveType.Defend)
+        pm.set(diagonal, "defend")
 
         const targetPiece = pieces.get(diagonal.toString())
         if (!targetPiece) {
-          const ep = pieces.get(possibleEnPassant.toString())
-
-          if (ep && ep.name === "pawn" &&
-            ep.color !== this.color) {
-            // @ts-ignore
-            // at this case, we know that the enPassant Piece is a Pawn. 
+          const ep = pieces.get(possibleEP.toString())
+          if (ep && ep.getType() == "pawn" && ep.getColor() != this.color) {
+            //@ts-ignore
             if (ep.isEnPassant) {
-              possibleMoves.set(diagonal.toString(), MoveType.EnPassant)
+              pm.set(diagonal, "enPassant")
             }
           }
         } else {
-          if (targetPiece.color !== this.color) {
-            possibleMoves.set(diagonal.toString(), "capture")
-            if (diagonal.rank === 1 || diagonal.rank === 8) {
-              possibleMoves.set(diagonal.toString(), MoveType.Promotion)
+          if (targetPiece.getColor() != this.color) {
+            pm.set(diagonal, "basic")
+            if (targetPiece.getPosition().rank == 1 || targetPiece.getPosition().rank == 8) {
+              pm.set(diagonal, "promotion")
             }
           }
         }
       }
     }
+    return pm
+  }
 
-    return possibleMoves
+  /** @param {Position} to */
+  move(to) {
+    this.pos = to
+    this.movesCounter++
+  }
+
+  getMovesCounter() {
+    return this.movesCounter
+  }
+
+  setMovesCounter(mc) {
+    this.movesCounter = mc
+  }
+
+  getType() {
+    return this.type
+  }
+
+  getColor() {
+    return this.color
+  }
+
+  getPosition() {
+    return this.pos
   }
 }

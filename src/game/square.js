@@ -5,7 +5,7 @@ import Position from "./position"
  * Represents a Square on a Chessboard.
  */
 export default class Square {
-  /** @type {Piece | null} */
+  /** @type {Piece | null | undefined} */
   piece
   /** @type {Position} */
   pos
@@ -14,7 +14,7 @@ export default class Square {
 
   /**
    * Creates a new Square.
-   * @param {Piece | null} piece 
+   * @param {Piece | null | undefined} piece 
    * @param {Position} pos 
    * @param {string} color 
    */

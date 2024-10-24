@@ -1,20 +1,6 @@
 import Position from "./position";
 
-/**
-* Enum for storing types of chess moves.
-* @readonly 
-* @enum {string}
-*/
-export const MoveType = {
-  Basic: "basic",
-  PawnForward: "pawnForward",
-  Defend: "defend",
-  LongCastling: "longCastling",
-  ShortCastling: "shortCastling",
-  EnPassant: "enPassant",
-  Promotion: "promotion"
-}
-
+/** Represents a move completed by a user. */
 export default class Move {
   /** @type {Position} */
   to
@@ -29,10 +15,43 @@ export default class Move {
    * @param {Position} from 
    * @param {string} promotionPayload
    */
-  constructor(to, from, promotionPayload) {
+  constructor(to, from,
+    promotionPayload) {
     this.to = to
     this.from = from
     this.promotionPayload = promotionPayload
   }
+}
 
+/** Respresents a possible move on a board. */
+export class PossibleMove {
+  /** @type {Position} */
+  to
+  /** @type {Position} */
+  from
+  /** @type {string} */
+  moveType
+  /** @type {string} */
+  pieceType
+
+  /**
+   * Creates a new Possible move.
+   * @param {Position} to 
+   * @param {Position} from 
+   * @param {string} moveType 
+   * @param {string} pieceType
+   */
+  constructor(to, from, moveType, pieceType) {
+    this.to = to
+    this.from = from
+    this.moveType = moveType
+    this.pieceType = pieceType
+  }
+
+  /**
+   * @returns {string}
+   */
+  toString() {
+    return `${this.to}-${this.from}-${this.moveType}-${this.pieceType}`
+  }
 }

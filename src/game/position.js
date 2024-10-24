@@ -23,6 +23,14 @@ export default class Position {
       this.rank >= 1 && this.rank <= 8
   }
 
+  /**
+   * @param {Position} other 
+   * @returns {boolean}
+   */
+  isEqual(other) {
+    return this.file === other.file && this.rank === other.rank
+  }
+
   /** @returns {string} */
   toString() {
     let file = ""
@@ -57,11 +65,39 @@ export default class Position {
 }
 
 /**
- * Creates a new Position from the provided indexes.
+ * Creates a new position from the provided indexes.
  * @param {number} i 
  * @param {number} j 
  * @returns {Position}
  */
 export function posFromInd(i, j) {
   return new Position(j, 8 - i)
+}
+
+/**
+ * Parses position from the provided string.
+ * @param {string} posStr
+ * @returns {Position}
+ */
+export function posFromStr(posStr) {
+  const [file, rank] = posStr.split("")
+  switch (file) {
+    case "a":
+      return new Position(1, Number.parseInt(rank, 10))
+    case "b":
+      return new Position(2, Number.parseInt(rank, 10))
+    case "c":
+      return new Position(3, Number.parseInt(rank, 10))
+    case "d":
+      return new Position(4, Number.parseInt(rank, 10))
+    case "e":
+      return new Position(5, Number.parseInt(rank, 10))
+    case "f":
+      return new Position(6, Number.parseInt(rank, 10))
+    case "g":
+      return new Position(7, Number.parseInt(rank, 10))
+    case "h":
+      return new Position(8, Number.parseInt(rank, 10))
+  }
+  return new Position(0, 0)
 }
