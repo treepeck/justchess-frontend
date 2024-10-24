@@ -1,10 +1,8 @@
 import Piece from "./piece"
 import Position from "../position"
-import buildPiece from "./piecesBuilder"
 
 import blackAsset from "../../assets/pieces/black/king.png"
 import whiteAsset from "../../assets/pieces/white/king.png"
-import { MoveType } from "../move"
 
 /**
  * Represents a King.
@@ -14,167 +12,170 @@ export default class King extends Piece {
   /** @type {Position} */
   pos
   /** @type {string} */
-  name
+  type
   /** @type {string} */
   color
   /** @type {string} */
   asset
-  /** @type {boolean} */
-  isChecked
   /** @type {number} */
   movesCounter
 
   /**
    * Creates a King.
    * @param {Position} pos 
-   * @param {string} color 
-   * @param {boolean} isChecked
-   * @param {number} movesCounter
+   * @param {string} color
+   * @param {number}  movesCounter
    */
-  constructor(pos, color, isChecked, movesCounter) {
+  constructor(pos, color, movesCounter) {
     super()
     this.pos = pos
-    this.name = "king"
+    this.type = "king"
     this.color = color
     this.asset = color === "white" ? whiteAsset : blackAsset
-    this.isChecked = false
     this.movesCounter = movesCounter
   }
 
-  /** @returns {string} */
-  getName() {
-    return this.name
-  }
+  /**
+   * @param {Map<string, Piece>} pieces
+   * @returns {Map<Position, string>}
+   */
+  getPossibleMoves(pieces) {
+    const is = this.getInaccessibleSquares(pieces, this.color)
 
-  /** @returns {string} */
-  getColor() {
-    return this.color
-  }
+    const pm = new Map()
 
-  /** @returns {Position} */
-  getPos() {
-    return this.pos
+    const checkSquare = (dF, dR) => {
+      let file = this.pos.file + dF
+      let rank = this.pos.rank + dR
+
+      const pos = new Position(file, rank)
+      if (!is.get(pos.toString())) {
+        if (pos.isInBoard()) {
+          const p = pieces.get(pos.toString())
+
+          if (!p || p.getColor() != this.color) {
+            pm.set(pos, "basic")
+          } else {
+            pm.set(pos, "defend")
+          }
+        }
+      }
+    }
+    checkSquare(-1, +1) // upper left square.
+    checkSquare(0, +1)  // upper square.
+    checkSquare(+1, +1) // upper right square.
+    checkSquare(-1, 0)  // left square.
+    checkSquare(+1, 0)  // right square.
+    checkSquare(-1, -1) // lower left square.
+    checkSquare(0, -1)  // lower square.
+    checkSquare(+1, -1) // lower right square.
+
+    const handleCastling = (ct, ss, dF) => {
+      let rookPos
+      if (ct == "shortCastling") {
+        rookPos = new Position(this.pos.file + 3, this.pos.rank)
+      } else {
+        rookPos = new Position(this.pos.file - 4, this.pos.rank)
+      }
+      for (let i = 1; i <= ss; i++) {
+        const pos = new Position(this.pos.file + (i * dF), this.pos.rank)
+        if (pieces.get(pos.toString()) || is.get(pos.toString())) {
+          return
+        }
+      }
+
+      const r = pieces.get(rookPos.toString())
+      if (r && r.getType() == "rook" && r.getMovesCounter() == 0) {
+        pm.set(new Position(this.pos.file + 2 * dF, this.pos.rank), ct)
+      }
+    }
+    handleCastling("shortCastling", 2, 1)
+    handleCastling("longCastling", 3, -1)
+    return pm
   }
 
   /**
    * @param {Map<string, Piece>} pieces 
-   * @returns {Map<string, MoveType>}
+   * @param {string} side 
+   * @returns {Map<string, string>}
    */
-  getPossibleMoves(pieces) {
-    /** @type {Map<string, MoveType>} */
-    const inaccessibleSquares = new Map()
+  getInaccessibleSquares(pieces, side) {
+    /** @type {Map<string, string>} */
+    const is = new Map()
 
     for (const [_, piece] of pieces) {
-      if (piece.color !== this.color) {
-        if (piece.name === "king") {
-          const enemyKing = [
-            new Position(piece.pos.file - 1, piece.pos.rank + 1),
-            new Position(piece.pos.file, piece.pos.rank + 1),
-            new Position(piece.pos.file + 1, piece.pos.rank + 1),
-            new Position(piece.pos.file - 1, piece.pos.rank),
-            new Position(piece.pos.file + 1, piece.pos.rank),
-            new Position(piece.pos.file - 1, piece.pos.rank - 1),
-            new Position(piece.pos.file, piece.pos.rank - 1),
-            new Position(piece.pos.file + 1, piece.pos.rank - 1)
-          ]
-          for (const pos of enemyKing) {
-            if (pos.isInBoard()) {
-              inaccessibleSquares.set(pos.toString(), MoveType.Basic)
+      if (piece.getColor() != side) {
+        switch (piece.getType()) {
+          case "pawn":
+            const ppm = piece.getPossibleMoves(pieces)
+            for (const [pos, moveType] of ppm) {
+              if (moveType != "pawnForward") {
+                is.set(pos.toString(), moveType)
+              }
             }
-          }
-        } else if (piece.name === "pawn") {
-          const concretePawn = buildPiece(piece)
-          const possibleMoves = concretePawn?.getPossibleMoves(pieces)
-          // @ts-ignore
-          for (const [pos, moveType] of possibleMoves) {
-            if (moveType !== MoveType.PawnForward) {
-              inaccessibleSquares.set(pos, moveType)
+            break
+
+          case "king":
+            this.getEnemyKingPossibleMoves(piece, is)
+            break
+
+          default:
+            const pm = piece.getPossibleMoves(pieces)
+            for (const [pos, moveType] of pm) {
+              is.set(pos.toString(), moveType)
             }
-          }
-        } else {
-          const concretePiece = buildPiece(piece)
-          const possibleMoves = concretePiece?.getPossibleMoves(pieces)
-          // @ts-ignore
-          for (const [pos, moveType] of possibleMoves) {
-            inaccessibleSquares.set(pos, moveType)
-          }
         }
       }
     }
+    return is
+  }
 
-    /** @type {Position[]} */
-    const possiblePositions = [
-      new Position(this.pos.file - 1, this.pos.rank + 1),
-      new Position(this.pos.file, this.pos.rank + 1),
-      new Position(this.pos.file + 1, this.pos.rank + 1),
-      new Position(this.pos.file - 1, this.pos.rank),
-      new Position(this.pos.file + 1, this.pos.rank),
-      new Position(this.pos.file - 1, this.pos.rank - 1),
-      new Position(this.pos.file, this.pos.rank - 1),
-      new Position(this.pos.file + 1, this.pos.rank - 1)
+  /**
+   * @param {Piece} k 
+   * @param {Map<string, string>} pm 
+   */
+  getEnemyKingPossibleMoves(k, pm) {
+    const pp = [
+      new Position(k.getPosition().file - 1, k.getPosition().rank + 1),
+      new Position(k.getPosition().file, k.getPosition().rank + 1),
+      new Position(k.getPosition().file + 1, k.getPosition().rank + 1),
+      new Position(k.getPosition().file - 1, k.getPosition().rank),
+      new Position(k.getPosition().file + 1, k.getPosition().rank),
+      new Position(k.getPosition().file - 1, k.getPosition().rank - 1),
+      new Position(k.getPosition().file, k.getPosition().rank - 1),
+      new Position(k.getPosition().file + 1, k.getPosition().rank - 1),
     ]
 
-    /** @type {Map<string, MoveType>} */
-    const possibleMoves = new Map()
-    for (const pos of possiblePositions) {
-      if (!inaccessibleSquares.get(pos.toString())) {
-        if (pos.isInBoard()) {
-          const piece = pieces.get(pos.toString())
-          if (!piece || piece.color !== this.color) {
-            possibleMoves.set(pos.toString(), MoveType.Basic)
-          } else {
-            possibleMoves.set(pos.toString(), MoveType.Defend)
-          }
-        }
+    for (const pos of pp) {
+      if (pos.isInBoard()) {
+        pm.set(pos.toString(), "basic")
       }
     }
+  }
 
+  /** @param {Position} to */
+  move(to) {
+    this.pos = to
+    this.movesCounter++
+  }
 
-    if (!this.isChecked && this.movesCounter == 0) {
-      // check 0-0
-      let canShortCastle = true
-      for (let i = 1; i <= 2; i++) {
-        const pos = new Position(this.pos.file + i, this.pos.rank)
+  getMovesCounter() {
+    return this.movesCounter
+  }
 
-        if (pieces.get(pos.toString()) ||
-          inaccessibleSquares.get(pos.toString())) {
-          canShortCastle = false
-        }
-      }
-      if (canShortCastle) {
-        const rookPos = new Position(this.pos.file + 3, this.pos.rank)
-        const p = pieces.get(rookPos.toString())
-        // @ts-ignore
-        if (p && p.name === "rook" && p.movesCounter == 0) {
-          possibleMoves.set(
-            new Position(this.pos.file + 2, this.pos.rank).toString(),
-            MoveType.ShortCastling
-          )
-        }
-      }
-      // check 0-0-0
-      let canLongCastle = true
-      for (let i = 1; i <= 3; i++) {
-        const pos = new Position(this.pos.file - i, this.pos.rank)
+  setMovesCounter(mc) {
+    this.movesCounter = mc
+  }
 
-        if (pieces.get(pos.toString()) ||
-          inaccessibleSquares.get(pos.toString())) {
-          canLongCastle = false
-        }
-      }
-      if (canLongCastle) {
-        const rookPos = new Position(this.pos.file - 4, this.pos.rank)
-        const p = pieces.get(rookPos.toString())
-        // @ts-ignore
-        if (p && p.name === "rook" && p.movesCounter == 0) {
-          possibleMoves.set(
-            new Position(this.pos.file - 2, this.pos.rank).toString(),
-            MoveType.LongCastling
-          )
-        }
-      }
-    }
+  getType() {
+    return this.type
+  }
 
-    return possibleMoves
+  getColor() {
+    return this.color
+  }
+
+  getPosition() {
+    return this.pos
   }
 }

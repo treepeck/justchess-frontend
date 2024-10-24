@@ -38,7 +38,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: popup 0.05s;
 }
 
 .dialogContent {

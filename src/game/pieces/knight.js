@@ -3,7 +3,6 @@ import Position from "../position"
 
 import blackAsset from "../../assets/pieces/black/knight.png"
 import whiteAsset from "../../assets/pieces/white/knight.png"
-import { MoveType } from "../move"
 
 /**
  * Represents a Knight.
@@ -13,45 +12,37 @@ export default class Knight extends Piece {
   /** @type {Position} */
   pos
   /** @type {string} */
-  name
+  type
   /** @type {string} */
   color
   /** @type {string} */
   asset
+  /** @type {number} */
+  movesCounter
 
   /**
    * Creates a Knight.
    * @param {Position} pos 
-   * @param {string} color 
+   * @param {string} color
+   * @param {number} movesCounter
    */
-  constructor(pos, color) {
+  constructor(pos, color, movesCounter) {
     super()
     this.pos = pos
-    this.name = "knight"
+    this.type = "knight"
     this.color = color
     this.asset = color === "white" ? whiteAsset : blackAsset
-  }
-
-  /** @returns {string} */
-  getName() {
-    return this.name
-  }
-
-  /** @returns {string} */
-  getColor() {
-    return this.color
-  }
-
-  /** @returns {Position} */
-  getPos() {
-    return this.pos
+    this.movesCounter = movesCounter
   }
 
   /**
-   * @param {Map<string, Piece>} pieces 
-   * @returns {Map<string, MoveType>}
+   * @param {Map<string, Piece>} pieces
+   * @returns {Map<Position, string>}
    */
   getPossibleMoves(pieces) {
+    /** @type {Map<Position, string>} */
+    const pm = new Map()
+
     /** @type {Position[]} */
     const possiblePos = [
       new Position(this.pos.file + 2, this.pos.rank + 1),
@@ -63,22 +54,43 @@ export default class Knight extends Piece {
       new Position(this.pos.file - 1, this.pos.rank - 2),
       new Position(this.pos.file + 1, this.pos.rank + 2),
     ]
-
-    /** @type {Map<string, MoveType>} */
-    const possibleMoves = new Map()
     for (const pos of possiblePos) {
       if (pos.isInBoard()) {
-        const piece = pieces.get(pos.toString())
-        if (!piece) {
-          possibleMoves.set(pos.toString(), MoveType.Basic)
-        } else if (piece.color !== this.color) {
-          possibleMoves.set(pos.toString(), MoveType.Basic)
-        } else {
-          possibleMoves.set(pos.toString(), MoveType.Defend)
+        const p = pieces.get(pos.toString())
+        if (!p) {
+          pm.set(pos, "basic")
+        } else if (p.getColor() != this.color) {
+          pm.set(pos, "basic")
+        } else if (p.getColor() == this.color) {
+          pm.set(pos, "defend")
         }
       }
     }
+    return pm
+  }
 
-    return possibleMoves
+  /** @param {Position} to */
+  move(to) {
+    this.pos = to
+  }
+
+  getMovesCounter() {
+    return this.movesCounter
+  }
+
+  setMovesCounter(mc) {
+    this.movesCounter = mc
+  }
+
+  getType() {
+    return this.type
+  }
+
+  getColor() {
+    return this.color
+  }
+
+  getPosition() {
+    return this.pos
   }
 }

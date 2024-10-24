@@ -17,7 +17,7 @@ import React, {
 
 import { useParams } from "react-router-dom"
 
-import Game, { GameDTO } from "../../game/game"
+import Game from "../../game/game"
 
 // @ts-ignore
 import moveSound from "../../assets/sounds/move.wav"
@@ -30,6 +30,7 @@ import checkSound from "../../assets/sounds/check.wav"
 
 import Move from "../../game/move"
 import { EventAction } from "../../api/ws/event"
+import buildPiece from "../../game/pieces/piecesBuilder"
 
 export default function Play() {
   const { id } = useParams() // room (a.k.a game) id
@@ -79,16 +80,20 @@ export default function Play() {
    * Handle game updates.
    */
   function handleUpdateGame(gameDTO) {
-    if (game == null) {
+
+    if (gameDTO == null) {
       return
     }
+    setIsWaiting(false)
+    if (gameDTO.whiteId == user.id) {
+      setSide("white")
+    } else {
+      setSide("black")
+    }
 
-    if (gameDTO !== null) {
-      setIsWaiting(false)
-      // if the game has just started.
-      if (canPlay.current && gameDTO.moves.moves.length == 0) {
-        playSound(sounds["start"])
-      }
+    // if the game has just started.
+    if (canPlay.current && gameDTO.moves.length == 0) {
+      playSound(sounds["start"])
     }
 
     // convert DTO to a concrete type.
@@ -97,11 +102,13 @@ export default function Play() {
       gameDTO.blackId, gameDTO.playedAt, gameDTO.moves,
       new Map()
     )
+
     // convert Object.<string, Piece> to a Map<string, Piece>.
     for (const posStr in gameDTO.pieces) {
-      nGame.pieces.set(posStr, gameDTO.pieces[posStr])
+      // @ts-ignore piece cannot be null here.
+      nGame.pieces.set(posStr, buildPiece(gameDTO.pieces[posStr]))
     }
-    // update the state.
+    // update the game state.
     setGame(nGame)
   }
 
@@ -112,7 +119,7 @@ export default function Play() {
     }
 
     // update current turn.
-    if (game.moves.moves.length % 2 === 0) {
+    if (game.moves.length % 2 === 0) {
       setCurrentTurn("white")
     } else {
       setCurrentTurn("black")
@@ -120,7 +127,7 @@ export default function Play() {
 
     // play the correspond sound.
     if (canPlay.current) {
-      const lastMove = game.moves.moves[game.moves.moves.length - 1]
+      const lastMove = game.moves[game.moves.length - 1]
       if (lastMove?.isCheckmate) {
         playSound(sounds["checkmate"])
       } else if (lastMove?.isCheck) {
@@ -186,6 +193,10 @@ export default function Play() {
             pieces={game.pieces}
             side={side}
             currentTurn={currentTurn}
+            validMoves={
+              side == currentTurn ? game.getPlayerValidMoves(side) :
+                game.getPlayerPossibleMoves(side, game.pieces)
+            }
           />
           : null
         }

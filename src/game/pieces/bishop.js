@@ -1,127 +1,76 @@
-import Piece from "./piece"
 import Position from "../position"
+import traverse from "./traverse"
 
 import blackAsset from "../../assets/pieces/black/bishop.png"
 import whiteAsset from "../../assets/pieces/white/bishop.png"
-import { MoveType } from "../move"
+import Piece from "./piece"
 
 /**
  * Represents a Bishop.
- * @extends {Piece}
  */
 export default class Bishop extends Piece {
   /** @type {Position} */
   pos
   /** @type {string} */
-  name
+  type
   /** @type {string} */
   color
   /** @type {string} */
   asset
+  /** @type {number} */
+  movesCounter
 
   /**
    * Creates a Bishop.
    * @param {Position} pos 
    * @param {string} color 
+   * @param {number} movesCounter
    */
-  constructor(pos, color) {
+  constructor(pos, color, movesCounter) {
     super()
     this.pos = pos
-    this.name = "bishop"
+    this.type = "bishop"
     this.color = color
     this.asset = color === "white" ? whiteAsset : blackAsset
+    this.movesCounter = movesCounter
   }
 
-  /** @returns {string} */
-  getName() {
-    return this.name
+  /**
+   * @param {Map<string, Piece>} pieces
+   * @returns {Map<Position, string>}
+   */
+  getPossibleMoves(pieces) {
+    /** @type {Map<Position, string>} */
+    const pm = new Map()
+    traverse(-1, 1, pieces, this, pm)  // upper left diagonal
+    traverse(-1, -1, pieces, this, pm) // lower left diagonal
+    traverse(1, 1, pieces, this, pm)   // upper right diagonal
+    traverse(1, -1, pieces, this, pm)  // lower right diagonal
+    return pm
   }
 
-  /** @returns {string} */
+  /** @param {Position} to */
+  move(to) {
+    this.pos = to
+  }
+
+  getMovesCounter() {
+    return this.movesCounter
+  }
+
+  setMovesCounter(mc) {
+    this.movesCounter = mc
+  }
+
+  getType() {
+    return this.type
+  }
+
   getColor() {
     return this.color
   }
 
-  /** @returns {Position} */
-  getPos() {
+  getPosition() {
     return this.pos
-  }
-
-  /**
-   * @param {Map<string, Piece>} pieces 
-   * @returns {Map<string, MoveType>}
-   */
-  getPossibleMoves(pieces) {
-    const possibleMoves = new Map()
-
-    let rank = this.pos.rank
-    for (let i = this.pos.file - 1; i >= 1; i--) {
-      rank++
-      const nextMove = new Position(i, rank)
-      if (nextMove.isInBoard()) {
-        if (!pieces.get(nextMove.toString())) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-          continue
-        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-        } else if (pieces.get(nextMove.toString())?.color === this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Defend)
-        }
-      }
-      break
-    }
-
-    rank = this.pos.rank
-    for (let i = this.pos.file - 1; i >= 1; i--) {
-      rank--
-      const nextMove = new Position(i, rank)
-      if (nextMove.isInBoard()) {
-        if (!pieces.get(nextMove.toString())) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-          continue
-        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-        } else if (pieces.get(nextMove.toString())?.color === this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Defend)
-        }
-      }
-      break
-    }
-
-    rank = this.pos.rank
-    for (let i = this.pos.file + 1; i <= 8; i++) {
-      rank++
-      const nextMove = new Position(i, rank)
-      if (nextMove.isInBoard()) {
-        if (!pieces.get(nextMove.toString())) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-          continue
-        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-        } else if (pieces.get(nextMove.toString())?.color === this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Defend)
-        }
-      }
-      break
-    }
-
-    rank = this.pos.rank
-    for (let i = this.pos.file + 1; i <= 8; i++) {
-      rank--
-      const nextMove = new Position(i, rank)
-      if (nextMove.isInBoard()) {
-        if (!pieces.get(nextMove.toString())) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-          continue
-        } else if (pieces.get(nextMove.toString())?.color !== this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Basic)
-        } else if (pieces.get(nextMove.toString())?.color === this.color) {
-          possibleMoves.set(nextMove.toString(), MoveType.Defend)
-        }
-      }
-      break
-    }
-
-    return possibleMoves
   }
 }
