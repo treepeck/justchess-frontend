@@ -1,5 +1,4 @@
-import Piece from "./pieces/piece"
-import Position from "./position"
+import Piece from "./piece"
 
 /**
  * Represents a Square on a Chessboard.
@@ -7,7 +6,7 @@ import Position from "./position"
 export default class Square {
   /** @type {Piece | null | undefined} */
   piece
-  /** @type {Position} */
+  /** @type {string} */
   pos
   /** @type {string} */
   color
@@ -15,7 +14,7 @@ export default class Square {
   /**
    * Creates a new Square.
    * @param {Piece | null | undefined} piece 
-   * @param {Position} pos 
+   * @param {string} pos 
    * @param {string} color 
    */
   constructor(piece, pos, color) {

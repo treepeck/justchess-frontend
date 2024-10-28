@@ -15,17 +15,6 @@
   cursor: pointer;
 }
 
-.sideBlack {
-  -moz-transform: scale(-1, -1);
-  -o-transform: scale(-1, -1);
-  -webkit-transform: scale(-1, -1);
-  transform: scale(-1, -1);
-}
-
-.sideBlack img {
-  transform: scale(-1, -1);
-}
-
 .board img {
   width: 90%;
   height: 90%;

@@ -1,6 +1,6 @@
 import Event, { EventAction } from "./event"
 import User from "../user"
-import Move from "../../game/move"
+import Move, { MoveDTO } from "../../game/move"
 
 /** Describes the interactions with the Manager using WebSockets. */
 export default class WS {
@@ -33,26 +33,26 @@ export default class WS {
     this.socket.onmessage = (ev) => {
       // recieve and process all messages from the server
       const eventData = JSON.parse(ev.data)
-      const event = new Event(eventData.action, eventData.payload)
+      const event = new Event(eventData.a, eventData.p)
       this.routeEvent(event)
     }
   }
 
   /**
-   * Invokes the handler when the action is emmited.
-   * @param {string} action 
+   * Invokes the handler when the a is emmited.
+   * @param {string} a 
    * @param {Function} handler
    */
-  setEventHandler(action, handler) {
-    this.#handlers.set(action, handler)
+  setEventHandler(a, handler) {
+    this.#handlers.set(a, handler)
   }
 
   /**
    * Deletes the event handler.
-   * @param {EventAction} action
+   * @param {EventAction} a
    */
-  clearEventHandler(action) {
-    this.#handlers.delete(action)
+  clearEventHandler(a) {
+    this.#handlers.delete(a)
   }
 
   /**
@@ -60,9 +60,9 @@ export default class WS {
    * @param {Event} event 
    */
   routeEvent(event) {
-    const handler = this.#handlers.get(event.action)
+    const handler = this.#handlers.get(event.a)
     if (handler !== undefined) {
-      handler(event.payload)
+      handler(event.p)
     }
   }
 
@@ -120,7 +120,7 @@ export default class WS {
 
   /**
    * Gets the latest data about the specified game.
-   * @param {string} gameId 
+   * @param {string | undefined} gameId 
    */
   getGame(gameId) {
     const e = new Event(EventAction.GET_GAME, gameId)
@@ -129,7 +129,7 @@ export default class WS {
 
   /**
    * Sends the MOVE event with the specified move.
-   * @param {Move} move
+   * @param {MoveDTO} move
    */
   move(move) {
     const e = new Event(EventAction.MOVE, move)
