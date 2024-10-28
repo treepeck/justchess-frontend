@@ -3,11 +3,9 @@ import BoardSquare from "../square/BoardSquare"
 import React, { useState, useEffect } from "react"
 
 import Square from "../../game/square"
-import Piece from "../../game/pieces/piece"
-import Position, { posFromStr } from "../../game/position"
-import Move, { PossibleMove } from "../../game/move"
-
-import buildPiece from "../../game/pieces/piecesBuilder"
+import Piece from "../../game/piece"
+import { MoveDTO, PossibleMove } from "../../game/move"
+import posFromInd from "../../game/position"
 
 /**
  * @typedef {Object} BoardProps 
@@ -15,7 +13,7 @@ import buildPiece from "../../game/pieces/piecesBuilder"
  * @property {Map<string, Piece>} pieces
  * @property {string} side 
  * @property {string} currentTurn
- * @property {Map<PossibleMove, boolean>} validMoves
+ * @property {PossibleMove[]} validMoves
  * 
  * @param {BoardProps} props - The properties passed to the Board component.
  * @returns {JSX.Element}
@@ -39,18 +37,59 @@ export default function Board(props) {
     redrawBoard()
   }, [props.pieces])
 
+  function redrawBoard() {
+    const newBoard = []
+    if (props.side === "black") {
+      for (let i = 8; i >= 1; i--) {
+        const row = []
+        for (let j = 1; j <= 8; j++) {
+          const pos = posFromInd(i, j)
+          const color = (i + j) % 2 === 1 ? "white" : "black"
+          const piece = props.pieces.get(pos)
+          row.push(new Square(piece, pos, color))
+        }
+        newBoard.push(row)
+      }
+    } else {
+      for (let i = 1; i <= 8; i++) {
+        const row = []
+        for (let j = 1; j <= 8; j++) {
+          const pos = posFromInd(i, j)
+          const color = (i + j) % 2 === 1 ? "white" : "black"
+          const piece = props.pieces.get(pos)
+          row.push(new Square(piece, pos, color))
+        }
+        newBoard.push(row)
+      }
+    }
+    setBoard(newBoard)
+  }
+
   /** @param {Square} square */
   function handleClickSquare(square) {
-    if (selectedSquare && square.piece?.color !== props.side) {
-      for (const [vm, _] of props.validMoves) {
-        if (vm.from.toString() == selectedSquare?.pos.toString() &&
-          vm.to.toString() == square.pos.toString()) {
+    if (selectedSquare) {
+      if (props.currentTurn !== props.side) {
+        if (!square.piece) {
+          setSelectedSquare(null)
+        } else if (square.piece.color === props.side) {
+          setSelectedSquare(square)
+        }
+        return
+      }
+
+      if (square.piece?.color === props.side) {
+        setSelectedSquare(square)
+        return
+      }
+
+      for (const vm of props.validMoves) {
+        if (selectedSquare.pos === vm.from &&
+          square.pos === vm.to) {
           if (vm.moveType == "promotion") {
             // TODO: handle promotion
           }
-          if (props.currentTurn === props.side) {
-            props.handleTakeMove(new Move(vm.to, vm.from, ""))
-          }
+          props.handleTakeMove(new MoveDTO(vm.to, vm.from, ""))
+          setSelectedSquare(null)
         }
       }
     } else {
@@ -60,26 +99,9 @@ export default function Board(props) {
     }
   }
 
-  function redrawBoard() {
-    setSelectedSquare(null)
-
-    const newBoard = []
-    for (let i = 8; i >= 1; i--) {
-      const row = []
-      for (let j = 1; j <= 8; j++) {
-        const pos = new Position(j, i)
-        const color = (i + j) % 2 === 1 ? "white" : "black"
-        const piece = props.pieces.get(pos.toString())
-        row.push(new Square(piece, pos, color))
-      }
-      newBoard.push(row)
-    }
-    setBoard(newBoard)
-  }
-
   /** 
-   * @param {Position} to 
-   * @param {Position} from 
+   * @param {string} to 
+   * @param {string} from 
    * @returns {boolean}
    */
   function isValidMove(to, from) {
@@ -87,10 +109,8 @@ export default function Board(props) {
       return false
     }
 
-    for (const [pm, _] of props.validMoves) {
-      if (pm.to.file == to.file && pm.to.rank == to.rank &&
-        pm.from.file == from.file && pm.from.rank == from.rank
-      ) {
+    for (const m of props.validMoves) {
+      if (m.to == to && m.from == from) {
         return true
       }
     }
@@ -112,13 +132,13 @@ export default function Board(props) {
       >
         {board.map(row => row.map((square) => (
           <BoardSquare
-            key={square.pos.toString()}
+            key={square.pos}
             square={square}
             side={props.side}
             onClickHandler={() => handleClickSquare(square)}
             isSelected={
               // @ts-ignore at this case selectedSqaure can be a valid Square.
-              selectedSquare?.pos.isEqual(square.pos) ?
+              selectedSquare?.pos === square.pos ?
                 true : false
             }
             // @ts-ignore at this case selectedSqaure can be a valid Square.
@@ -128,6 +148,6 @@ export default function Board(props) {
         ))
         )}
       </div>
-    </div>
+    </div >
   )
 }

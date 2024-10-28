@@ -1,4 +1,3 @@
-import { GameDTO } from "../game/game"
 import User from "./user"
 
 /** Describes the interactions with the API.  */

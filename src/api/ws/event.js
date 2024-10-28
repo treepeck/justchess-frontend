@@ -2,14 +2,14 @@
 export default class Event {
   /**
    * Creates a new Event.
-   * @param {string} action 
-   * @param {*} payload 
+   * @param {string} a action.
+   * @param {*} p payload.
    */
-  constructor(action, payload) {
+  constructor(a, p) {
     /** @type {string} */
-    this.action = action
+    this.a = a
     /** @type {*} */
-    this.payload = payload
+    this.p = p
   }
 }
 
@@ -29,7 +29,10 @@ export const EventAction = {
   REDIRECT: "r",
   ADD_ROOM: "ar",
   REMOVE_ROOM: "rr",
-  UPDATE_GAME: "ug",
+  UPDATE_BOARD: "ub",
+  VALID_MOVES: "vm",
+  MOVES: "mh",
+  STATUS: "s",
   // ERRORS
   UNPROCESSABLE_ENTITY: "ue",
   CREATE_ROOM_ERR: "cre",
