@@ -41,7 +41,7 @@ table th {
 }
 
 table th {
-  background-color: #1f1b25;
+  background-color: var(--containersBg);
   padding: 1rem;
 }
 

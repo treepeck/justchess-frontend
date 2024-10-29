@@ -5,7 +5,8 @@ import React, { useState, useEffect } from "react"
 import Square from "../../game/square"
 import Piece from "../../game/piece"
 import { MoveDTO, PossibleMove } from "../../game/move"
-import posFromInd from "../../game/position"
+import posFromInd, { posFromString } from "../../game/position"
+import PieceSelection from "../piece-selection/PieceSelection"
 
 /**
  * @typedef {Object} BoardProps 
@@ -29,6 +30,16 @@ export default function Board(props) {
   * @type {[Square[][] | null, Function]} 
   */
   const [board, setBoard] = useState([])
+  /**
+   * Stores the last move.
+   * @type {[MoveDTO | null, Function]}
+   */
+  const [lastMove, setLastMove] = useState(null)
+  /**
+   * Is piece selection window opened.
+   * @type {[boolean, Function]}
+   */
+  const [isPSWA, setIsPSWA] = useState(false)
 
   // TODO: add a "Custom options" context which provides a board-orientation
   // property, color theme, last sidebar position etc... 
@@ -67,36 +78,48 @@ export default function Board(props) {
 
   /** @param {Square} square */
   function handleClickSquare(square) {
-    if (selectedSquare) {
-      if (props.currentTurn !== props.side) {
-        if (!square.piece) {
-          setSelectedSquare(null)
-        } else if (square.piece.color === props.side) {
-          setSelectedSquare(square)
-        }
-        return
-      }
-
-      if (square.piece?.color === props.side) {
-        setSelectedSquare(square)
-        return
-      }
-
-      for (const vm of props.validMoves) {
-        if (selectedSquare.pos === vm.from &&
-          square.pos === vm.to) {
-          if (vm.moveType == "promotion") {
-            // TODO: handle promotion
-          }
-          props.handleTakeMove(new MoveDTO(vm.to, vm.from, ""))
-          setSelectedSquare(null)
-        }
-      }
-    } else {
+    if (!selectedSquare) {
       if (square.piece?.color === props.side) {
         setSelectedSquare(square)
       }
+      return
     }
+
+    if (props.currentTurn !== props.side) {
+      // TODO: handle premoves
+      setSelectedSquare(null)
+      return
+    }
+
+    if (square.piece?.color === props.side) {
+      setSelectedSquare(square)
+      return
+    }
+
+    for (const vm of props.validMoves) {
+      if (selectedSquare.pos !== vm.from ||
+        square.pos !== vm.to) {
+        continue
+      }
+
+      setSelectedSquare(null)
+
+      if (vm.moveType === 7) { // promotion
+        setIsPSWA(true)
+        setLastMove(new MoveDTO(vm.to, vm.from, ""))
+        return
+      }
+
+      props.handleTakeMove(new MoveDTO(vm.to, vm.from, ""))
+    }
+  }
+
+  /**
+   * The type of piece the pawn will be promoted to.
+   * @param {string} pp - promotion payload.
+   */
+  function handlePromotion(pp) {
+    props.handleTakeMove(new MoveDTO(lastMove?.to, lastMove?.from, pp))
   }
 
   /** 
@@ -126,27 +149,45 @@ export default function Board(props) {
 
   return (
     <div className={styles.layout}>
+      <div>
+        Opponent profile
+      </div>
       <div
         className={`${styles.board} ${props.side === "black" ?
-          styles.sideBlack : null}`}
+          styles.sideBlack : ""}`}
       >
-        {board.map(row => row.map((square) => (
-          <BoardSquare
-            key={square.pos}
-            square={square}
+        {isPSWA && (
+          <PieceSelection
+            // styles=
+            onSelect={handlePromotion}
+            setIsActive={setIsPSWA}
+            //@ts-ignore
+            positionFile={posFromString(lastMove?.to).file}
             side={props.side}
-            onClickHandler={() => handleClickSquare(square)}
-            isSelected={
-              // @ts-ignore at this case selectedSqaure can be a valid Square.
-              selectedSquare?.pos === square.pos ?
-                true : false
-            }
-            // @ts-ignore at this case selectedSqaure can be a valid Square.
-            isAvailible={isValidMove(square.pos, selectedSquare?.pos)}
-            onDropHandler={onDropPiece}
           />
-        ))
         )}
+        <div className={styles.squares}>
+          {board.map(row => row.map((square) => (
+            <BoardSquare
+              key={square.pos}
+              square={square}
+              side={props.side}
+              onClickHandler={() => handleClickSquare(square)}
+              isSelected={
+                // @ts-ignore at this case selectedSqaure can be a valid Square.
+                selectedSquare?.pos === square.pos ?
+                  true : false
+              }
+              // @ts-ignore at this case selectedSqaure can be a valid Square.
+              isAvailible={isValidMove(square.pos, selectedSquare?.pos)}
+              onDropHandler={onDropPiece}
+            />
+          )))}
+        </div>
+      </div>
+
+      <div>
+        User profile
       </div>
     </div >
   )

@@ -2,7 +2,7 @@ import styles from "./dialog.module.css"
 import Select from "../select/Select"
 import Button from "../button/Button"
 
-import { useState } from "react"
+import React, { useState } from "react"
 
 export default function Dialog({ onCreateRoom, onClose }) {
 

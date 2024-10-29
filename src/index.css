@@ -6,9 +6,15 @@
   box-sizing: border-box;
 }
 
+:root {
+  --bgColor: #23272f;
+  --fontColor: white;
+  --containersBg: #1f1b25;
+}
+
 body {
-  background-color: #23272f;
-  color: white;
+  background-color: var(--bgColor);
+  color: var(--fontColor);
   width: 100%;
   min-height: 100vh;
   font-family: 'Poppins', sans-serif;
