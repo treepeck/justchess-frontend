@@ -9,8 +9,8 @@ import Square from "../../game/square"
  * @property {Function} onClickHandler 
  * @property {boolean} isSelected
  * @property {boolean} isAvailible
- * @property {Function} onDropHandler
- * 
+ * @property {Function} onDropHandler  
+ *  
  * @param {SquareProps} props - The properties passed to the Square component.
  * @returns {JSX.Element}
  */

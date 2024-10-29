@@ -85,7 +85,7 @@ export default function Play() {
     // Updates current valid moves.
     ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
     // Handles last move.
-    ws?.setEventHandler(EventAction.MOVES, handleLastMove)
+    ws?.setEventHandler(EventAction.MOVES, handleMoves)
     ws?.setEventHandler(EventAction.STATUS, (gameDTO) => {
       if (side === "") {
         if (gameDTO.white === user.id) {
@@ -136,21 +136,26 @@ export default function Play() {
   }
 
   /**
-   * Handles last move.
-   * @param {Move} m
+   * Updates moves history.
+   * @param {Move[]} m
    */
-  function handleLastMove(m) {
-    const newMoves = [...moves]
-    newMoves.push(m)
-    setMoves(newMoves)
+  function handleMoves(m) {
+    setMoves(m)
 
-    console.log(newMoves.length)
-    if (newMoves.length === 0) { // first move
+    if (m.length > 0) {
+      if (m[m.length - 1].isCheck) {
+        playSound(sounds["check"])
+      } else if (m[m.length - 1].isCapture) {
+        playSound(sounds["capture"])
+      } else {
+        playSound(sounds["move"])
+      }
+    }
+
+    if ((m.length + 1) % 2 !== 0) {
       setCurrentTurn("white")
-    } else if (newMoves.length % 2 === 0) { // even moves
+    } else { // even moves
       setCurrentTurn("black")
-    } else { // odd moves
-      setCurrentTurn("white")
     }
   }
 
@@ -200,10 +205,12 @@ export default function Play() {
    * @param {HTMLAudioElement} sound 
    */
   function playSound(sound) {
-    sound.play().catch(() => {
-      setSoundToggle(false)
-      canPlay.current = false
-    })
+    if (canPlay.current === true) {
+      sound.play().catch(() => {
+        setSoundToggle(false)
+        canPlay.current = false
+      })
+    }
   }
 
   const sounds = {

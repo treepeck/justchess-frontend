@@ -4,6 +4,12 @@
 }
 
 .board {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.squares {
   border-radius: 5px;
   display: grid;
   grid-auto-flow: row dense;

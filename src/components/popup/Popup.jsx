@@ -1,4 +1,5 @@
 import styles from "./popup.module.css"
+import React from "react"
 
 export default function Popup({ setIsActive, message }) {
   return (

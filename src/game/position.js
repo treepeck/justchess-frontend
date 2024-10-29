@@ -34,3 +34,39 @@ export default function posFromInd(i, j) {
   }
   return `${file}${8 - i + 1}`
 }
+
+/**
+ * @param {string} str 
+ */
+export function posFromString(str) {
+  console.log(str)
+  let f
+  switch (str.charAt(0)) {
+    case "a":
+      f = 1
+      break
+    case "b":
+      f = 2
+      break
+    case "c":
+      f = 3
+      break
+    case "d":
+      f = 4
+      break
+    case "e":
+      f = 5
+      break
+    case "f":
+      f = 6
+      break
+    case "g":
+      f = 7
+      break
+    case "h":
+      f = 8
+      break
+  }
+  console.log({ file: f, rank: Number.parseInt(str.charAt(1)) })
+  return { file: f, rank: Number.parseInt(str.charAt(1)) }
+}

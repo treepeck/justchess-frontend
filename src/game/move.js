@@ -1,14 +1,12 @@
-import Position from "./position";
-
 /** Represents a move completed by a user. */
 export default class Move {
-  /** @type {Position} */
+  /** @type {string} */
   to
-  /** @type {Position} */
+  /** @type {string} */
   from
   /** @type {boolean} */
   isCheck
-  /** @type {string} */
+  /** @type {number} */
   moveType
   /** @type {number} */
   timeLeft
@@ -21,10 +19,10 @@ export default class Move {
 
   /**
    * 
-   * @param {Position} to 
-   * @param {Position} from 
+   * @param {string} to 
+   * @param {string} from 
    * @param {boolean} isCheck 
-   * @param {string} moveType 
+   * @param {number} moveType 
    * @param {number} timeLeft 
    * @param {boolean} isCapture 
    * @param {boolean} isCheckmate 
@@ -65,14 +63,14 @@ export class PossibleMove {
   to
   /** @type {string} */
   from
-  /** @type {string} */
+  /** @type {number} */
   moveType
 
   /**
    * Creates a new Possible move.
    * @param {string} to 
    * @param {string} from 
-   * @param {string} moveType 
+   * @param {number} moveType 
     */
   constructor(to, from, moveType) {
     this.to = to
