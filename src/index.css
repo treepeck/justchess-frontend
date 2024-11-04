@@ -4,12 +4,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  list-style: none;
 }
 
 :root {
   --bgColor: #23272f;
   --fontColor: white;
   --containersBg: #1f1b25;
+  --white: #e8edf9;
+  --black: #a2aac0;
 }
 
 body {

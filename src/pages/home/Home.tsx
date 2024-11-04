@@ -1,50 +1,53 @@
 import styles from "./home.module.css"
+
 import Popup from "../../components/popup/Popup"
 import Button from "../../components/button/Button"
-import Select from "../../components/select/Select"
 import Dialog from "../../components/dialog/Dialog"
+import Select from "../../components/select/Select"
 
-import error from "../../assets/error.png"
-import check from "../../assets/check.png"
-
-import React, {
+import {
   useState,
   useEffect,
 } from "react"
 import { useNavigate } from "react-router-dom"
 
-import { useAuth } from "../../context/useAuth"
-import { useConnection } from "../../context/connection"
+import { useAuth } from "../../context/Auth"
+import { useConn } from "../../context/Conn"
 import { EventAction } from "../../api/ws/event"
 
-export default function Home() {
-  const { user } = useAuth()
+import error from "../../assets/error.png"
+import check from "../../assets/check.png"
+import User from "../../api/user"
 
-  const { ws, isConnected, clientsCounter } = useConnection()
+export default function Home() {
+  const { user, accessToken } = useAuth()
+
+  const { ws, ic, cc } = useConn()
 
   const navigate = useNavigate()
 
-  // const [bonus, setBonus] = useState("All")
-  // const [control, setControl] = useState("All")
-  /**
-   * Stores all availible rooms.
-   * @type {[[], Function]} 
-   */
-  const [rooms, setRooms] = useState([])
-  const [popupMessage, setPopupMessage] = useState("")
-  const [isPopupActive, setIsPopupActive] = useState(false)
-  const [isDialogActive, setIsDialogActive] = useState(false)
+  // game parameters.
+  const [bonus, setBonus] = useState<number>(0)
+  const [control, setControl] = useState<string>("bullet")
+
+  // helper type that represents a room.
+  type Room = { id: string, control: string, bonus: number, owner: User }
+
+  // Stores all availible rooms.
+  const [rooms, setRooms] = useState<Room[]>([])
+  const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
+  const [isPopupActive, setIsPopupActive] = useState<boolean>(false)
+  const [popupMessage, setPopupMessage] = useState<string>("")
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!ic) {
       return
     }
 
     ws?.getRooms()
 
-    /** set up event handlers for this page. */
     // ADD_ROOM adds a room to currently avalible rooms.
-    ws?.setEventHandler(EventAction.ADD_ROOM, (r) => {
+    ws?.setEventHandler(EventAction.ADD_ROOM, (r: Room) => {
       // here the new array is created since React will only
       // re-render rooms if a new value is being set
       rooms.push(r)
@@ -52,7 +55,7 @@ export default function Home() {
     })
 
     // REMOVE_ROOM removes a room from currently avalible rooms.
-    ws?.setEventHandler(EventAction.REMOVE_ROOM, (r) => {
+    ws?.setEventHandler(EventAction.REMOVE_ROOM, (r: Room) => {
       const nr = []
       for (const room of rooms) {
         if (room.id != r.id) {
@@ -69,7 +72,7 @@ export default function Home() {
     })
 
     // Redirect to room redirects the user to the specified room.
-    ws?.setEventHandler(EventAction.REDIRECT, (roomId) => {
+    ws?.setEventHandler(EventAction.REDIRECT, (roomId: string) => {
       navigate(`/play/${roomId}`)
     })
 
@@ -81,42 +84,49 @@ export default function Home() {
     }
   }, [])
 
-  /**
-   * Handles the CREATE_ROOM Event.
-   * @param {string} control 
-   * @param {number} bonus 
-   */
-  function handleCreateRoom(control, bonus) {
-    if (isConnected) {
-      ws?.createRoom(control, bonus, user)
-    } else {
+  // Handles the CREATE_ROOM Event.
+  function handleCreateRoom(control: string, bonus: number) {
+    if (!ic) {
       setIsPopupActive(true)
       setPopupMessage("Connection with the server was lost. Please, try to reload the page.")
+      return
     }
+    ws?.createRoom(control, bonus, user)
   }
 
-  /**
-   * Tries to joing the specified room. 
-   * @param {string} roomId 
-   */
-  function handleJoinRoom(roomId) {
-    if (isConnected) {
-      // remove double quotes from the room id.
-      roomId = roomId.replace("\"", "")
-      roomId = roomId.replace("\"", "")
-      ws?.joinRoom(roomId)
-    } else {
-      setIsPopupActive(true)
+  // Tries to joing the specified room. 
+  function handleJoinRoom(roomId: string) {
+    if (!ic) {
+      // setIsPopupActive(true)
       setPopupMessage("Connection with the server was lost. Please, try to reload the page.")
+      return
+    }
+    // remove double quotes from the room id.
+    roomId = roomId.replace("\"", "")
+    roomId = roomId.replace("\"", "")
+    ws?.joinRoom(roomId)
+  }
+
+  // Helper function that returns a user rating in a specified control.
+  function getRating(u: User, c: string): string {
+    switch (c) {
+      case "bullet":
+        return u.bulletRating + ""
+      case "blitz":
+        return u.blitzRating + ""
+      case "rapid":
+        return u.rapidRating + ""
+      default:
+        return "No access"
     }
   }
 
   return (
     <div className="mainContainer">
-      <div className={styles.contentContainer}>
+      <div className={styles.content}>
         <h1>Welcome, {user.username}!</h1>
 
-        <div className={styles.lobbyContainer}>
+        <div className={styles.lobby}>
           {rooms.length ?
             <>
               <h2>Availible games:</h2>
@@ -138,9 +148,9 @@ export default function Home() {
               <table>
                 <thead>
                   <tr>
+                    <th>Owner</th>
                     <th>Control</th>
                     <th>Time bonus<br />(sec.)</th>
-                    <th>Owner</th>
                     <th>Rating</th>
                   </tr>
                 </thead>
@@ -152,16 +162,16 @@ export default function Home() {
                         () => { handleJoinRoom(room.id) } : () => { }}
                     >
                       <td>
+                        {room.owner.username}
+                      </td>
+                      <td>
                         {room.control}
                       </td>
                       <td>
                         {room.bonus}
                       </td>
                       <td>
-                        {room.owner.username}
-                      </td>
-                      <td>
-                        {room.owner[`${room.control}Rating`]}
+                        {getRating(room.owner, room.control)}
                       </td>
                     </tr>
                   )}
@@ -170,39 +180,55 @@ export default function Home() {
             </> :
             <div>
               There are no games yet. To create a game, press the button below.
-            </div>
-          }
+            </div>}
         </div>
-
         <Button
-          onClickHandler={() => setIsDialogActive(true)}
+          onClickHandler={() => { setIsDialogActive(true) }}
           text="Create a game"
         />
       </div>
       <div className="playersCounter">
-        Players online: {clientsCounter}
+        Players online: {cc}
       </div>
       <div className="playerStatus">
         Connection: {
-          isConnected
+          ic
             ? <img src={check} alt="yes" />
             : <img src={error} alt="no" />
         }
       </div>
 
-      {isPopupActive
-        ? <Popup
-          setIsActive={setIsPopupActive}
-          message={popupMessage}
+      {isDialogActive && (
+        <Dialog
+          header="Game parameters"
+          content={[
+            <Select
+              key="control"
+              htmlFor="control"
+              labelText="Control: "
+              options={["bullet", "blitz", "rapid"]}
+              onChangeHandler={setControl}
+            />,
+            <Select
+              key="bonus"
+              htmlFor="bonus"
+              labelText="bonus: "
+              options={[0, 1, 2, 10]}
+              onChangeHandler={setBonus}
+            />
+          ]}
+          onSubmit={() => handleCreateRoom(control, bonus)}
+          onSubmitText="Create a game"
+          setIsActive={setIsDialogActive}
         />
-        : null}
+      )}
 
-      {isDialogActive
-        ? <Dialog
-          onCreateRoom={handleCreateRoom}
-          onClose={setIsDialogActive}
+      {isPopupActive && (
+        <Popup
+          message={popupMessage}
+          setIsActive={setIsPopupActive}
         />
-        : null}
+      )}
     </div >
   )
 }

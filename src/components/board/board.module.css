@@ -9,6 +9,12 @@
   position: relative;
 }
 
+.board img {
+  width: 90%;
+  height: 90%;
+  margin: auto;
+}
+
 .squares {
   border-radius: 5px;
   display: grid;
@@ -17,12 +23,94 @@
   grid-template-rows: repeat(8, 5rem);
 }
 
-.dragging {
-  cursor: pointer;
+.sideBlack {
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 
-.board img {
-  width: 90%;
-  height: 90%;
-  margin: auto;
+.sideBlack img {
+  -moz-transform: rotate(-180deg);
+  -webkit-transform: rotate(-180deg);
+  transform: rotate(-180deg);
+}
+
+.ranks {
+  z-index: 100;
+  position: absolute;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.sideBlack .ranks {
+  right: 0;
+  -moz-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+.sideBlack .ranks li {
+  transform: scaleY(-1);
+}
+
+.sideWhite .ranks li:nth-child(1n) {
+  color: var(--black);
+}
+
+.sideWhite .ranks li:nth-child(2n) {
+  color: var(--white);
+}
+
+.sideBlack .ranks li:nth-child(1n) {
+  color: var(--white);
+}
+
+.sideBlack .ranks li:nth-child(2n) {
+  color: var(--black);
+}
+
+.ranks li {
+  padding-left: 2px;
+  height: 5rem;
+}
+
+.files {
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  z-index: 100;
+  position: absolute;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.sideBlack .files {
+  top: 0;
+  bottom: auto;
+}
+
+.sideBlack .files li {
+  transform: rotate(180deg);
+
+}
+
+.files li:nth-child(1n) {
+  color: var(--white);
+}
+
+.sideBlack .files li:nth-child(1n) {
+  color: var(--black);
+}
+
+.files li:nth-child(2n) {
+  color: var(--black);
+}
+
+.sideBlack .files li:nth-child(2n) {
+  color: var(--white);
+}
+
+.files li {
+  padding-left: 4.25rem;
+  width: 5rem;
 }

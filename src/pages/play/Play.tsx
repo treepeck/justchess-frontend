@@ -5,17 +5,6 @@ import error from "../../assets/error.png"
 import check from "../../assets/check.png"
 import unmute from "../../assets/unmute.png"
 import mute from "../../assets/mute.png"
-
-import { useAuth } from "../../context/useAuth"
-import { useConnection } from "../../context/connection"
-import React, {
-  useState,
-  useEffect,
-  useRef,
-} from "react"
-
-import { useParams } from "react-router-dom"
-
 // @ts-ignore
 import moveSound from "../../assets/sounds/move.wav"
 // @ts-ignore
@@ -25,68 +14,52 @@ import captureSound from "../../assets/sounds/capture.wav"
 // @ts-ignore
 import checkSound from "../../assets/sounds/check.wav"
 
+import { useAuth } from "../../context/Auth"
+import { useConn } from "../../context/Conn"
+
+import {
+  useState,
+  useEffect,
+  useRef,
+} from "react"
+
+import { useParams } from "react-router-dom"
+
 import Move, { MoveDTO, PossibleMove } from "../../game/move"
 import { EventAction } from "../../api/ws/event"
 import Piece from "../../game/piece"
 
 export default function Play() {
-  const { id } = useParams() // room (a.k.a. game) id
+  const { id } = useParams() // room (aka game) id
 
   const { user } = useAuth()
-  const { ws, isConnected } = useConnection()
+  const { ws, ic } = useConn()
 
-  /**
-   * side stores player side, e.g. "white" | "black".
-   * @type {[string, Function]}
-   */
-  const [side, setSide] = useState("") // 
-  /**
-   * gameStatus stores the current game status.
-   * @type {[string, Function]}
-   */
-  const [gameStatus, setGameStatus] = useState("waiting")
-  /**
-   * pieces stores all the pieces on the board and their positions
-   * @type {[Map<string, Piece>, Function]}
-   */
-  const [pieces, setPieces] = useState(new Map())
-  /**
-   * moves stores all completed moves.
-   * @type {[Move[], Function]}
-   */
-  const [moves, setMoves] = useState([])
-  /**
-   * currentTurn stores the current turn. "white" | "black"
-   * @type {[string, Function]}
-   */
-  const [currentTurn, setCurrentTurn] = useState("white")
-  /**
-   * validMoves stores valid moves for the current turn.
-   * @type {[PossibleMove[], Function]}
-   */
-  const [validMoves, setValidMoves] = useState([])
-  /** soundToggle is used to display the sound toggle control. */
-  const [soundToggle, setSoundToggle] = useState(true)
-  /** since the state cannot be used as the regular variable, canPlay ref is required. */
+  const [side, setSide] = useState<string>("")
+  const [gameStatus, setGameStatus] = useState<number>(1) // waiting by default
+  const [pieces, setPieces] = useState<Map<string, Piece>>(new Map())
+  const [moves, setMoves] = useState<Move[]>([])
+  const [currentTurn, setCurrentTurn] = useState<string>("white")
+  const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
+  // soundToggle is used to display the sound toggle control. 
+  const [soundToggle, setSoundToggle] = useState<boolean>(true)
+  // since the state cannot be used as the regular variable, canPlay ref is required. 
   const canPlay = useRef(soundToggle)
-  /** isWaiting is used to provide an overlapping window in case the user
-   *  waits for an opponent. */
-  const [isWaiting, setIsWaiting] = useState(true)
+  // isWaiting is used to provide an overlapping window in case the user
+  // waits for an opponent. 
+  const [isWaiting, setIsWaiting] = useState<boolean>(true)
 
   useEffect(() => {
-    if (!isConnected) {
+    if (!ic || !id) {
       return
     }
 
     ws?.getGame(id)
 
-    // Update game updates the current game state.
     ws?.setEventHandler(EventAction.UPDATE_BOARD, handleUpdateBoard)
-    // Updates current valid moves.
     ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
-    // Handles last move.
     ws?.setEventHandler(EventAction.MOVES, handleMoves)
-    ws?.setEventHandler(EventAction.STATUS, (gameDTO) => {
+    ws?.setEventHandler(EventAction.STATUS, (gameDTO: any) => {
       if (side === "") {
         if (gameDTO.white === user.id) {
           setSide("white")
@@ -98,10 +71,8 @@ export default function Play() {
     })
 
     return () => {
-      // leave the room
       ws?.leaveRoom()
 
-      // clear event handlers which are needed only for this page.
       ws?.clearEventHandler(EventAction.UPDATE_BOARD)
       ws?.clearEventHandler(EventAction.VALID_MOVES)
       ws?.clearEventHandler(EventAction.MOVES)
@@ -109,37 +80,31 @@ export default function Play() {
     }
   }, [])
 
-  /**
-   * handleUpdateBoard redraws board.
-   * @param {Piece[]} pieces
-   */
-  function handleUpdateBoard(pieces) {
+  function handleUpdateBoard(pieces: any) {
     const piecesMap = new Map()
     // The board comes from the backend as the Object.<string, Piece> type.
     // It is more comfortable to work with a Map, so the loop converts
     // an object to a Map.
     for (const posStr in pieces) {
       const p = pieces[posStr]
-      // @ts-ignore piece cannot be null here.
       piecesMap.set(posStr, new Piece(p.type, p.color))
     }
     // update the pieces state.
     setPieces(piecesMap)
   }
 
-  /**
-   * Sets valid moves for the current turn.
-   * @param {PossibleMove[]} vm 
-   */
-  function handleValidMoves(vm) {
+  function handleValidMoves(vm: PossibleMove[]) {
     setValidMoves(vm)
   }
 
-  /**
-   * Updates moves history.
-   * @param {Move[]} m
-   */
-  function handleMoves(m) {
+  const sounds = {
+    "start": new Audio(startSound),
+    "move": new Audio(moveSound),
+    "capture": new Audio(captureSound),
+    "check": new Audio(checkSound),
+  }
+
+  function handleMoves(m: Move[]) {
     setMoves(m)
 
     if (m.length > 0) {
@@ -151,7 +116,6 @@ export default function Play() {
         playSound(sounds["move"])
       }
     }
-
     if ((m.length + 1) % 2 !== 0) {
       setCurrentTurn("white")
     } else { // even moves
@@ -159,52 +123,36 @@ export default function Play() {
     }
   }
 
-  // useEffect executes when the game status updates.
   useEffect(() => {
     switch (gameStatus) {
-      case "waiting":
-        setIsWaiting(true) // the game hasn't started yet
+      case 0: // Aborted
+        // TODO: show window "Game aborted"
         break
 
-      case "aborted":
-        // TODO: show window: game aborted
+      case 1: // Waiting
+        setIsWaiting(true) // the game has not been started yet
         break
 
-      case "white_won":
-        // TODO: show window: white won
-        break
-
-      case "black_won":
-        // TODO: show window: black won
-        break
-
-      case "draw":
-        // TODO: show window: draw
-        break
-
-      case "continues":
-        // if the game has just started.
+      case 2: // Continues
+        // if the game has just started
         if (isWaiting) {
           setIsWaiting(false)
           playSound(sounds["start"])
         }
         break
+
+      case 3: // Over
+        // TODO: show window "Game over with the game result"
+        break
     }
   }, [gameStatus])
 
-  /**
-   * Handles the User`s moves.
-   * @param {MoveDTO} move 
-   */
-  function handleTakeMove(move) {
+  function handleTakeMove(move: MoveDTO) {
     ws?.move(move)
   }
 
-  /**
-   * Plays the provided sound if the browser allows to.
-   * @param {HTMLAudioElement} sound 
-   */
-  function playSound(sound) {
+  // Plays the provided sound if the browser allows to.
+  function playSound(sound: HTMLAudioElement) {
     if (canPlay.current === true) {
       sound.play().catch(() => {
         setSoundToggle(false)
@@ -213,20 +161,13 @@ export default function Play() {
     }
   }
 
-  const sounds = {
-    "start": new Audio(startSound),
-    "move": new Audio(moveSound),
-    "capture": new Audio(captureSound),
-    "check": new Audio(checkSound),
-  }
-
   useEffect(() => {
     canPlay.current = soundToggle
   }, [soundToggle])
 
   return (
     <div className="mainContainer">
-      <div className={styles.contentContainer}>
+      <div className={styles.container}>
         {isWaiting ?
           <div className={styles.loader}>
             <div className={styles.loaderContent}>
@@ -241,7 +182,7 @@ export default function Play() {
           : null
         }
 
-        {gameStatus !== "waiting" ?
+        {gameStatus !== 1 ?
           <Board
             handleTakeMove={handleTakeMove}
             pieces={pieces}
@@ -265,7 +206,7 @@ export default function Play() {
 
       <div className="playerStatus">
         Connection: {
-          isConnected
+          ic
             ? <img src={check} alt="yes" />
             : <img src={error} alt="no" />
         }
