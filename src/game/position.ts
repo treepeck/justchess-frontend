@@ -1,10 +1,5 @@
-/**
- * Creates a new position from the provided indexes.
- * @param {number} i 
- * @param {number} j 
- * @returns {string}
- */
-export default function posFromInd(i, j) {
+// Creates a new position from the provided indexes.
+export default function posFromInd(i: number, j: number) {
   let file = ""
   switch (j) {
     case 1:
@@ -35,11 +30,7 @@ export default function posFromInd(i, j) {
   return `${file}${8 - i + 1}`
 }
 
-/**
- * @param {string} str 
- */
-export function posFromString(str) {
-  console.log(str)
+export function posFromString(str: string) {
   let f
   switch (str.charAt(0)) {
     case "a":
@@ -67,6 +58,5 @@ export function posFromString(str) {
       f = 8
       break
   }
-  console.log({ file: f, rank: Number.parseInt(str.charAt(1)) })
   return { file: f, rank: Number.parseInt(str.charAt(1)) }
 }

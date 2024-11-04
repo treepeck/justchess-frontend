@@ -10,6 +10,40 @@
   }
 }
 
+.container {
+  position: absolute;
+  width: 100%;
+  min-height: 100%;
+  background-color: rgba(18, 18, 18, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content {
+  padding: 2rem;
+  position: absolute;
+  background-color: #1f1b25;
+  border: 3px solid #949494;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: popup 0.3s;
+  gap: 1.5rem;
+}
+
+.box {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-size: medium;
+  align-items: center;
+  gap: 1rem;
+}
+
 .close {
   background-color: #1f1b25;
   color: rgb(237, 237, 237);
@@ -28,41 +62,4 @@
   font-weight: 650;
   font-size: 1rem;
   content: "x";
-}
-
-.dialogContainer {
-  position: absolute;
-  width: 100%;
-  min-height: 100%;
-  background-color: rgba(18, 18, 18, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.dialogContent {
-  padding: 2rem;
-  position: absolute;
-  background-color: #1f1b25;
-  border: 3px solid #949494;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  animation: popup 0.3s;
-  gap: 1.5rem;
-}
-
-.filters {
-  margin: 0;
-  display: flex;
-  width: 100%;
-  font-size: medium;
-  align-items: center;
-  gap: 1rem;
-}
-
-.customButton {
-  margin: 0;
 }

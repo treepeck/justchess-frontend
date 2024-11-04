@@ -10,14 +10,14 @@
   }
 }
 
-.popupContainer {
+.container {
   position: fixed;
   width: 100%;
   min-height: 100%;
   background-color: transparent;
 }
 
-.popupContent {
+.content {
   background-color: var(--containersBg);
   border: 3px solid #949494;
   position: fixed;

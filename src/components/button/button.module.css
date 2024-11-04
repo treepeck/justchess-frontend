@@ -1,4 +1,4 @@
-.customButton {
+.button {
   border-radius: 5px;
   text-align: center;
   background-color: #3692e7;
@@ -10,11 +10,11 @@
   font-weight: 300;
 }
 
-.customButton:hover {
+.button:hover {
   border: 2px solid white;
   box-shadow: 10px 10px #1f1b25;
 }
 
-.customButton:active {
+.button:active {
   transform: translateY(4px);
 }
