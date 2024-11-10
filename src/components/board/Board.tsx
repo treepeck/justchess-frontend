@@ -6,13 +6,13 @@ import Square from "../../game/square"
 import Piece from "../../game/piece"
 import { MoveDTO, PossibleMove } from "../../game/move"
 import posFromInd, { posFromString } from "../../game/position"
-// import PieceSelection from "../piece-selection/PieceSelection"
+import PieceSelection from "../piece-selection/PieceSelection"
 
 type BoardProps = {
   handleTakeMove: (m: MoveDTO) => void,
   pieces: Map<string, Piece>,
   side: string,
-  currentTurn: string,
+  currentTurn: string | undefined,
   validMoves: PossibleMove[]
 }
 
@@ -29,11 +29,11 @@ export default function Board(props: BoardProps) {
 
   function redrawBoard() {
     const newBoard = []
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 0; i < 8; i++) {
       const row = []
       for (let j = 1; j <= 8; j++) {
         const pos = posFromInd(i, j)
-        const color = (i + j) % 2 === 1 ? "black" : "white"
+        const color = (i + j + 1) % 2 === 1 ? "black" : "white"
         const piece = props.pieces.get(pos)
         row.push(new Square(piece, pos, color))
       }
@@ -102,52 +102,50 @@ export default function Board(props: BoardProps) {
   const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"]
 
   return (
-    <div className={styles.layout}>
-      <div
-        className={`${styles.board} ${props.side === "black" ?
-          styles.sideBlack : styles.sideWhite}`
-        }
-      >
-        <ul className={styles.ranks}>
-          {ranks.map(rank => (
-            <li key={rank}>
-              {rank}
-            </li>
-          ))}
-        </ul>
-        <ul className={styles.files}>
-          {files.map(file => (
-            <li key={file}>
-              {file}
-            </li>
-          ))}
-        </ul>
-        {/* {isPSWA && (
-          <PieceSelection
-            // styles=
-            onSelect={handlePromotion}
-            setIsActive={setIsPSWA}
-            //@ts-ignore
-            positionFile={posFromString(lastMove?.to).file}
+    <div
+      className={`${styles.board} ${props.side === "black" ?
+        styles.sideBlack : styles.sideWhite}`
+      }
+    >
+      <div className={styles.squares}>
+        {board.map(row => row.map((square) => (
+          <BoardSquare
+            key={square.pos}
+            square={square}
             side={props.side}
+            onClickHandler={() => handleClickSquare(square)}
+            isSelected={
+              selectedSquare?.pos === square.pos ?
+                true : false
+            }
+            isAvailible={isValidMove(square.pos, selectedSquare?.pos)}
           />
-        )} */}
-        <div className={styles.squares}>
-          {board.map(row => row.map((square) => (
-            <BoardSquare
-              key={square.pos}
-              square={square}
-              side={props.side}
-              onClickHandler={() => handleClickSquare(square)}
-              isSelected={
-                selectedSquare?.pos === square.pos ?
-                  true : false
-              }
-              isAvailible={isValidMove(square.pos, selectedSquare?.pos)}
-            />
-          )))}
-        </div>
+        )))}
       </div>
-    </div >
+
+      <ul className={styles.ranks}>
+        {ranks.map(rank => (
+          <li key={rank}>
+            {rank}
+          </li>
+        ))}
+      </ul>
+      <ul className={styles.files}>
+        {files.map(file => (
+          <li key={file}>
+            {file}
+          </li>
+        ))}
+      </ul>
+      {isPSWA && (
+        <PieceSelection
+          onSelect={handlePromotion}
+          setIsActive={setIsPSWA}
+          // @ts-ignore
+          positionFile={posFromString(lastMove.to).file}
+          side={props.side}
+        />
+      )}
+    </div>
   )
 }

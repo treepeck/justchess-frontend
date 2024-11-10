@@ -41,9 +41,10 @@ export function AuthProvider() {
       // signed in as a new guest.
       if (r.err !== null) {
         const _r = await api.createGuest()
-        if (_r.err === null) {
-          at = _r.at as string
+        if (_r.err !== null) {
+          return
         }
+        at = _r.at as string
       } else {
         at = r.at
       }

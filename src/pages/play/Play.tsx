@@ -23,11 +23,18 @@ import {
   useRef,
 } from "react"
 
-import { useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 import Move, { MoveDTO, PossibleMove } from "../../game/move"
 import { EventAction } from "../../api/ws/event"
+
+import Game from "../../game/game"
 import Piece from "../../game/piece"
+import Timer from "../../components/timer/Timer"
+import Dialog from "../../components/dialog/Dialog"
+import initPieces from "../../game/initPieces"
+import posFromInd, { posFromString, posToString } from "../../game/position"
+import { hasJSDocParameterTags, hasOnlyExpressionInitializer } from "typescript"
 
 export default function Play() {
   const { id } = useParams() // room (aka game) id
@@ -35,19 +42,30 @@ export default function Play() {
   const { user } = useAuth()
   const { ws, ic } = useConn()
 
-  const [side, setSide] = useState<string>("")
-  const [gameStatus, setGameStatus] = useState<number>(1) // waiting by default
-  const [pieces, setPieces] = useState<Map<string, Piece>>(new Map())
+  const navigate = useNavigate()
+
+  // isCDA activates a Checkmate window. 
+  const [isCDA, setIsCDA] = useState<boolean>(false)
+  // isWaiting activates a "Wait for oponnent" window.
+  const [isWaiting, setIsWaiting] = useState<boolean>(true)
+  // Game related states
+  const [game, setGame] = useState<Game>()
+  const [side, setSide] = useState<string>()
   const [moves, setMoves] = useState<Move[]>([])
-  const [currentTurn, setCurrentTurn] = useState<string>("white")
+  const [currentTurn, setCurrentTurn] = useState<string>()
   const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
-  // soundToggle is used to display the sound toggle control. 
+  const [result, setResult] = useState<number>()
+  const [pieces, setPieces] = useState<Map<string, Piece>>(initPieces(new Map()))
+  const [whiteTime, setWhiteTime] = useState(0)
+  const [blackTime, setBlackTime] = useState(0)
+  // is white timer active
+  const [isWTA, setIsWTA] = useState(false)
+  // is black timer active
+  const [isBTA, setIsBTA] = useState(false)
+  // soundToggle activates the sound toggle control. 
   const [soundToggle, setSoundToggle] = useState<boolean>(true)
   // since the state cannot be used as the regular variable, canPlay ref is required. 
   const canPlay = useRef(soundToggle)
-  // isWaiting is used to provide an overlapping window in case the user
-  // waits for an opponent. 
-  const [isWaiting, setIsWaiting] = useState<boolean>(true)
 
   useEffect(() => {
     if (!ic || !id) {
@@ -56,41 +74,139 @@ export default function Play() {
 
     ws?.getGame(id)
 
-    ws?.setEventHandler(EventAction.UPDATE_BOARD, handleUpdateBoard)
+    ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
+    ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
     ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
     ws?.setEventHandler(EventAction.MOVES, handleMoves)
-    ws?.setEventHandler(EventAction.STATUS, (gameDTO: any) => {
-      if (side === "") {
-        if (gameDTO.white === user.id) {
-          setSide("white")
-        } else if (gameDTO.black === user.id) {
-          setSide("black")
-        }
-      }
-      setGameStatus(gameDTO.status)
-    })
 
     return () => {
       ws?.leaveRoom()
 
-      ws?.clearEventHandler(EventAction.UPDATE_BOARD)
+      ws?.clearEventHandler(EventAction.LAST_MOVE)
       ws?.clearEventHandler(EventAction.VALID_MOVES)
       ws?.clearEventHandler(EventAction.MOVES)
-      ws?.clearEventHandler(EventAction.STATUS)
+      ws?.clearEventHandler(EventAction.GAME_INFO)
     }
   }, [])
 
-  function handleUpdateBoard(pieces: any) {
-    const piecesMap = new Map()
-    // The board comes from the backend as the Object.<string, Piece> type.
-    // It is more comfortable to work with a Map, so the loop converts
-    // an object to a Map.
-    for (const posStr in pieces) {
-      const p = pieces[posStr]
-      piecesMap.set(posStr, new Piece(p.type, p.color))
+  function handleUpdateGame(g: Game) {
+    switch (g.status) {
+      case 0: // aborted
+        setValidMoves([])
+        setCurrentTurn(undefined)
+        // stop the timers
+        setIsWTA(false)
+        setIsBTA(false)
+        break
+
+      case 1: // waiting 
+        setIsWaiting(true)
+        break
+
+      case 2: // leave
+        // TODO: handle players disconnections 
+        break
+
+      case 3: // continues
+        setIsWaiting(false)
+
+        if (g.white.id === user.id) {
+          setSide("white")
+        } else {
+          setSide("black")
+        }
+
+        setWhiteTime(g.white.time / 100000000) // nanoseconds to seconds
+        setBlackTime(g.black.time / 100000000) // nanoseconds to seconds
+
+        if (!currentTurn) {
+          setCurrentTurn("white") // white player moves first
+          setIsWTA(true)
+        }
+        break
     }
-    // update the pieces state.
-    setPieces(piecesMap)
+  }
+
+  function handleLastMove(m: Move) {
+    moves.push(m)
+    const nm = [...moves]
+    if ((nm.length + 1) % 2 !== 0) {
+      setCurrentTurn("white")
+      setWhiteTime(m.timeLeft / 1000000000)
+      setIsBTA(false)
+      setIsWTA(true)
+    } else { // even moves
+      setCurrentTurn("black")
+      setBlackTime(m.timeLeft / 1000000000)
+      setIsBTA(true)
+      setIsWTA(false)
+    }
+
+    if (m.isCheckmate) {
+      // TODO: playSound(sounds["checkmate"])
+      setIsCDA(true)
+      setValidMoves([])
+      return
+    } else if (m.isCheck) {
+      playSound(sounds["check"])
+    } else if (m.isCapture) {
+      playSound(sounds["capture"])
+    } else {
+      playSound(sounds["move"])
+    }
+
+    // update the board
+    takeMove(m)
+    setPieces(new Map(pieces))
+    setMoves(nm)
+  }
+
+  function takeMove(m: Move) {
+    const p = pieces.get(m.from)
+    if (!p) {
+      return
+    }
+    pieces.set(m.to, p)
+    pieces.delete(m.from)
+    // handle special moves 
+    switch (m.moveType) {
+      case 4: { // 0-0-0
+
+        const pos = posFromString(m.to)
+        const rookPos = posToString(1, pos.rank)
+        const rook = pieces.get(rookPos)
+        if (rook) {
+          pieces.set(posToString(4, pos.rank), rook)
+          pieces.delete(rookPos)
+        }
+      }
+        break
+
+      case 5: { // 0-0
+        const pos = posFromString(m.to)
+        const rookPos = posToString(8, pos.rank)
+        const rook = pieces.get(rookPos)
+        if (rook) {
+          pieces.set(posToString(6, pos.rank), rook)
+          pieces.delete(rookPos)
+        }
+      }
+        break
+
+      case 6: { // en passant
+        const pos = posFromString(m.to)
+        let dir = 1
+        if (p.color === "white") {
+          dir = -1
+        }
+        pieces.delete(posToString(pos.file, pos.rank + dir))
+      }
+        break
+
+      case 7: // promotion
+        pieces.set(m.to, new Piece(m.pp, p.color))
+        break
+    }
   }
 
   function handleValidMoves(vm: PossibleMove[]) {
@@ -107,45 +223,11 @@ export default function Play() {
   function handleMoves(m: Move[]) {
     setMoves(m)
 
-    if (m.length > 0) {
-      if (m[m.length - 1].isCheck) {
-        playSound(sounds["check"])
-      } else if (m[m.length - 1].isCapture) {
-        playSound(sounds["capture"])
-      } else {
-        playSound(sounds["move"])
-      }
+    for (const move of m) {
+      takeMove(move)
     }
-    if ((m.length + 1) % 2 !== 0) {
-      setCurrentTurn("white")
-    } else { // even moves
-      setCurrentTurn("black")
-    }
+    setPieces(new Map(pieces))
   }
-
-  useEffect(() => {
-    switch (gameStatus) {
-      case 0: // Aborted
-        // TODO: show window "Game aborted"
-        break
-
-      case 1: // Waiting
-        setIsWaiting(true) // the game has not been started yet
-        break
-
-      case 2: // Continues
-        // if the game has just started
-        if (isWaiting) {
-          setIsWaiting(false)
-          playSound(sounds["start"])
-        }
-        break
-
-      case 3: // Over
-        // TODO: show window "Game over with the game result"
-        break
-    }
-  }, [gameStatus])
 
   function handleTakeMove(move: MoveDTO) {
     ws?.move(move)
@@ -165,6 +247,29 @@ export default function Play() {
     canPlay.current = soundToggle
   }, [soundToggle])
 
+  function parseResult(): string {
+    switch (result) {
+      case 0:
+        return "by checkmate"
+      case 1:
+        return "by resignation"
+      case 2:
+        return "by timeout"
+      case 3:
+        return "by stalemate"
+      case 4:
+        return "by insufficient material"
+      case 5:
+        return "by fifty moves rule"
+      case 6:
+        return "by repetition"
+      case 7:
+        return "by agreement"
+      default:
+        return "unknown reason"
+    }
+  }
+
   return (
     <div className="mainContainer">
       <div className={styles.container}>
@@ -182,17 +287,25 @@ export default function Play() {
           : null
         }
 
-        {gameStatus !== 1 ?
-          <Board
-            handleTakeMove={handleTakeMove}
-            pieces={pieces}
-            side={side}
-            currentTurn={currentTurn}
-            validMoves={validMoves}
-          />
-          : null
-        }
-        {/* {game ? <MovesTable moves={game.moves} /> : null} */}
+        {game?.status !== 1 && side ?
+          <div className={styles.boardLayout}>
+            <Timer
+              duration={whiteTime}
+              isActive={isWTA}
+            />
+            <Board
+              handleTakeMove={handleTakeMove}
+              pieces={pieces}
+              side={side}
+              currentTurn={currentTurn}
+              validMoves={validMoves}
+            />
+            <Timer
+              duration={blackTime}
+              isActive={isBTA}
+            />
+          </div>
+          : null}
       </div>
 
       <div className={styles.soundToggle}>
@@ -211,6 +324,24 @@ export default function Play() {
             : <img src={error} alt="no" />
         }
       </div>
+
+      {isCDA && (
+        <Dialog
+          header={moves.length % 2 === 0 ? "Black won" : "White won"}
+          content={[
+            <p>
+              {parseResult()}
+            </p>,
+            // <Button
+            //   onClickHandler={() => { handleRematch }}
+            //   text="Rematch"
+            // />
+          ]}
+          onSubmit={() => { navigate("/") }}
+          onSubmitText="Back to lobby"
+          setIsActive={setIsCDA}
+        />
+      )}
     </div>
   )
 }

@@ -5,6 +5,11 @@
   gap: 1rem;
 }
 
+.boardLayout {
+  display: inherit;
+  flex-direction: column;
+}
+
 .soundToggle {
   position: absolute;
   top: 0;

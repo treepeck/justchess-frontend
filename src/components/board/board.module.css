@@ -1,8 +1,3 @@
-.layout {
-  display: inherit;
-  flex-direction: column;
-}
-
 .board {
   display: flex;
   flex-direction: column;

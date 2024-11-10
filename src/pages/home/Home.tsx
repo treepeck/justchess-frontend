@@ -32,9 +32,9 @@ export default function Home() {
 
   // helper type that represents a room.
   type Room = { id: string, control: string, bonus: number, owner: User }
-
   // Stores all availible rooms.
   const [rooms, setRooms] = useState<Room[]>([])
+
   const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
   const [isPopupActive, setIsPopupActive] = useState<boolean>(false)
   const [popupMessage, setPopupMessage] = useState<string>("")
@@ -48,8 +48,6 @@ export default function Home() {
 
     // ADD_ROOM adds a room to currently avalible rooms.
     ws?.setEventHandler(EventAction.ADD_ROOM, (r: Room) => {
-      // here the new array is created since React will only
-      // re-render rooms if a new value is being set
       rooms.push(r)
       setRooms([...rooms])
     })
