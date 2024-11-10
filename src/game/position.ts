@@ -27,7 +27,7 @@ export default function posFromInd(i: number, j: number) {
       file = "h"
       break
   }
-  return `${file}${8 - i + 1}`
+  return `${file}${8 - i}`
 }
 
 export function posFromString(str: string) {
@@ -54,9 +54,40 @@ export function posFromString(str: string) {
     case "g":
       f = 7
       break
-    case "h":
+    default:
       f = 8
       break
   }
   return { file: f, rank: Number.parseInt(str.charAt(1)) }
+}
+
+export function posToString(f: number, rank: number) {
+  let file = ""
+  switch (f) {
+    case 1:
+      file = "a"
+      break
+    case 2:
+      file = "b"
+      break
+    case 3:
+      file = "c"
+      break
+    case 4:
+      file = "d"
+      break
+    case 5:
+      file = "e"
+      break
+    case 6:
+      file = "f"
+      break
+    case 7:
+      file = "g"
+      break
+    case 8:
+      file = "h"
+      break
+  }
+  return `${file}${rank}`
 }

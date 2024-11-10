@@ -3,15 +3,15 @@ export default class Move {
   to: string
   from: string
   isCheck: boolean
-  moveType: string
+  moveType: number
   timeLeft: number
   isCapture: boolean
   isCheckmate: boolean
-  promotionPayload: string
+  pp: string // promotion payload
 
   constructor(
     to: string, from: string,
-    isCheck: boolean, moveType: string,
+    isCheck: boolean, moveType: number,
     timeLeft: number, isCapture: boolean,
     isCheckmate: boolean, pp: string) {
     this.to = to
@@ -21,7 +21,7 @@ export default class Move {
     this.timeLeft = timeLeft
     this.isCapture = isCapture
     this.isCheckmate = isCheckmate
-    this.promotionPayload = pp
+    this.pp = pp
   }
 }
 

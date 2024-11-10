@@ -21,10 +21,12 @@ export enum EventAction {
   REDIRECT = "r",
   ADD_ROOM = "ar",
   REMOVE_ROOM = "rr",
-  UPDATE_BOARD = "ub",
+  LAST_MOVE = "lm",
   VALID_MOVES = "vm",
   MOVES = "mh",
   STATUS = "s",
+  GAME_INFO = "gi",
+  UPDATE_TIME = "ut",
   // ERRORS
   UNPROCESSABLE_ENTITY = "ue",
   CREATE_ROOM_ERR = "cre",
