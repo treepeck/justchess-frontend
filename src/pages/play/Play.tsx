@@ -116,8 +116,8 @@ export default function Play() {
           setSide("black")
         }
 
-        setWhiteTime(g.white.time / 100000000) // nanoseconds to seconds
-        setBlackTime(g.black.time / 100000000) // nanoseconds to seconds
+        setWhiteTime(g.white.time / 1000000000) // nanoseconds to seconds
+        setBlackTime(g.black.time / 1000000000) // nanoseconds to seconds
 
         if (!currentTurn) {
           setCurrentTurn("white") // white player moves first
