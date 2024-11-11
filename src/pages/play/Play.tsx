@@ -33,8 +33,7 @@ import Piece from "../../game/piece"
 import Timer from "../../components/timer/Timer"
 import Dialog from "../../components/dialog/Dialog"
 import initPieces from "../../game/initPieces"
-import posFromInd, { posFromString, posToString } from "../../game/position"
-import { hasJSDocParameterTags, hasOnlyExpressionInitializer } from "typescript"
+import { posFromString, posToString } from "../../game/position"
 
 export default function Play() {
   const { id } = useParams() // room (aka game) id
@@ -54,7 +53,7 @@ export default function Play() {
   const [moves, setMoves] = useState<Move[]>([])
   const [currentTurn, setCurrentTurn] = useState<string>()
   const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
-  const [result, setResult] = useState<number>()
+  const [result, setResult] = useState<{ r: number, w: number }>()
   const [pieces, setPieces] = useState<Map<string, Piece>>(initPieces(new Map()))
   const [whiteTime, setWhiteTime] = useState(0)
   const [blackTime, setBlackTime] = useState(0)
@@ -75,9 +74,11 @@ export default function Play() {
     ws?.getGame(id)
 
     ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
+    ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
     ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
     ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
     ws?.setEventHandler(EventAction.MOVES, handleMoves)
+    ws?.setEventHandler(EventAction.ABORT, handleAbortGame)
 
     return () => {
       ws?.leaveRoom()
@@ -90,15 +91,9 @@ export default function Play() {
   }, [])
 
   function handleUpdateGame(g: Game) {
-    switch (g.status) {
-      case 0: // aborted
-        setValidMoves([])
-        setCurrentTurn(undefined)
-        // stop the timers
-        setIsWTA(false)
-        setIsBTA(false)
-        break
+    setGame(g)
 
+    switch (g.status) {
       case 1: // waiting 
         setIsWaiting(true)
         break
@@ -115,14 +110,12 @@ export default function Play() {
         } else {
           setSide("black")
         }
-
-        setWhiteTime(g.white.time / 1000000000) // nanoseconds to seconds
-        setBlackTime(g.black.time / 1000000000) // nanoseconds to seconds
-
-        if (!currentTurn) {
-          setCurrentTurn("white") // white player moves first
-          setIsWTA(true)
-        }
+        // nanoseconds to seconds
+        setWhiteTime(g.white.time / 1000000000)
+        setBlackTime(g.black.time / 1000000000)
+        // white player moves first
+        setCurrentTurn("white")
+        setIsWTA(true)
         break
     }
   }
@@ -132,21 +125,18 @@ export default function Play() {
     const nm = [...moves]
     if ((nm.length + 1) % 2 !== 0) {
       setCurrentTurn("white")
-      setWhiteTime(m.timeLeft / 1000000000)
+      setBlackTime(m.timeLeft / 1000000000)
       setIsBTA(false)
       setIsWTA(true)
     } else { // even moves
       setCurrentTurn("black")
-      setBlackTime(m.timeLeft / 1000000000)
+      setWhiteTime(m.timeLeft / 1000000000)
       setIsBTA(true)
       setIsWTA(false)
     }
 
     if (m.isCheckmate) {
       // TODO: playSound(sounds["checkmate"])
-      setIsCDA(true)
-      setValidMoves([])
-      return
     } else if (m.isCheck) {
       playSound(sounds["check"])
     } else if (m.isCapture) {
@@ -161,6 +151,23 @@ export default function Play() {
     setMoves(nm)
   }
 
+  function handleEndGame(result: { r: number, w: number }) {
+    setResult(result)
+    setIsCDA(true)
+    setIsWTA(false)
+    setIsBTA(false)
+    setValidMoves([])
+    setCurrentTurn("")
+  }
+
+  function handleAbortGame() {
+    setValidMoves([])
+    setCurrentTurn(undefined)
+    // stop the timers
+    setIsWTA(false)
+    setIsBTA(false)
+  }
+
   function takeMove(m: Move) {
     const p = pieces.get(m.from)
     if (!p) {
@@ -171,7 +178,6 @@ export default function Play() {
     // handle special moves 
     switch (m.moveType) {
       case 4: { // 0-0-0
-
         const pos = posFromString(m.to)
         const rookPos = posToString(1, pos.rank)
         const rook = pieces.get(rookPos)
@@ -247,8 +253,21 @@ export default function Play() {
     canPlay.current = soundToggle
   }, [soundToggle])
 
+  function parseWinner(): string {
+    switch (result?.w) {
+      case 0:
+        return "Draw"
+      case 1:
+        return "White won"
+      case -1:
+        return "Black won"
+      default:
+        return "unknown winner"
+    }
+  }
+
   function parseResult(): string {
-    switch (result) {
+    switch (result?.r) {
       case 0:
         return "by checkmate"
       case 1:
@@ -266,7 +285,7 @@ export default function Play() {
       case 7:
         return "by agreement"
       default:
-        return "unknown reason"
+        return "unknown result"
     }
   }
 
@@ -290,9 +309,16 @@ export default function Play() {
         {game?.status !== 1 && side ?
           <div className={styles.boardLayout}>
             <Timer
-              duration={whiteTime}
-              isActive={isWTA}
+              duration={blackTime}
+              isActive={isBTA}
             />
+            <div className={styles.blackStatus}>
+              {game?.black.id} {
+                game?.black.isConnected
+                  ? <img src={check} alt="yes" />
+                  : <img src={error} alt="no" />
+              }
+            </div>
             <Board
               handleTakeMove={handleTakeMove}
               pieces={pieces}
@@ -301,9 +327,17 @@ export default function Play() {
               validMoves={validMoves}
             />
             <Timer
-              duration={blackTime}
-              isActive={isBTA}
+              duration={whiteTime}
+              isActive={isWTA}
             />
+            <div className={styles.whiteStatus}>
+              {game?.white.id} {
+                game?.white.isConnected
+                  ? <img src={check} alt="yes" />
+                  : <img src={error} alt="no" />
+              }
+            </div>
+
           </div>
           : null}
       </div>
@@ -317,17 +351,9 @@ export default function Play() {
         }
       </div>
 
-      <div className="playerStatus">
-        Connection: {
-          ic
-            ? <img src={check} alt="yes" />
-            : <img src={error} alt="no" />
-        }
-      </div>
-
       {isCDA && (
         <Dialog
-          header={moves.length % 2 === 0 ? "Black won" : "White won"}
+          header={parseWinner()}
           content={[
             <p>
               {parseResult()}
