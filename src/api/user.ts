@@ -10,7 +10,6 @@ export default class User {
   constructor(
     id: string, username: string, gamesCount: number,
     blitzRating: number, rapidRating: number, bulletRating: number,
-    accessToken: string, role: number,
   ) {
     this.id = id
     this.username = username

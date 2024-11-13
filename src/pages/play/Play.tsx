@@ -1,8 +1,8 @@
 import styles from "./play.module.css"
-import Board from "../../components/board/Board"
 
-import error from "../../assets/error.png"
-import check from "../../assets/check.png"
+import Board from "../../components/board/Board"
+import Miniprofile from "../../components/miniprofile/Miniprofile"
+
 import unmute from "../../assets/unmute.png"
 import mute from "../../assets/mute.png"
 // @ts-ignore
@@ -210,7 +210,7 @@ export default function Play() {
         break
 
       case 7: // promotion
-        pieces.set(m.to, new Piece(m.pp, p.color))
+        pieces.set(m.to, new Piece(m.to, m.pp, p.color))
         break
     }
   }
@@ -306,19 +306,19 @@ export default function Play() {
           : null
         }
 
-        {game?.status !== 1 && side ?
-          <div className={styles.boardLayout}>
-            <Timer
+        {game && game.status !== 1 && side ?
+          <div
+            className={
+              side === "white" ? styles.boardLayout :
+                styles.blackLayout
+            }
+          >
+            <Miniprofile
+              id={game.black.id}
+              isConnected={game.black.isConnected}
               duration={blackTime}
-              isActive={isBTA}
+              isTimerActive={isBTA}
             />
-            <div className={styles.blackStatus}>
-              {game?.black.id} {
-                game?.black.isConnected
-                  ? <img src={check} alt="yes" />
-                  : <img src={error} alt="no" />
-              }
-            </div>
             <Board
               handleTakeMove={handleTakeMove}
               pieces={pieces}
@@ -326,18 +326,12 @@ export default function Play() {
               currentTurn={currentTurn}
               validMoves={validMoves}
             />
-            <Timer
+            <Miniprofile
+              id={game.white.id}
+              isConnected={game.white.isConnected}
               duration={whiteTime}
-              isActive={isWTA}
+              isTimerActive={isWTA}
             />
-            <div className={styles.whiteStatus}>
-              {game?.white.id} {
-                game?.white.isConnected
-                  ? <img src={check} alt="yes" />
-                  : <img src={error} alt="no" />
-              }
-            </div>
-
           </div>
           : null}
       </div>

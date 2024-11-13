@@ -1,0 +1,12 @@
+.piece {
+  position: fixed;
+  z-index: 1000;
+  width: 5rem;
+  height: 5rem;
+}
+
+img {
+  width: 5rem;
+  height: 5rem;
+  cursor: pointer;
+}
