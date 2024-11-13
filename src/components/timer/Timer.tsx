@@ -58,7 +58,10 @@ export default function Timer(props: TimerProps) {
   }
 
   return (
-    <div className={getClassName()} style={{ color: time <= 30 ? "red" : "white" }}>
+    <div className={getClassName()} style={{
+      color: time <= 30 &&
+        props.isActive ? "red" : "white"
+    }}>
       {formatTime(time).split("").map((char, index) => (
         <span key={index} className={styles.digit}>
           {char}

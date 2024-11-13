@@ -17,7 +17,7 @@ type AuthCtx = {
 }
 
 const AuthContext = createContext<AuthCtx>({
-  user: new User("err", "err", 0, 0, 0, 0, "", 0),
+  user: new User("err", "err", 0, 0, 0, 0),
   setUser: (_: User) => { },
   accessToken: "",
 })

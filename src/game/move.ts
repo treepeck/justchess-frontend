@@ -29,12 +29,12 @@ export default class Move {
 export class MoveDTO {
   to: string
   from: string
-  promotionPayload: string
+  pp: string
 
   constructor(to: string, from: string, pp: string) {
     this.to = to
     this.from = from
-    this.promotionPayload = pp
+    this.pp = pp
   }
 }
 

@@ -10,6 +10,11 @@
   flex-direction: column;
 }
 
+.blackLayout {
+  display: inherit;
+  flex-direction: column-reverse;
+}
+
 .soundToggle {
   position: absolute;
   top: 0;
@@ -69,14 +74,4 @@
   100% {
     translate: 0 -1rem
   }
-}
-
-.whiteStatus img {
-  width: 2rem;
-  height: 2rem;
-}
-
-.blackStatus img {
-  width: 2rem;
-  height: 2rem;
 }

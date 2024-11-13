@@ -48,19 +48,14 @@ export default function Home() {
 
     // ADD_ROOM adds a room to currently avalible rooms.
     ws?.setEventHandler(EventAction.ADD_ROOM, (r: Room) => {
-      rooms.push(r)
-      setRooms([...rooms])
+      setRooms(_rooms => [..._rooms, r])
     })
 
     // REMOVE_ROOM removes a room from currently avalible rooms.
     ws?.setEventHandler(EventAction.REMOVE_ROOM, (r: Room) => {
-      const nr = []
-      for (const room of rooms) {
-        if (room.id != r.id) {
-          nr.push(room)
-        }
-      }
-      setRooms(nr)
+      setRooms((prevRooms) => prevRooms.filter((room) =>
+        room.id !== r.id
+      ))
     })
 
     // Create room error arises when the user tries to create multiple rooms.
@@ -227,6 +222,11 @@ export default function Home() {
           setIsActive={setIsPopupActive}
         />
       )}
+
+      <div className="footer">
+        Chess assets by Maciej Świerczek
+        License:  https://creativecommons.org/licenses/by/4.0/
+      </div>
     </div >
   )
 }

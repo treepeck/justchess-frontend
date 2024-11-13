@@ -34,12 +34,15 @@ export default class API {
 
   // Fetches the user info by id.
   // May return error string.
-  async getUserById(userId: string):
+  async getUserById(userId: string, at: string):
     Promise<{ user: User | null, err: string | null }> {
     try {
       const r = await fetch(`${this.serverUrl}/user/id/${userId}`, {
         method: "GET",
         credentials: "include",
+        headers: {
+          "Authorization": "Bearer " + at
+        }
       })
 
       if (!r.ok) {
