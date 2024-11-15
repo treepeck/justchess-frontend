@@ -179,6 +179,20 @@ export default function Home() {
           onClickHandler={() => { setIsDialogActive(true) }}
           text="Create a game"
         />
+        <div className="footer">
+          <a href="https://github.com/BelikovArtem/justchess_fullstack">
+            Source code
+          </a>
+          <br />
+          [<a href="https://www.figma.com/community/file/971870797656870866">
+            Chess Simple Assets
+          </a>] by [<a href="https://www.figma.com/@swierq">Maciej Świerczek</a>]
+          used under [
+          <a href="https://creativecommons.org/licenses/by/4.0/">
+            CC BY 4.0
+          </a>
+          ] licence terms
+        </div>
       </div>
       <div className="playersCounter">
         Players online: {cc}
@@ -222,11 +236,6 @@ export default function Home() {
           setIsActive={setIsPopupActive}
         />
       )}
-
-      <div className="footer">
-        Chess assets by Maciej Świerczek
-        License:  https://creativecommons.org/licenses/by/4.0/
-      </div>
     </div >
   )
 }

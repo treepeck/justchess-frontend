@@ -5,7 +5,7 @@ type PieceSelectionProps = {
   onSelect: (p: string) => void,
   side: string,
   setIsActive: (ia: boolean) => void,
-  positionFile: number
+  posFile: number
 }
 
 export default function PieceSelection(props: PieceSelectionProps) {
@@ -16,7 +16,7 @@ export default function PieceSelection(props: PieceSelectionProps) {
       <div
         className={styles.content}
         style={{
-          marginLeft: `calc(${(props.positionFile - 1)}rem * 5)`
+          marginLeft: `calc(${(props.posFile - 1)}rem * 5)`
         }}
       >
         {pieces.map(piece => (

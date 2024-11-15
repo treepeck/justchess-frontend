@@ -15,7 +15,7 @@
   width: 40rem;
   height: 40rem;
   /* z-index to cover the board */
-  z-index: 100;
+  z-index: 1500;
 }
 
 .content {
@@ -33,6 +33,6 @@
 
 .content img {
   cursor: pointer;
-  width: 4rem;
-  height: 4rem;
+  width: 5rem;
+  height: 5rem;
 }

@@ -3,17 +3,18 @@ import assets from "../../assets/pieces/pieces"
 import Piece from "../../game/piece"
 import { posFromString } from "../../game/position"
 import styles from "./boardPiece.module.css"
-import { MoveDTO } from "../../game/move"
+import { PossibleMove } from "../../game/move"
 
 type PieceProps = {
   pos: string
+  side: string
   piece: Piece
   onClickHandler: (p: Piece) => void
-  handleTakeMove: (m: MoveDTO) => void
+  handleMove: (m: PossibleMove) => void
 }
 
 export default function BoardPiece({ pos, piece, onClickHandler,
-  handleTakeMove }: PieceProps) {
+  handleMove, side }: PieceProps) {
 
   const [position, setPosition] = useState({ left: 0, top: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -27,8 +28,14 @@ export default function BoardPiece({ pos, piece, onClickHandler,
     const newPos = posFromString(pos)
     setFile(newPos.file)
     setRank(newPos.rank)
-    piece.pos = pos
   }, [pos])
+
+  function transform(): string {
+    if (side === "white") {
+      return `translate(calc(5rem * ${file - 1}), calc(5rem * ${8 - rank}))`
+    }
+    return `translate(calc(5rem * ${file - 1}), calc(5rem * ${rank - 1}))`
+  }
 
   function onDragStart(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     onClickHandler(piece)
@@ -64,7 +71,7 @@ export default function BoardPiece({ pos, piece, onClickHandler,
       return
     }
 
-    const droppable = elBelow.closest(".availible")
+    const droppable = elBelow.closest(".availible, .capture")
 
     if (currentDroppable.current != droppable) {
       // leave droppable area
@@ -87,9 +94,9 @@ export default function BoardPiece({ pos, piece, onClickHandler,
     pieceRef.current = null
 
     if (currentDroppable.current) {
-      const toPos = currentDroppable.current.getAttribute("data-pos")
-      if (toPos) {
-        handleTakeMove(new MoveDTO(toPos, piece.pos, ""))
+      const move = currentDroppable.current.getAttribute("data-payload")
+      if (move) {
+        handleMove(JSON.parse(move))
       }
     }
 
@@ -101,11 +108,11 @@ export default function BoardPiece({ pos, piece, onClickHandler,
     <div
       className={styles.piece}
       style={{
-        transform: isDragging ? "none" : `translate(calc(5rem * ${file - 1}), calc(5rem * ${8 - rank}))`,
+        transform: isDragging ? "none" : transform(),
         left: isDragging ? `${position.left}px` : undefined,
         top: isDragging ? `${position.top}px` : undefined,
       }}
-      onMouseDown={e => onDragStart(e)}
+      onMouseDown={side === piece.color ? e => onDragStart(e) : undefined}
       draggable={false}
     >
       <img

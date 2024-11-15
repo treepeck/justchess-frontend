@@ -53,16 +53,19 @@ body {
 }
 
 .footer {
-  position: absolute;
-  bottom: 0;
   font-size: small;
+  word-break: break-all;
+}
+
+a {
+  color: white;
 }
 
 .availible {
-  position: fixed;
+  position: absolute;
+  z-index: 900;
   width: 5rem;
   height: 5rem;
-  z-index: 900;
 }
 
 .availible:hover {
@@ -70,7 +73,7 @@ body {
 }
 
 .availible:after {
-  position: fixed;
+  position: absolute;
   content: "";
   top: 40%;
   right: 40%;
@@ -79,4 +82,17 @@ body {
   height: 25%;
   z-index: 900;
   border-radius: 50%;
+}
+
+.capture {
+  position: absolute;
+  width: 5rem;
+  height: 5rem;
+  z-index: 1100;
+  border: 5px solid rgb(130, 151, 105);
+  border-radius: 50%;
+}
+
+.capture:hover {
+  background-color: rgb(130, 151, 105, 40%);
 }
