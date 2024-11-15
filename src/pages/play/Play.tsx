@@ -83,10 +83,12 @@ export default function Play() {
     return () => {
       ws?.leaveRoom()
 
+      ws?.clearEventHandler(EventAction.GAME_INFO)
+      ws?.clearEventHandler(EventAction.END_RESULT)
       ws?.clearEventHandler(EventAction.LAST_MOVE)
       ws?.clearEventHandler(EventAction.VALID_MOVES)
       ws?.clearEventHandler(EventAction.MOVES)
-      ws?.clearEventHandler(EventAction.GAME_INFO)
+      ws?.clearEventHandler(EventAction.ABORT)
     }
   }, [])
 
@@ -173,6 +175,7 @@ export default function Play() {
     if (!p) {
       return
     }
+    p.pos = m.to
     pieces.set(m.to, p)
     pieces.delete(m.from)
     // handle special moves 
@@ -233,10 +236,6 @@ export default function Play() {
       takeMove(move)
     }
     setPieces(new Map(pieces))
-  }
-
-  function handleTakeMove(move: MoveDTO) {
-    ws?.move(move)
   }
 
   // Plays the provided sound if the browser allows to.
@@ -320,11 +319,11 @@ export default function Play() {
               isTimerActive={isBTA}
             />
             <Board
-              handleTakeMove={handleTakeMove}
               pieces={pieces}
               side={side}
               currentTurn={currentTurn}
               validMoves={validMoves}
+              handleMove={(m: MoveDTO) => { ws?.move(m) }}
             />
             <Miniprofile
               id={game.white.id}

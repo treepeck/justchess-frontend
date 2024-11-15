@@ -20,21 +20,17 @@
 }
 
 .selected img {
-  position: absolute;
   width: 100%;
   height: 100%;
   opacity: 0.4;
 }
 
 .ranks {
-  z-index: 100;
-  position: relative;
   font-size: 1rem;
   font-weight: bold;
 }
 
 .sideBlack .ranks {
-  right: 0;
   -moz-transform: scaleX(-1);
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);

@@ -5,12 +5,12 @@ import background from "../../assets/background.png"
 
 import Piece from "../../game/piece"
 import { MoveDTO, PossibleMove } from "../../game/move"
-import { posFromString, posToString } from "../../game/position"
+import { posFromString } from "../../game/position"
 import PieceSelection from "../piece-selection/PieceSelection"
 import assets from "../../assets/pieces/pieces"
 
 type BoardProps = {
-  handleTakeMove: (m: MoveDTO) => void,
+  handleMove: (m: MoveDTO) => void,
   pieces: Map<string, Piece>,
   side: string,
   currentTurn: string | undefined,
@@ -33,15 +33,35 @@ export default function Board(props: BoardProps) {
     }
   }
 
+  function takeMove() {
+
+  }
+
   function handlePromotion(pp: string) {
     if (lastMove) {
       setSelectedPiece(null)
-      props.handleTakeMove(new MoveDTO(lastMove.to, lastMove.from, pp))
+      props.handleMove(new MoveDTO(lastMove.to, lastMove.from, pp))
     }
   }
 
-  function findValidMoves() {
-    return props.validMoves.filter(move => move.from === selectedPiece?.pos)
+  function findValidMoves(moves: PossibleMove[]) {
+    return moves.filter(move => move.from === selectedPiece?.pos)
+  }
+
+  function move(m: PossibleMove) {
+    if (m.moveType === 7) { // promotion
+      setLastMove(new MoveDTO(m.to, m.from, ""))
+      setIsPSWA(true)
+      return
+    }
+    props.handleMove(new MoveDTO(m.to, m.from, ""))
+  }
+
+  function transform(pos: { file: number, rank: number }): string {
+    if (props.side === "white") {
+      return `translate(calc(5rem * ${pos.file - 1}), calc(5rem * ${8 - pos.rank}))`
+    }
+    return `translate(calc(5rem * ${pos.file - 1}), calc(5rem * ${pos.rank - 1}))`
   }
 
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"]
@@ -49,9 +69,7 @@ export default function Board(props: BoardProps) {
 
   return (
     <div
-      className={[styles.board,
-      props.side == "black" ? styles.sideBlack : ""
-      ].join(" ")}
+      className={styles.board}
       style={{ backgroundImage: `url(${background})` }} // TODO: replace with css variable
     >
       {
@@ -61,49 +79,50 @@ export default function Board(props: BoardProps) {
             pos={pos}
             piece={piece}
             onClickHandler={handleClickPiece}
-            handleTakeMove={(m: MoveDTO) => {
-              setSelectedPiece(null)
-              props.handleTakeMove(m)
-            }}
+            handleMove={move}
+            side={props.side}
           />
         ))
       }
 
-      {
-        selectedPiece &&
+      {selectedPiece &&
         <div
           className={styles.selected}
           style={{
-            transform: `translate(calc(5rem * ${posFromString(selectedPiece.pos).file - 1
-              }), calc(5rem * ${8 - posFromString(selectedPiece.pos).rank}))`,
+            transform: transform(posFromString(selectedPiece?.pos)),
           }}
         >
           <img
             //@ts-ignore
             src={assets[`${selectedPiece.color}${selectedPiece.type}`]}
           />
-        </div>
-      }
+        </div>}
 
       <div>
-        {findValidMoves().map(
+        {findValidMoves(props.validMoves).map(
           (m, ind) => (
             <div
               key={ind}
               style={{
-                transform: `translate(calc(5rem * ${posFromString(m.to).file - 1
-                  }), calc(5rem * ${8 - posFromString(m.to).rank}))`
+                transform: transform(posFromString(m.to))
               }}
-              className="availible"
-              data-pos={m.to}
+              className={props.pieces.get(m.to) ? "capture" : "availible"}
+              data-payload={JSON.stringify(m)}
               onClick={() => {
                 setSelectedPiece(null)
-                props.handleTakeMove(new MoveDTO(m.to, m.from, ""))
+                move(m)
               }}
             />
           ))
         }
       </div>
+
+      {isPSWA && lastMove && <PieceSelection
+        onSelect={handlePromotion}
+        side={props.side}
+        posFile={posFromString(lastMove.to).file}
+        setIsActive={setIsPSWA}
+      />}
 
       <ul className={styles.ranks}>
         {ranks.map(rank => (
