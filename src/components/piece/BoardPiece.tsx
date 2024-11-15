@@ -34,7 +34,7 @@ export default function BoardPiece({ pos, piece, onClickHandler,
     if (side === "white") {
       return `translate(calc(5rem * ${file - 1}), calc(5rem * ${8 - rank}))`
     }
-    return `translate(calc(5rem * ${file - 1}), calc(5rem * ${rank - 1}))`
+    return `translate(calc(35rem - (5rem * ${file - 1})), calc(5rem * ${rank - 1}))`
   }
 
   function onDragStart(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {

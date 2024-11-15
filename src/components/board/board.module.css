@@ -14,37 +14,32 @@
 
 .selected {
   position: absolute;
+  display: flex;
   width: 5rem;
   height: 5rem;
-  background-color: rgb(255, 255, 102, 0.45);
+  background-color: rgb(178, 223, 237);
 }
 
 .selected img {
-  width: 100%;
-  height: 100%;
+  margin: auto;
+  width: 4.5rem;
+  height: 4.5rem;
   opacity: 0.4;
 }
 
 .ranks {
+  width: 1rem;
   font-size: 1rem;
   font-weight: bold;
+  display: flex;
+  flex-direction: column;
 }
 
-.sideBlack .ranks {
-  -moz-transform: scaleX(-1);
-  -webkit-transform: scaleX(-1);
-  transform: scaleX(-1);
-}
-
-.sideBlack .ranks li {
-  transform: scaleY(-1);
-}
-
-.sideWhite .ranks li:nth-child(1n) {
+.ranks li:nth-child(1n) {
   color: var(--black);
 }
 
-.sideWhite .ranks li:nth-child(2n) {
+.ranks li:nth-child(2n) {
   color: var(--white);
 }
 
@@ -56,47 +51,51 @@
   color: var(--black);
 }
 
+.sideBlack .ranks {
+  flex-direction: column-reverse;
+}
+
 .ranks li {
   padding-left: 2px;
   height: 5rem;
 }
 
 .files {
-  bottom: 0;
+  position: absolute;
   display: flex;
   flex-direction: row;
-  z-index: 100;
-  position: absolute;
   font-size: 1rem;
   font-weight: bold;
 }
 
-.sideBlack .files {
-  top: 0;
-  bottom: auto;
-}
-
-.sideBlack .files li {
-  transform: rotate(180deg);
-}
-
 .files li:nth-child(1n) {
-  color: var(--white);
-}
-
-.sideBlack .files li:nth-child(1n) {
   color: var(--black);
 }
 
 .files li:nth-child(2n) {
-  color: var(--black);
+  color: var(--white);
+}
+
+.sideBlack .files li:nth-child(1n) {
+  color: var(--white);
 }
 
 .sideBlack .files li:nth-child(2n) {
-  color: var(--white);
+  color: var(--black);
+}
+
+.sideBlack .files {
+  flex-direction: row-reverse;
 }
 
 .files li {
   padding-left: 4.25rem;
   width: 5rem;
+}
+
+.lastMove {
+  position: absolute;
+  width: 5rem;
+  height: 5rem;
+  background-color: rgb(178, 223, 237, 0.8);
 }

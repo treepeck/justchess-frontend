@@ -172,7 +172,7 @@ export default function Home() {
               </table>
             </> :
             <div>
-              There are no games yet. To create a game, press the button below.
+              There are no availible games yet.
             </div>}
         </div>
         <Button
