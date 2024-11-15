@@ -77,7 +77,7 @@ a {
   content: "";
   top: 40%;
   right: 40%;
-  background-color: rgb(130, 151, 105);
+  background-color: rgb(130, 151, 105, 70%);
   width: 25%;
   height: 25%;
   z-index: 900;
@@ -89,7 +89,7 @@ a {
   width: 5rem;
   height: 5rem;
   z-index: 1100;
-  border: 5px solid rgb(130, 151, 105);
+  border: 5px solid rgb(130, 151, 105, 70%);
   border-radius: 50%;
 }
 

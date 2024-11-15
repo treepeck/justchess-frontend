@@ -185,7 +185,8 @@ export default function Play() {
         const rookPos = posToString(1, pos.rank)
         const rook = pieces.get(rookPos)
         if (rook) {
-          pieces.set(posToString(4, pos.rank), rook)
+          rook.pos = posToString(4, pos.rank)
+          pieces.set(rook.pos, rook)
           pieces.delete(rookPos)
         }
       }
@@ -196,7 +197,8 @@ export default function Play() {
         const rookPos = posToString(8, pos.rank)
         const rook = pieces.get(rookPos)
         if (rook) {
-          pieces.set(posToString(6, pos.rank), rook)
+          rook.pos = posToString(6, pos.rank)
+          pieces.set(rook.pos, rook)
           pieces.delete(rookPos)
         }
       }
@@ -324,6 +326,7 @@ export default function Play() {
               currentTurn={currentTurn}
               validMoves={validMoves}
               handleMove={(m: MoveDTO) => { ws?.move(m) }}
+              lastMove={moves[moves.length - 1]}
             />
             <Miniprofile
               id={game.white.id}
@@ -357,7 +360,7 @@ export default function Play() {
             // />
           ]}
           onSubmit={() => { navigate("/") }}
-          onSubmitText="Back to lobby"
+          onSubmitText="Home page"
           setIsActive={setIsCDA}
         />
       )}
