@@ -1,35 +1,35 @@
-import styles from "./dialog.module.css"
+import "./Dialog.css"
 
-import ReactDOM from "react-dom"
-import React, { ReactNode, useState } from "react"
+import React, { ReactNode } from "react"
 import Button from "../button/Button"
 
 type DlgProps = {
   header: string,
-  content: ReactNode[], // child elements,
+  content: ReactNode[], // child elements
   onSubmit: (...args: any) => void,
   onSubmitText: string,
   setIsActive: (ia: boolean) => void,
 }
 
-export default function Dialog(props: DlgProps) {
+export default function Dialog({ header, content, onSubmit,
+  onSubmitText, setIsActive }: DlgProps) {
   return (
-    <div className={styles.container} onClick={() => props.setIsActive(false)}>
-      <div className={styles.content} onClick={e => e.stopPropagation()}>
-        <p>{props.header}</p>
+    <div className="dialog" onClick={() => setIsActive(false)}>
+      <div className="dialogContent" onClick={e => e.stopPropagation()}>
+        <p>{header}</p>
 
-        <div className={styles.box}>
-          {props.content.map((item, index) => (
+        <div className="box">
+          {content.map((item, index) => (
             <React.Fragment key={index}>{item}</React.Fragment>
           ))}
 
           <Button
-            text={props.onSubmitText}
-            onClickHandler={() => { props.onSubmit() }}
+            text={onSubmitText}
+            onClickHandler={() => { onSubmit() }}
           />
         </div>
 
-        <button className={styles.close} onClick={() => props.setIsActive(false)} />
+        <button className="close" onClick={() => setIsActive(false)} />
       </div>
     </div>
   )

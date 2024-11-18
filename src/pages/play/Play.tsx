@@ -1,8 +1,16 @@
-import styles from "./play.module.css"
-
+// misc
+import {
+  useState,
+  useEffect,
+  useRef,
+} from "react"
+import "./Play.css"
+import { useNavigate, useParams } from "react-router-dom"
+// components
+import Chat from "../../components/chat/Chat"
 import Board from "../../components/board/Board"
 import Miniprofile from "../../components/miniprofile/Miniprofile"
-
+// assets
 import unmute from "../../assets/unmute.png"
 import mute from "../../assets/mute.png"
 // @ts-ignore
@@ -13,27 +21,14 @@ import startSound from "../../assets/sounds/start.wav"
 import captureSound from "../../assets/sounds/capture.wav"
 // @ts-ignore
 import checkSound from "../../assets/sounds/check.wav"
-
+// contexts
 import { useAuth } from "../../context/Auth"
 import { useConn } from "../../context/Conn"
-
-import {
-  useState,
-  useEffect,
-  useRef,
-} from "react"
-
-import { useNavigate, useParams } from "react-router-dom"
-
-import Move, { MoveDTO, PossibleMove } from "../../game/move"
-import { EventAction } from "../../api/ws/event"
-
+// logic
 import Game from "../../game/game"
-import Piece from "../../game/piece"
-import Timer from "../../components/timer/Timer"
+import { EventAction } from "../../api/ws/event"
 import Dialog from "../../components/dialog/Dialog"
-import initPieces from "../../game/initPieces"
-import { posFromString, posToString } from "../../game/position"
+import Move, { MoveDTO, PossibleMove } from "../../game/move"
 
 export default function Play() {
   const { id } = useParams() // room (aka game) id
@@ -45,22 +40,17 @@ export default function Play() {
 
   // isCDA activates a Checkmate window. 
   const [isCDA, setIsCDA] = useState<boolean>(false)
-  // isWaiting activates a "Wait for oponnent" window.
+  // isWaiting activates a "Wait for second oponnent" window.
   const [isWaiting, setIsWaiting] = useState<boolean>(true)
-  // Game related states
-  const [game, setGame] = useState<Game>()
   const [side, setSide] = useState<string>()
   const [moves, setMoves] = useState<Move[]>([])
-  const [currentTurn, setCurrentTurn] = useState<string>()
-  const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
+  const [game, setGame] = useState<Game | null>(null)
   const [result, setResult] = useState<{ r: number, w: number }>()
-  const [pieces, setPieces] = useState<Map<string, Piece>>(initPieces(new Map()))
+  // player`s timers
   const [whiteTime, setWhiteTime] = useState(0)
   const [blackTime, setBlackTime] = useState(0)
-  // is white timer active
-  const [isWTA, setIsWTA] = useState(false)
-  // is black timer active
-  const [isBTA, setIsBTA] = useState(false)
+  const [isWTA, setIsWTA] = useState(false) // is white timer active
+  const [isBTA, setIsBTA] = useState(false) // is black timer active
   // soundToggle activates the sound toggle control. 
   const [soundToggle, setSoundToggle] = useState<boolean>(true)
   // since the state cannot be used as the regular variable, canPlay ref is required. 
@@ -76,8 +66,6 @@ export default function Play() {
     ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
     ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
     ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
-    ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
-    ws?.setEventHandler(EventAction.MOVES, handleMoves)
     ws?.setEventHandler(EventAction.ABORT, handleAbortGame)
 
     return () => {
@@ -86,15 +74,11 @@ export default function Play() {
       ws?.clearEventHandler(EventAction.GAME_INFO)
       ws?.clearEventHandler(EventAction.END_RESULT)
       ws?.clearEventHandler(EventAction.LAST_MOVE)
-      ws?.clearEventHandler(EventAction.VALID_MOVES)
-      ws?.clearEventHandler(EventAction.MOVES)
       ws?.clearEventHandler(EventAction.ABORT)
     }
   }, [])
 
   function handleUpdateGame(g: Game) {
-    setGame(g)
-
     switch (g.status) {
       case 1: // waiting 
         setIsWaiting(true)
@@ -112,29 +96,27 @@ export default function Play() {
         } else {
           setSide("black")
         }
-        // nanoseconds to seconds
+        // set players times, convert nanoseconds to seconds
         setWhiteTime(g.white.time / 1000000000)
         setBlackTime(g.black.time / 1000000000)
-        // white player moves first
-        setCurrentTurn("white")
         setIsWTA(true)
         break
     }
+    setGame(g)
   }
 
   function handleLastMove(m: Move) {
-    moves.push(m)
-    const nm = [...moves]
-    if ((nm.length + 1) % 2 !== 0) {
-      setCurrentTurn("white")
+    const newMoves = [...moves]
+    newMoves.push(m)
+    // odd moves
+    if ((newMoves.length + 1) % 2 !== 0) {
       setBlackTime(m.timeLeft / 1000000000)
-      setIsBTA(false)
       setIsWTA(true)
+      setIsBTA(false)
     } else { // even moves
-      setCurrentTurn("black")
       setWhiteTime(m.timeLeft / 1000000000)
-      setIsBTA(true)
       setIsWTA(false)
+      setIsBTA(true)
     }
 
     if (m.isCheckmate) {
@@ -147,81 +129,17 @@ export default function Play() {
       playSound(sounds["move"])
     }
 
-    // update the board
-    takeMove(m)
-    setPieces(new Map(pieces))
-    setMoves(nm)
+    setMoves(newMoves)
   }
 
   function handleEndGame(result: { r: number, w: number }) {
     setResult(result)
     setIsCDA(true)
-    setIsWTA(false)
-    setIsBTA(false)
-    setValidMoves([])
-    setCurrentTurn("")
   }
 
   function handleAbortGame() {
-    setValidMoves([])
-    setCurrentTurn(undefined)
-    // stop the timers
-    setIsWTA(false)
-    setIsBTA(false)
-  }
-
-  function takeMove(m: Move) {
-    const p = pieces.get(m.from)
-    if (!p) {
-      return
-    }
-    p.pos = m.to
-    pieces.set(m.to, p)
-    pieces.delete(m.from)
-    // handle special moves 
-    switch (m.moveType) {
-      case 4: { // 0-0-0
-        const pos = posFromString(m.to)
-        const rookPos = posToString(1, pos.rank)
-        const rook = pieces.get(rookPos)
-        if (rook) {
-          rook.pos = posToString(4, pos.rank)
-          pieces.set(rook.pos, rook)
-          pieces.delete(rookPos)
-        }
-      }
-        break
-
-      case 5: { // 0-0
-        const pos = posFromString(m.to)
-        const rookPos = posToString(8, pos.rank)
-        const rook = pieces.get(rookPos)
-        if (rook) {
-          rook.pos = posToString(6, pos.rank)
-          pieces.set(rook.pos, rook)
-          pieces.delete(rookPos)
-        }
-      }
-        break
-
-      case 6: { // en passant
-        const pos = posFromString(m.to)
-        let dir = 1
-        if (p.color === "white") {
-          dir = -1
-        }
-        pieces.delete(posToString(pos.file, pos.rank + dir))
-      }
-        break
-
-      case 7: // promotion
-        pieces.set(m.to, new Piece(m.to, m.pp, p.color))
-        break
-    }
-  }
-
-  function handleValidMoves(vm: PossibleMove[]) {
-    setValidMoves(vm)
+    setResult({ r: -1, w: -2 }) // game aborted, no winner.
+    setIsCDA(true)
   }
 
   const sounds = {
@@ -229,15 +147,6 @@ export default function Play() {
     "move": new Audio(moveSound),
     "capture": new Audio(captureSound),
     "check": new Audio(checkSound),
-  }
-
-  function handleMoves(m: Move[]) {
-    setMoves(m)
-
-    for (const move of m) {
-      takeMove(move)
-    }
-    setPieces(new Map(pieces))
   }
 
   // Plays the provided sound if the browser allows to.
@@ -263,7 +172,7 @@ export default function Play() {
       case -1:
         return "Black won"
       default:
-        return "unknown winner"
+        return "No winner"
     }
   }
 
@@ -286,66 +195,67 @@ export default function Play() {
       case 7:
         return "by agreement"
       default:
-        return "unknown result"
+        return "game aborted"
     }
+  }
+
+  function sendMsg(m: string) {
+    if (m.length > 0 && m.length < 100) {
+      ws?.sendMsg(m)
+    }
+  }
+
+  if (isWaiting) {
+    return <div className="loader">
+      <div className="loaderContent">
+        Waiting for the second player
+        <div className="dots">
+          <div className="loadingDot" />
+          <div className="loadingDot" />
+          <div className="loadingDot" />
+        </div>
+      </div>
+    </div>
   }
 
   return (
     <div className="mainContainer">
-      <div className={styles.container}>
-        {isWaiting ?
-          <div className={styles.loader}>
-            <div className={styles.loaderContent}>
-              Waiting for the second player
-              <div className={styles.dots}>
-                <div className={styles.loadingDot} />
-                <div className={styles.loadingDot} />
-                <div className={styles.loadingDot} />
-              </div>
-            </div>
-          </div>
-          : null
-        }
+      <div className="play">
+        <Chat
+          onSend={sendMsg}
+        />
 
         {game && game.status !== 1 && side ?
-          <div
-            className={
-              side === "white" ? styles.boardLayout :
-                styles.blackLayout
-            }
-          >
+          <div className={`boardLayout  ${side === "black" ? "blackLayout" : ""}`}>
             <Miniprofile
               id={game.black.id}
-              isConnected={game.black.isConnected}
-              duration={blackTime}
-              isTimerActive={isBTA}
+              ic={game.black.isConnected}
+              dur={blackTime}
+              ita={isBTA}
             />
             <Board
-              pieces={pieces}
               side={side}
-              currentTurn={currentTurn}
-              validMoves={validMoves}
-              handleMove={(m: MoveDTO) => { ws?.move(m) }}
               lastMove={moves[moves.length - 1]}
+              onMove={(m: MoveDTO) => { ws?.move(m) }}
             />
             <Miniprofile
               id={game.white.id}
-              isConnected={game.white.isConnected}
-              duration={whiteTime}
-              isTimerActive={isWTA}
+              ic={game.white.isConnected}
+              dur={whiteTime}
+              ita={isWTA}
             />
           </div>
           : null}
       </div>
 
-      <div className={styles.soundToggle}>
+      {/* <div className="soundToggle">
         {soundToggle ?
           <img src={unmute} alt="unmuted"
             onClick={() => setSoundToggle(false)} /> :
           <img src={mute} alt="muted"
             onClick={() => setSoundToggle(true)} />
         }
-      </div>
+      </div> */}
 
       {isCDA && (
         <Dialog
@@ -364,6 +274,6 @@ export default function Play() {
           setIsActive={setIsCDA}
         />
       )}
-    </div>
+    </div >
   )
 }

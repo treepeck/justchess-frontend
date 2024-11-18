@@ -27,6 +27,8 @@ export enum EventAction {
   GAME_INFO = "gi",
   ABORT = "a",
   END_RESULT = "er",
+  SEND_MESSAGE = "sm",
+  CHAT_MESSAGE = "cm",
   // ERRORS
   UNPROCESSABLE_ENTITY = "ue",
   CREATE_ROOM_ERR = "cre",

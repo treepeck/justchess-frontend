@@ -1,3 +1,4 @@
+import Move, { PossibleMove } from "./move"
 import Player from "./player"
 
 export default class Game {

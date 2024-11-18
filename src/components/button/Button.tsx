@@ -1,4 +1,4 @@
-import styles from "./button.module.css"
+import "./Button.css"
 
 type BtnProps = {
   text: string,
@@ -7,7 +7,7 @@ type BtnProps = {
 
 export default function Button(props: BtnProps) {
   return (
-    <button onClick={() => { props.onClickHandler() }} className={styles.button}>
+    <button onClick={() => { props.onClickHandler() }} className="button">
       {props.text}
     </button>
   );

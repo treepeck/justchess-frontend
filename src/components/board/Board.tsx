@@ -1,31 +1,136 @@
-import styles from "./board.module.css"
-import BoardPiece from "../piece/BoardPiece"
-import { useState } from "react"
-import background from "../../assets/background.png"
-
-import Piece from "../../game/piece"
-import Move, { MoveDTO, PossibleMove } from "../../game/move"
-import { posFromString } from "../../game/position"
-import PieceSelection from "../piece-selection/PieceSelection"
+// misc
+import "./Board.css"
+import { useEffect, useRef, useState } from "react"
 import assets from "../../assets/pieces/pieces"
+import background from "../../assets/background.png"
+// Components
+import BoardPiece from "../piece/BoardPiece"
+import PieceSelection from "../piece-selection/PieceSelection"
+// Main logic
+import Piece from "../../game/piece"
+import { posFromString, posToString } from "../../game/position"
+import Move, { MoveDTO, PossibleMove } from "../../game/move"
+import { useConn } from "../../context/Conn"
+import initPieces from "../../game/initPieces"
+import { EventAction } from "../../api/ws/event"
 
 type BoardProps = {
-  handleMove: (m: MoveDTO) => void,
-  pieces: Map<string, Piece>,
-  side: string,
-  currentTurn: string | undefined,
-  validMoves: PossibleMove[]
+  side: string
   lastMove: Move
+  onMove: (m: MoveDTO) => void
 }
 
-export default function Board(props: BoardProps) {
+export default function Board({ side, lastMove, onMove }: BoardProps) {
+
+  const { ws, ic } = useConn()
+
+  const [currentTurn, setCurrentTurn] = useState("white")
+  // valid moves for the current turn.
+  const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
+  // pieces on a board.
+  const [pieces, setPieces] = useState<Map<string, Piece>>(initPieces())
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null)
   const [promotionMove, setPromotionMove] = useState<MoveDTO | null>(null)
   // Is piece selection window active.
   const [isPSWA, setIsPSWA] = useState<boolean>(false)
 
+  const boardRef = useRef<HTMLDivElement | null>(null)
+  const [size, setSize] = useState<{ width: number, height: number }>
+    ({ width: 0, height: 0 })
+
+  useEffect(() => {
+    if (!ic) {
+      return
+    }
+
+    // get board size in pixels to correctly position pieces.
+    const updateSize = () => {
+      if (boardRef.current) {
+        const { width, height } = boardRef.current.getBoundingClientRect()
+        setSize({ width: width, height: height })
+      }
+    }
+    updateSize()
+    window.addEventListener("resize", updateSize)
+
+    ws?.setEventHandler(EventAction.VALID_MOVES, (vm: PossibleMove[]) => {
+      setValidMoves(vm)
+    })
+
+    return () => {
+      ws?.clearEventHandler(EventAction.VALID_MOVES)
+      window.removeEventListener("resize", updateSize)
+    }
+  }, [])
+
+  // Handle last move.
+  useEffect(() => {
+    if (!lastMove) {
+      return
+    }
+    // get last moved piece.
+    const lmp = pieces.get(lastMove.from)
+    if (!lmp) {
+      return
+    }
+    // switch current turn.
+    if (lmp.color === "white") {
+      setCurrentTurn("black")
+    } else {
+      setCurrentTurn("white")
+    }
+    // move the piece.
+    lmp.pos = lastMove.to
+    pieces.set(lastMove.to, lmp)
+    pieces.delete(lastMove.from)
+    // handle special moves
+    switch (lastMove.moveType) {
+      case 4: {// 0-0-0
+        const pos = posFromString(lastMove.to)
+        const rookPos = posToString(1, pos.rank)
+        const r = pieces.get(rookPos)
+        if (!r) {
+          return
+        }
+        // move the rook.
+        r.pos = posToString(4, pos.rank)
+        pieces.set(r.pos, r)
+        pieces.delete(rookPos)
+      } break
+
+      case 5: {// 0-0 
+        const pos = posFromString(lastMove.to)
+        const rookPos = posToString(8, pos.rank)
+        const r = pieces.get(rookPos)
+        if (!r) {
+          return
+        }
+        // move the rook.
+        r.pos = posToString(6, pos.rank)
+        pieces.set(r.pos, r)
+        pieces.delete(rookPos)
+      } break
+
+      case 6: // en passant
+        const pos = posFromString(lastMove.to)
+        let dir = 1
+        if (lmp.color === "white") {
+          dir = -1
+        }
+        pieces.delete(posToString(pos.file, pos.rank + dir))
+        break
+
+      case 7: // promotion
+        pieces.set(lastMove.to, new Piece(lastMove.to,
+          lastMove.pp, lmp.color
+        ))
+    }
+
+    setPieces(new Map(pieces))
+  }, [lastMove])
+
   function handleClickPiece(p: Piece) {
-    if (p.color === props.side) {
+    if (p.color === side) {
       setSelectedPiece(p)
     }
   }
@@ -33,7 +138,7 @@ export default function Board(props: BoardProps) {
   function handlePromotion(pp: string) {
     if (promotionMove) {
       setSelectedPiece(null)
-      props.handleMove(new MoveDTO(promotionMove.to, promotionMove.from, pp))
+      onMove(new MoveDTO(promotionMove.to, promotionMove.from, pp))
     }
   }
 
@@ -42,19 +147,26 @@ export default function Board(props: BoardProps) {
   }
 
   function move(m: PossibleMove) {
+    if (currentTurn !== side) {
+      return
+    }
+
     if (m.moveType === 7) { // promotion
       setPromotionMove(new MoveDTO(m.to, m.from, ""))
       setIsPSWA(true)
       return
     }
-    props.handleMove(new MoveDTO(m.to, m.from, ""))
+    onMove(new MoveDTO(m.to, m.from, ""))
   }
 
   function transform(pos: { file: number, rank: number }): string {
-    if (props.side === "white") {
-      return `translate(calc(5rem * ${pos.file - 1}), calc(5rem * ${8 - pos.rank}))`
+    const sw = size.width / 8 // square width 
+    const sh = size.height / 8 // square height
+
+    if (side === "white") {
+      return `translate(${sw * (pos.file - 1)}px, ${sh * (8 - pos.rank)}px)`
     }
-    return `translate(calc(35rem - (5rem * ${pos.file - 1})), calc(5rem * ${pos.rank - 1}))`
+    return `translate(${sw * 8 - (sw * pos.file - 1)}px, ${sh * (pos.rank - 1)}px)`
   }
 
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"]
@@ -62,25 +174,26 @@ export default function Board(props: BoardProps) {
 
   return (
     <div
-      className={[styles.board,
-      props.side === "black" ? styles.sideBlack : ""
-      ].join(" ")}
+      ref={boardRef}
+      className={`board ${side === "black" ? "sideBlack" : ""}`}
       style={{ backgroundImage: `url(${background})` }} // TODO: replace with css variable
     >
-      {Array.from(props.pieces).map(([pos, piece]) => (
+      {Array.from(pieces).map(([pos, piece]) => (
         <BoardPiece
           key={pos}
-          pos={pos}
+          side={side}
           piece={piece}
           onClickHandler={handleClickPiece}
           handleMove={move}
-          side={props.side}
+          style={{
+            transform: transform(posFromString(pos))
+          }}
         />)
       )}
 
       {selectedPiece &&
         <div
-          className={styles.selected}
+          className="selected"
           style={{
             transform: transform(posFromString(selectedPiece?.pos)),
           }}
@@ -91,14 +204,14 @@ export default function Board(props: BoardProps) {
           />
         </div>}
 
-      {findValidMoves(props.validMoves).map(
+      {findValidMoves(validMoves).map(
         (m, ind) => (
           <div
             key={ind}
             style={{
               transform: transform(posFromString(m.to))
             }}
-            className={props.pieces.get(m.to) ? "capture" : "availible"}
+            className={pieces.get(m.to) ? "capture" : "availible"}
             data-payload={JSON.stringify(m)}
             onClick={() => {
               setSelectedPiece(null)
@@ -110,34 +223,34 @@ export default function Board(props: BoardProps) {
 
       {isPSWA && promotionMove && <PieceSelection
         onSelect={handlePromotion}
-        side={props.side}
+        side={side}
         posFile={posFromString(promotionMove.to).file}
         setIsActive={setIsPSWA}
       />}
 
-      {props.lastMove && <>
+      {lastMove && <>
         <div
-          className={styles.lastMove}
+          className="lastMove"
           style={{
-            transform: transform(posFromString(props.lastMove.from))
+            transform: transform(posFromString(lastMove.from))
           }}
         />
         <div
-          className={styles.lastMove}
+          className="lastMove"
           style={{
-            transform: transform(posFromString(props.lastMove.to))
+            transform: transform(posFromString(lastMove.to))
           }}
         />
       </>}
 
-      <ul className={styles.ranks}>
+      <ul className="ranks">
         {ranks.map(rank => (
           <li key={rank}>
             {rank}
           </li>
         ))}
       </ul>
-      <ul className={styles.files}>
+      <ul className="files">
         {files.map(file => (
           <li key={file}>
             {file}

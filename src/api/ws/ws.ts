@@ -97,4 +97,10 @@ export default class WS {
     const e = new Event(EventAction.MOVE, move)
     this.sendEvent(e)
   }
+
+  // Sends the chat message.
+  sendMsg(m: string) {
+    const e = new Event(EventAction.SEND_MESSAGE, m)
+    this.sendEvent(e)
+  }
 }

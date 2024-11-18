@@ -1,48 +1,34 @@
-import { useEffect, useRef, useState } from "react"
+import "./BoardPiece.css"
+import { useRef, useState } from "react"
 import assets from "../../assets/pieces/pieces"
 import Piece from "../../game/piece"
-import { posFromString } from "../../game/position"
-import styles from "./boardPiece.module.css"
 import { PossibleMove } from "../../game/move"
+import ReactDOM from "react-dom"
 
 type PieceProps = {
-  pos: string
+  style: React.CSSProperties
   side: string
   piece: Piece
   onClickHandler: (p: Piece) => void
   handleMove: (m: PossibleMove) => void
 }
 
-export default function BoardPiece({ pos, piece, onClickHandler,
+export default function BoardPiece({ style, piece, onClickHandler,
   handleMove, side }: PieceProps) {
 
   const [position, setPosition] = useState({ left: 0, top: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const pieceRef = useRef<HTMLDivElement | null>(null)
+  const [size, setSize] = useState({ width: 0, height: 0 })
   const currentDroppable = useRef<HTMLDivElement | null>(null)
-
-  const [file, setFile] = useState<number>(posFromString(pos).file)
-  const [rank, setRank] = useState<number>(posFromString(pos).rank)
-
-  useEffect(() => {
-    const newPos = posFromString(pos)
-    setFile(newPos.file)
-    setRank(newPos.rank)
-  }, [pos])
-
-  function transform(): string {
-    if (side === "white") {
-      return `translate(calc(5rem * ${file - 1}), calc(5rem * ${8 - rank}))`
-    }
-    return `translate(calc(35rem - (5rem * ${file - 1})), calc(5rem * ${rank - 1}))`
-  }
 
   function onDragStart(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
     onClickHandler(piece)
-    setIsDragging(true)
 
     pieceRef.current = e.currentTarget
     pieceRef.current.style.zIndex = "1200"
+    const r = pieceRef.current.getBoundingClientRect()
+    setSize({ width: r.width, height: r.height })
 
     setPosition({
       left: e.pageX - pieceRef.current.offsetWidth / 2,
@@ -51,17 +37,18 @@ export default function BoardPiece({ pos, piece, onClickHandler,
 
     document.addEventListener("mousemove", onMouseMove)
     document.addEventListener("mouseup", onDragEnd)
+    setIsDragging(true)
   }
 
   function onMouseMove(e: MouseEvent) {
     if (!pieceRef.current) {
       return
     }
+
     setPosition({
       left: e.pageX - pieceRef.current.offsetWidth / 2,
       top: e.pageY - pieceRef.current.offsetHeight / 2,
     })
-
     // check if valid square is under the piece
     pieceRef.current.hidden = true
     const elBelow = document.elementFromPoint(e.clientX, e.clientY)
@@ -104,13 +91,34 @@ export default function BoardPiece({ pos, piece, onClickHandler,
     document.removeEventListener("mouseup", onDragEnd)
   }
 
+  if (isDragging) {
+    return ReactDOM.createPortal(
+      <div
+        ref={pieceRef}
+        className="piece"
+        style={{
+          left: `${position.left}px`,
+          top: `${position.top}px`,
+          width: `${size.width}px`,
+          height: `${size.height}px`,
+        }}
+        draggable={false}
+      >
+        <img
+          // @ts-ignore 
+          src={assets[`${piece.color}${piece.type}`]}
+          alt={`${piece.color}${piece.type}`}
+          draggable={false}
+        />
+      </div>
+      , document.body)
+  }
+
   return (
     <div
-      className={styles.piece}
+      className="piece"
       style={{
-        transform: isDragging ? "none" : transform(),
-        left: isDragging ? `${position.left}px` : undefined,
-        top: isDragging ? `${position.top}px` : undefined,
+        transform: style["transform"]
       }}
       onMouseDown={side === piece.color ? e => onDragStart(e) : undefined}
       draggable={false}
@@ -121,6 +129,6 @@ export default function BoardPiece({ pos, piece, onClickHandler,
         alt={`${piece.color}${piece.type}`}
         draggable={false}
       />
-    </ div >
+    </div>
   )
 }
