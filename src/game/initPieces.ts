@@ -1,7 +1,8 @@
 import Piece from "./piece";
 import posFromInd from "./position";
 
-export default function initPieces(pieces: Map<string, Piece>): Map<string, Piece> {
+export default function initPieces(): Map<string, Piece> {
+  const pieces = new Map()
   initPawns(pieces)
   initRooks(pieces)
   initKnights(pieces)

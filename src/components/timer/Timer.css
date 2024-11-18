@@ -1,0 +1,32 @@
+.timer,
+.active {
+  display: flex;
+  height: 100%;
+  margin-left: auto;
+}
+
+.active {
+  background-color: rgb(130, 151, 105, 0.3);
+  border-radius: 8%;
+  text-align: center;
+}
+
+.digit {
+  margin: auto;
+  font-size: 2vw;
+  aspect-ratio: 1 / 1;
+}
+
+@media (max-width: 1200px) {
+
+  .digit {
+    font-size: 3vw;
+  }
+}
+
+@media (max-width: 1000px) {
+
+  .digit {
+    font-size: 4.5vw;
+  }
+}

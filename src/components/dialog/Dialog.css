@@ -10,7 +10,7 @@
   }
 }
 
-.container {
+.dialog {
   z-index: 1500;
   position: absolute;
   width: 100%;
@@ -21,12 +21,12 @@
   justify-content: center;
 }
 
-.content {
+.dialogContent {
   padding: 2rem;
   position: absolute;
   background-color: #1f1b25;
   border: 3px solid #949494;
-  border-radius: 15px;
+  border-radius: 5%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -63,4 +63,9 @@
   font-weight: 650;
   font-size: 1rem;
   content: "x";
+}
+
+.box button {
+  width: 15rem;
+  height: 3rem;
 }

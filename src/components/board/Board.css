@@ -1,38 +1,76 @@
 .board {
+  position: relative;
   display: flex;
-  width: 40rem;
-  height: 40rem;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   flex-direction: column;
   background-size: cover;
-  border-radius: 10px;
-  background-position: center;
+  border-radius: 1%;
+  background-size: contain;
   background-repeat: no-repeat;
   user-select: none;
-  -webkit-user-drag: none;
-  -webkit-tap-highlight-color: transparent;
 }
 
 .selected {
   position: absolute;
   display: flex;
-  width: 5rem;
-  height: 5rem;
+  width: 12.5%;
+  height: 12.5%;
   background-color: rgb(178, 223, 237);
 }
 
 .selected img {
   margin: auto;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 90%;
+  height: 90%;
   opacity: 0.4;
 }
 
+.availible {
+  position: absolute;
+  z-index: 900;
+  width: 12.5%;
+  height: 12.5%;
+}
+
+.availible:hover {
+  background-color: rgb(130, 151, 105, 40%);
+}
+
+.availible:after {
+  position: absolute;
+  content: "";
+  top: 40%;
+  right: 40%;
+  background-color: rgb(130, 151, 105, 70%);
+  width: 25%;
+  height: 25%;
+  z-index: 900;
+  border-radius: 50%;
+}
+
+.capture {
+  position: absolute;
+  width: 12.5%;
+  height: 12.5%;
+  z-index: 1000;
+  border: 5px solid rgb(130, 151, 105, 70%);
+  border-radius: 50%;
+}
+
+.capture:hover {
+  background-color: rgb(130, 151, 105, 40%);
+}
+
 .ranks {
+  z-index: 1200;
   width: 1rem;
-  font-size: 1rem;
+  height: 100%;
   font-weight: bold;
+  font-size: 50%;
   display: flex;
   flex-direction: column;
+  pointer-events: none;
 }
 
 .ranks li:nth-child(1n) {
@@ -57,31 +95,33 @@
 
 .ranks li {
   padding-left: 2px;
-  height: 5rem;
+  height: 12.5%;
 }
 
 .files {
+  width: 100%;
+  font-size: 50%;
   position: absolute;
+  bottom: 0;
   display: flex;
   flex-direction: row;
-  font-size: 1rem;
   font-weight: bold;
 }
 
 .files li:nth-child(1n) {
-  color: var(--black);
+  color: var(--white);
 }
 
 .files li:nth-child(2n) {
-  color: var(--white);
+  color: var(--black);
 }
 
 .sideBlack .files li:nth-child(1n) {
-  color: var(--white);
+  color: var(--black);
 }
 
 .sideBlack .files li:nth-child(2n) {
-  color: var(--black);
+  color: var(--white);
 }
 
 .sideBlack .files {
@@ -89,13 +129,13 @@
 }
 
 .files li {
-  padding-left: 4.25rem;
-  width: 5rem;
+  padding-left: 10.5%;
+  width: 12.5%;
 }
 
 .lastMove {
   position: absolute;
-  width: 5rem;
-  height: 5rem;
+  width: 12.5%;
+  height: 12.5%;
   background-color: rgb(178, 223, 237, 0.8);
 }

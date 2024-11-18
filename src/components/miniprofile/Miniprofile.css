@@ -1,0 +1,52 @@
+.miniprofile {
+  width: 100%;
+  height: 2em;
+  display: flex;
+  flex-direction: row;
+}
+
+.status {
+  font-size: 1.5vw;
+  width: 50%;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.status img {
+  height: 1vw;
+  margin: auto;
+  margin-left: 0;
+  aspect-ratio: 1 / 1;
+}
+
+@media (max-width: 1200px) {
+
+  .miniprofile {
+    height: 4vw;
+  }
+
+  .status {
+    font-size: 2.5vw;
+  }
+
+  .status img {
+    height: 2.5vw;
+  }
+}
+
+@media (max-width: 1000px) {
+
+  .miniprofile {
+    height: 5vw;
+  }
+
+  .status {
+    font-size: 3vw;
+  }
+
+  .status img {
+    height: 3vw;
+  }
+}
