@@ -113,30 +113,30 @@ export default function Play() {
   }
 
   function handleLastMove(m: Move) {
-    const newMoves = [...moves]
-    newMoves.push(m)
-    // odd moves
-    if ((newMoves.length + 1) % 2 !== 0) {
-      setBlackTime(m.timeLeft / 1000000000)
-      setIsWTA(true)
-      setIsBTA(false)
-    } else { // even moves
-      setWhiteTime(m.timeLeft / 1000000000)
-      setIsWTA(false)
-      setIsBTA(true)
-    }
+    setMoves((prevMoves) => {
+      const newMoves = [...prevMoves, m]
+      // handle odd moves
+      if (newMoves.length % 2 !== 0) {
+        setWhiteTime(m.timeLeft / 1000000000)
+        setIsWTA(false)
+        setIsBTA(true)
+      } else { // even moves
+        setBlackTime(m.timeLeft / 1000000000)
+        setIsWTA(true)
+        setIsBTA(false)
+      }
 
-    if (m.isCheckmate) {
-      // TODO: playSound(sounds["checkmate"])
-    } else if (m.isCheck) {
-      playSound(sounds["check"])
-    } else if (m.isCapture) {
-      playSound(sounds["capture"])
-    } else {
-      playSound(sounds["move"])
-    }
-
-    setMoves(newMoves)
+      if (m.isCheckmate) {
+        // TODO: playSound(sounds["checkmate"])
+      } else if (m.isCheck) {
+        playSound(sounds["check"])
+      } else if (m.isCapture) {
+        playSound(sounds["capture"])
+      } else {
+        playSound(sounds["move"])
+      }
+      return newMoves
+    })
   }
 
   function handleEndGame(result: { r: number, w: number }) {
@@ -147,6 +147,9 @@ export default function Play() {
   function handleAbortGame() {
     setResult({ r: -1, w: -2 }) // game aborted, no winner.
     setIsCDA(true)
+    // stop the timers
+    setIsWTA(false)
+    setIsBTA(false)
   }
 
   const sounds = {

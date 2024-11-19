@@ -8,6 +8,9 @@
   border-radius: 1%;
   background-size: contain;
   background-repeat: no-repeat;
+}
+
+.board * {
   user-select: none;
 }
 

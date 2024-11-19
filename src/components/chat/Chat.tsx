@@ -50,6 +50,7 @@ export default function Chat({ onSend }: ChatProps) {
     if (e.code === "Enter" || e.code === "NumpadEnter") {
       e.preventDefault()
       onSend(msg)
+      setMsg("")
     }
   }
 
@@ -78,7 +79,10 @@ export default function Chat({ onSend }: ChatProps) {
         <img
           className="sendMsg"
           alt="send message"
-          onClick={() => onSend(msg)}
+          onClick={() => {
+            onSend(msg)
+            setMsg("")
+          }}
           src={send}
         />
       </div>

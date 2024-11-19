@@ -16,6 +16,10 @@
   gap: 1%;
 }
 
+.blackLayout {
+  flex-direction: column-reverse;
+}
+
 @media (max-width: 1200px) {
 
   .boardLayout,
