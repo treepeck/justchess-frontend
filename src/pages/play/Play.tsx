@@ -45,6 +45,7 @@ export default function Play() {
   const [side, setSide] = useState<string>()
   const [moves, setMoves] = useState<Move[]>([])
   const [game, setGame] = useState<Game | null>(null)
+  const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
   const [result, setResult] = useState<{ r: number, w: number }>()
   // player`s timers
   const [whiteTime, setWhiteTime] = useState(0)
@@ -63,6 +64,7 @@ export default function Play() {
 
     ws?.getGame(id)
 
+    ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
     ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
     ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
     ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
@@ -71,12 +73,17 @@ export default function Play() {
     return () => {
       ws?.leaveRoom()
 
+      ws?.clearEventHandler(EventAction.VALID_MOVES)
       ws?.clearEventHandler(EventAction.GAME_INFO)
       ws?.clearEventHandler(EventAction.END_RESULT)
       ws?.clearEventHandler(EventAction.LAST_MOVE)
       ws?.clearEventHandler(EventAction.ABORT)
     }
   }, [])
+
+  function handleValidMoves(vm: PossibleMove[]) {
+    setValidMoves(vm)
+  }
 
   function handleUpdateGame(g: Game) {
     switch (g.status) {
@@ -235,6 +242,7 @@ export default function Play() {
             />
             <Board
               side={side}
+              validMoves={validMoves}
               lastMove={moves[moves.length - 1]}
               onMove={(m: MoveDTO) => { ws?.move(m) }}
             />

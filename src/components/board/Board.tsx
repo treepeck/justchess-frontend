@@ -10,23 +10,18 @@ import PieceSelection from "../piece-selection/PieceSelection"
 import Piece from "../../game/piece"
 import { posFromString, posToString } from "../../game/position"
 import Move, { MoveDTO, PossibleMove } from "../../game/move"
-import { useConn } from "../../context/Conn"
 import initPieces from "../../game/initPieces"
-import { EventAction } from "../../api/ws/event"
 
 type BoardProps = {
   side: string
   lastMove: Move
+  validMoves: PossibleMove[]
   onMove: (m: MoveDTO) => void
 }
 
-export default function Board({ side, lastMove, onMove }: BoardProps) {
-
-  const { ws, ic } = useConn()
-
+export default function Board({ side, lastMove,
+  validMoves, onMove }: BoardProps) {
   const [currentTurn, setCurrentTurn] = useState("white")
-  // valid moves for the current turn.
-  const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
   // pieces on a board.
   const [pieces, setPieces] = useState<Map<string, Piece>>(initPieces())
   const [selectedPiece, setSelectedPiece] = useState<Piece | null>(null)
@@ -39,10 +34,6 @@ export default function Board({ side, lastMove, onMove }: BoardProps) {
     ({ width: 0, height: 0 })
 
   useEffect(() => {
-    if (!ic) {
-      return
-    }
-
     // get board size in pixels to correctly position pieces.
     const updateSize = () => {
       if (boardRef.current) {
@@ -53,12 +44,7 @@ export default function Board({ side, lastMove, onMove }: BoardProps) {
     updateSize()
     window.addEventListener("resize", updateSize)
 
-    ws?.setEventHandler(EventAction.VALID_MOVES, (vm: PossibleMove[]) => {
-      setValidMoves(vm)
-    })
-
     return () => {
-      ws?.clearEventHandler(EventAction.VALID_MOVES)
       window.removeEventListener("resize", updateSize)
     }
   }, [])
@@ -219,7 +205,6 @@ export default function Board({ side, lastMove, onMove }: BoardProps) {
             }}
           />)
       )}
-
 
       {isPSWA && promotionMove && <PieceSelection
         onSelect={handlePromotion}
