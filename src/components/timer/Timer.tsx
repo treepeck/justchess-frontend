@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react"
 import "./Timer.css"
+import { useEffect, useRef, useState } from "react"
 
 type TimerProps = {
   dur: number // duration in seconds
@@ -10,6 +10,10 @@ export default function Timer({ dur, ia }: TimerProps) {
   const [time, setTime] = useState(dur)
   const startTimeRef = useRef<number | null>(null)
   const requestRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    setTime(dur)
+  }, [dur])
 
   useEffect(() => {
     if (ia && time > 0) {
