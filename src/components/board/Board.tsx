@@ -121,8 +121,12 @@ export default function Board({ side, lastMove,
   }
 
   function transform(pos: { file: number, rank: number }): string {
-    const sw = size.width / 8 // square width 
-    const sh = size.height / 8 // square height
+    if (!boardRef.current) {
+      return "none"
+    }
+    const { width, height } = boardRef.current.getBoundingClientRect()
+    const sw = width / 8 // square width 
+    const sh = height / 8 // square height
 
     if (side === "white") {
       return `translate(${sw * (pos.file - 1)}px, ${sh * (8 - pos.rank)}px)`
@@ -188,20 +192,19 @@ export default function Board({ side, lastMove,
         setIsActive={setIsPSWA}
       />}
 
-      {lastMove && <>
+      {lastMove &&
         <div
           className="lastMove"
           style={{
-            transform: transform(posFromString(lastMove.lan.substring(0, 2)))
+            transform: transform(posFromString(lastMove.uci.substring(0, 2)))
           }}
-        />
-        <div
-          className="lastMove"
-          style={{
-            transform: transform(posFromString(lastMove.uci.substring(2, 4)))
-          }}
-        />
-      </>}
+        />}
+      {lastMove && <div
+        className="lastMove"
+        style={{
+          transform: transform(posFromString(lastMove.uci.substring(2, 4)))
+        }}
+      />}
 
       <ul className="ranks">
         {ranks.map(rank => (
@@ -217,6 +220,6 @@ export default function Board({ side, lastMove,
           </li>
         ))}
       </ul>
-    </div>
+    </div >
   )
 }
