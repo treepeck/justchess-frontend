@@ -1,9 +1,9 @@
-import Move, { PossibleMove } from "./move"
+import { GameStatus } from "../api/enums"
 import Player from "./player"
 
 export default class Game {
   bonus: number
-  status: number
+  status: GameStatus
   control: string
   white: Player
   black: Player

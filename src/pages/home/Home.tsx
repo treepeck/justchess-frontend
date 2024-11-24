@@ -58,12 +58,6 @@ export default function Home() {
       ))
     })
 
-    // Create room error arises when the user tries to create multiple rooms.
-    ws?.setEventHandler(EventAction.CREATE_ROOM_ERR, () => {
-      setIsPopupActive(true)
-      setPopupMessage("Multiple rooms creation is prohibited.")
-    })
-
     // Redirect to room redirects the user to the specified room.
     ws?.setEventHandler(EventAction.REDIRECT, (roomId: string) => {
       navigate(`/play/${roomId}`)
@@ -73,7 +67,6 @@ export default function Home() {
       // clear event handlers which are needed only for this page.
       ws?.clearEventHandler(EventAction.ADD_ROOM)
       ws?.clearEventHandler(EventAction.REDIRECT)
-      ws?.clearEventHandler(EventAction.CREATE_ROOM_ERR)
     }
   }, [])
 

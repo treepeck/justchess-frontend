@@ -12,18 +12,18 @@ import blackQueen from "./black/queen.png"
 import blackKing from "./black/king.png"
 
 const assets = {
-  "whitepawn": whitePawn,
-  "whiteknight": whiteKnight,
-  "whitebishop": whiteBishop,
-  "whiterook": whiteRook,
-  "whitequeen": whiteQueen,
-  "whiteking": whiteKing,
-  "blackpawn": blackPawn,
-  "blackknight": blackKnight,
-  "blackbishop": blackBishop,
-  "blackrook": blackRook,
-  "blackqueen": blackQueen,
-  "blackking": blackKing,
+  "white♙": whitePawn,
+  "white♘": whiteKnight,
+  "white♗": whiteBishop,
+  "white♖": whiteRook,
+  "white♕": whiteQueen,
+  "white♔": whiteKing,
+  "black♙": blackPawn,
+  "black♘": blackKnight,
+  "black♗": blackBishop,
+  "black♖": blackRook,
+  "black♕": blackQueen,
+  "black♔": blackKing,
 }
 
 export default assets
