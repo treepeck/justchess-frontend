@@ -15,10 +15,10 @@ export default function initPieces(): Map<string, Piece> {
 function initPawns(pieces: Map<string, Piece>) {
   for (let i = 1; i <= 8; i++) {
     let pos = posFromInd(1, i)
-    pieces.set(pos, new Piece(pos, "pawn", "black"))
+    pieces.set(pos, new Piece(pos, "♙", "black"))
 
     pos = posFromInd(6, i)
-    pieces.set(pos, new Piece(pos, "pawn", "white"))
+    pieces.set(pos, new Piece(pos, "♙", "white"))
   }
 }
 
@@ -27,10 +27,10 @@ function initRooks(pieces: Map<string, Piece>) {
 
   for (let i = 0; i < 2; i++) {
     let pos = posFromInd(0, positions[i])
-    pieces.set(pos, new Piece(pos, "rook", "black"))
+    pieces.set(pos, new Piece(pos, "♖", "black"))
 
     pos = posFromInd(7, positions[i])
-    pieces.set(pos, new Piece(pos, "rook", "white"))
+    pieces.set(pos, new Piece(pos, "♖", "white"))
   }
 }
 
@@ -39,10 +39,10 @@ function initKnights(pieces: Map<string, Piece>) {
 
   for (let i = 0; i < 2; i++) {
     let pos = posFromInd(0, positions[i])
-    pieces.set(pos, new Piece(pos, "knight", "black"))
+    pieces.set(pos, new Piece(pos, "♘", "black"))
 
     pos = posFromInd(7, positions[i])
-    pieces.set(pos, new Piece(pos, "knight", "white"))
+    pieces.set(pos, new Piece(pos, "♘", "white"))
   }
 }
 
@@ -51,25 +51,25 @@ function initBishops(pieces: Map<string, Piece>) {
 
   for (let i = 0; i < 2; i++) {
     let pos = posFromInd(0, positions[i])
-    pieces.set(pos, new Piece(pos, "bishop", "black"))
+    pieces.set(pos, new Piece(pos, "♗", "black"))
 
     pos = posFromInd(7, positions[i])
-    pieces.set(pos, new Piece(pos, "bishop", "white"))
+    pieces.set(pos, new Piece(pos, "♗", "white"))
   }
 }
 
 function initQueens(pieces: Map<string, Piece>) {
   let pos = posFromInd(0, 4)
-  pieces.set(pos, new Piece(pos, "queen", "black"))
+  pieces.set(pos, new Piece(pos, "♕", "black"))
 
   pos = posFromInd(7, 4)
-  pieces.set(pos, new Piece(pos, "queen", "white"))
+  pieces.set(pos, new Piece(pos, "♕", "white"))
 }
 
 function initKings(pieces: Map<string, Piece>) {
   let pos = posFromInd(0, 5)
-  pieces.set(pos, new Piece(pos, "king", "black"))
+  pieces.set(pos, new Piece(pos, "♔", "black"))
 
   pos = posFromInd(7, 5)
-  pieces.set(pos, new Piece(pos, "king", "white"))
+  pieces.set(pos, new Piece(pos, "♔", "white"))
 }

@@ -2,7 +2,6 @@ import "./BoardPiece.css"
 import { useRef, useState } from "react"
 import assets from "../../assets/pieces/pieces"
 import Piece from "../../game/piece"
-import { PossibleMove } from "../../game/move"
 import ReactDOM from "react-dom"
 
 type PieceProps = {
@@ -10,7 +9,7 @@ type PieceProps = {
   side: string
   piece: Piece
   onClickHandler: (p: Piece) => void
-  handleMove: (m: PossibleMove) => void
+  handleMove: (from: string, to: string) => void
 }
 
 export default function BoardPiece({ style, piece, onClickHandler,
@@ -83,7 +82,7 @@ export default function BoardPiece({ style, piece, onClickHandler,
     if (currentDroppable.current) {
       const move = currentDroppable.current.getAttribute("data-payload")
       if (move) {
-        handleMove(JSON.parse(move))
+        handleMove(piece.pos, move)
       }
     }
 

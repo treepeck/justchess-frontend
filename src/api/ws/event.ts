@@ -22,15 +22,10 @@ export enum EventAction {
   ADD_ROOM = "ar",
   REMOVE_ROOM = "rr",
   LAST_MOVE = "lm",
-  VALID_MOVES = "vm",
   MOVES = "mh",
   GAME_INFO = "gi",
   ABORT = "a",
   END_RESULT = "er",
   SEND_MESSAGE = "sm",
   CHAT_MESSAGE = "cm",
-  // ERRORS
-  UNPROCESSABLE_ENTITY = "ue",
-  CREATE_ROOM_ERR = "cre",
-  JOIN_ROOM_ERR = "jre",
 }

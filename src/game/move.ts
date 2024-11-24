@@ -1,27 +1,18 @@
 // Represents a move completed by a user. 
 export default class Move {
-  to: string
-  from: string
-  isCheck: boolean
-  moveType: number
+  uci: string
+  lan: string
+  fen: string
+  vm: Record<string, string>
   timeLeft: number
-  isCapture: boolean
-  isCheckmate: boolean
-  pp: string // promotion payload
 
-  constructor(
-    to: string, from: string,
-    isCheck: boolean, moveType: number,
-    timeLeft: number, isCapture: boolean,
-    isCheckmate: boolean, pp: string) {
-    this.to = to
-    this.from = from
-    this.isCheck = isCheck
-    this.moveType = moveType
+  constructor(uci: string, lan: string, fen: string, timeLeft: number,
+    vm: Record<string, string>) {
+    this.uci = uci
+    this.lan = lan
+    this.fen = fen
+    this.vm = vm
     this.timeLeft = timeLeft
-    this.isCapture = isCapture
-    this.isCheckmate = isCheckmate
-    this.pp = pp
   }
 }
 
@@ -35,18 +26,5 @@ export class MoveDTO {
     this.to = to
     this.from = from
     this.pp = pp
-  }
-}
-
-// Respresents a possible move on a board. 
-export class PossibleMove {
-  to: string
-  from: string
-  moveType: number
-
-  constructor(to: string, from: string, mt: number) {
-    this.to = to
-    this.from = from
-    this.moveType = mt
   }
 }

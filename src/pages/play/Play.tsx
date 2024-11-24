@@ -28,7 +28,8 @@ import { useConn } from "../../context/Conn"
 import Game from "../../game/game"
 import { EventAction } from "../../api/ws/event"
 import Dialog from "../../components/dialog/Dialog"
-import Move, { MoveDTO, PossibleMove } from "../../game/move"
+import Move, { MoveDTO } from "../../game/move"
+import { GameStatus } from "../../api/enums"
 
 export default function Play() {
   const { id } = useParams() // room (aka game) id
@@ -45,7 +46,18 @@ export default function Play() {
   const [side, setSide] = useState<string>()
   const [moves, setMoves] = useState<Move[]>([])
   const [game, setGame] = useState<Game | null>(null)
-  const [validMoves, setValidMoves] = useState<PossibleMove[]>([])
+  const [validMoves, setValidMoves] = useState<Record<string, string>>({
+    "a2": "a3a4",
+    "b2": "b3b4",
+    "c2": "c3c4",
+    "d2": "d3d4",
+    "e2": "e3e4",
+    "f2": "f3f4",
+    "g2": "g3g4",
+    "h2": "h3h4",
+    "b1": "a3c3",
+    "g1": "f3h3",
+  })
   const [result, setResult] = useState<{ r: number, w: number }>()
   // player`s timers
   const [whiteTime, setWhiteTime] = useState(0)
@@ -64,7 +76,6 @@ export default function Play() {
 
     ws?.getGame(id)
 
-    ws?.setEventHandler(EventAction.VALID_MOVES, handleValidMoves)
     ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
     ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
     ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
@@ -73,7 +84,6 @@ export default function Play() {
     return () => {
       ws?.leaveRoom()
 
-      ws?.clearEventHandler(EventAction.VALID_MOVES)
       ws?.clearEventHandler(EventAction.GAME_INFO)
       ws?.clearEventHandler(EventAction.END_RESULT)
       ws?.clearEventHandler(EventAction.LAST_MOVE)
@@ -81,21 +91,17 @@ export default function Play() {
     }
   }, [])
 
-  function handleValidMoves(vm: PossibleMove[]) {
-    setValidMoves(vm)
-  }
-
   function handleUpdateGame(g: Game) {
     switch (g.status) {
-      case 1: // waiting 
+      case GameStatus.Waiting:
         setIsWaiting(true)
         break
 
-      case 2: // leave
+      case GameStatus.Leave:
         // TODO: handle players disconnections 
         break
 
-      case 3: // continues
+      case GameStatus.Continues:
         setIsWaiting(false)
 
         if (g.white.id === user.id) {
@@ -126,15 +132,16 @@ export default function Play() {
         setIsBTA(false)
       }
 
-      if (m.isCheckmate) {
+      if (m.lan.includes("#")) { // checkmate
         // TODO: playSound(sounds["checkmate"])
-      } else if (m.isCheck) {
+      } else if (m.lan.includes("+")) { // check
         playSound(sounds["check"])
-      } else if (m.isCapture) {
+      } else if (m.lan.includes("x")) { // capture
         playSound(sounds["capture"])
       } else {
         playSound(sounds["move"])
       }
+      setValidMoves(m.vm)
       return newMoves
     })
   }
