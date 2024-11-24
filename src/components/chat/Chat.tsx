@@ -15,7 +15,9 @@ export default function Chat({ onSend }: ChatProps) {
 
   const [msg, setMsg] = useState("")
   const [isInFocus, setIsInFocus] = useState(false)
-  const [allMsg, setAllMsg] = useState<string[]>([])
+  const [allMsg, setAllMsg] = useState<string[]>([
+    "system: Each player has 20s to make the first move."
+  ])
 
   useEffect(() => {
     if (!ic) {

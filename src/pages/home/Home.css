@@ -35,6 +35,7 @@
 
 .rooms table tr:hover {
   background-color: #dddddd50;
+  cursor: pointer;
 }
 
 .rooms table td,

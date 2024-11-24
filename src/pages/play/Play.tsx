@@ -30,6 +30,7 @@ import { EventAction } from "../../api/ws/event"
 import Dialog from "../../components/dialog/Dialog"
 import Move, { MoveDTO } from "../../game/move"
 import { GameStatus } from "../../api/enums"
+import MovesTable from "../../components/moves-table/MovesTable"
 
 export default function Play() {
   const { id } = useParams() // room (aka game) id
@@ -76,18 +77,18 @@ export default function Play() {
 
     ws?.getGame(id)
 
-    ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
-    ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
-    ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
     ws?.setEventHandler(EventAction.ABORT, handleAbortGame)
+    ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
+    ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
+    ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
 
     return () => {
       ws?.leaveRoom()
 
-      ws?.clearEventHandler(EventAction.GAME_INFO)
-      ws?.clearEventHandler(EventAction.END_RESULT)
-      ws?.clearEventHandler(EventAction.LAST_MOVE)
       ws?.clearEventHandler(EventAction.ABORT)
+      ws?.clearEventHandler(EventAction.GAME_INFO)
+      ws?.clearEventHandler(EventAction.LAST_MOVE)
+      ws?.clearEventHandler(EventAction.END_RESULT)
     }
   }, [])
 
@@ -264,6 +265,10 @@ export default function Play() {
             />
           </div>
           : null}
+
+        <MovesTable
+          moves={moves}
+        />
       </div>
 
       {/* <div className="soundToggle">
