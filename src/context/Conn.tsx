@@ -30,11 +30,11 @@ export default function ConnProvider() {
   // Used to provide a correct rendering.
   const [isReady, setIsReady] = useState(false)
 
-  const { user, accessToken } = useAuth()
+  const { user } = useAuth()
 
   useEffect(() => {
     // connect to the WS and store the connection in a state
-    const ws = new WS(accessToken)
+    const ws = new WS(user.accessToken)
 
     ws.setEventHandler(EventAction.CLIENTS_COUNTER, setClientsCounter)
 

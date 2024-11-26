@@ -8,17 +8,14 @@ export default class API {
     this.serverUrl = "http://localhost:3502"
   }
 
-  // Fetches the user info by id provided in a userId cookie.
+  // Fetches the user info by refresh token provided in a request cookie.
   // May return error string.
-  async getUserByAccessToken(at: string):
+  async getUserByRefreshToken():
     Promise<{ user: User | null, err: string | null }> {
     try {
       const r = await fetch(`${this.serverUrl}/auth/me`, {
         method: "GET",
         credentials: "include",
-        headers: {
-          "Authorization": "Bearer " + at
-        }
       })
 
       if (!r.ok) {
@@ -59,7 +56,7 @@ export default class API {
   // Registers a new guest.
   // May return error string.
   async createGuest():
-    Promise<{ at: string | null, err: string | null }> {
+    Promise<{ user: User | null, err: string | null }> {
     try {
       const r = await fetch(`${this.serverUrl}/auth/guest`, {
         method: "GET",
@@ -69,13 +66,13 @@ export default class API {
         },
       })
       if (!r.ok) {
-        return { at: null, err: "Conflict. Try to reload the page" }
+        return { user: null, err: "Conflict. Try to reload the page" }
       }
 
-      const at: string = await r.text()
-      return { at: at, err: null }
+      const user: User = await r.json()
+      return { user: user, err: null }
     } catch {
-      return { at: null, err: "Internal server error" }
+      return { user: null, err: "Internal server error" }
     }
   }
 
@@ -83,7 +80,7 @@ export default class API {
   // It only will succeed if the refresh token is valid and
   // is stored in a http-only cookie.
   // Returns encoded access token and error string. 
-  async getTokens(): Promise<{ at: string, err: string }> {
+  async refreshTokens(): Promise<{ at: string, err: string }> {
     try {
       const r = await fetch(`${this.serverUrl}/auth/tokens`, {
         method: "GET",

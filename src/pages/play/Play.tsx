@@ -239,6 +239,15 @@ export default function Play() {
   return (
     <div className="mainContainer">
       <div className="play">
+        <div className="soundToggle">
+          {soundToggle ?
+            <img src={unmute} alt="unmuted"
+              onClick={() => setSoundToggle(false)} /> :
+            <img src={mute} alt="muted"
+              onClick={() => setSoundToggle(true)} />
+          }
+        </div>
+
         <Chat
           onSend={sendMsg}
         />
@@ -270,15 +279,6 @@ export default function Play() {
           moves={moves}
         />
       </div>
-
-      {/* <div className="soundToggle">
-        {soundToggle ?
-          <img src={unmute} alt="unmuted"
-            onClick={() => setSoundToggle(false)} /> :
-          <img src={mute} alt="muted"
-            onClick={() => setSoundToggle(true)} />
-        }
-      </div> */}
 
       {isCDA && (
         <Dialog

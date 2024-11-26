@@ -20,7 +20,7 @@ import { EventAction } from "../../api/ws/event"
 
 
 export default function Home() {
-  const { user, accessToken } = useAuth()
+  const { user } = useAuth()
 
   const { ws, ic, cc } = useConn()
 
@@ -31,7 +31,7 @@ export default function Home() {
   const [control, setControl] = useState<string>("bullet")
 
   // helper type that represents a room.
-  type Room = { id: string, control: string, bonus: number, owner: User }
+  type Room = { id: string, control: string, bonus: number, ownerId: string }
   // Stores all availible rooms.
   const [rooms, setRooms] = useState<Room[]>([])
 
@@ -79,7 +79,7 @@ export default function Home() {
       setPopupMessage("Connection with the server was lost. Please, try to reload the page.")
       return
     }
-    ws?.createRoom(control, bonus, user)
+    ws?.createRoom(control, bonus, user.id)
   }
 
   // Tries to joing the specified room. 
@@ -95,112 +95,67 @@ export default function Home() {
     ws?.joinRoom(roomId)
   }
 
-  // Helper function that returns a user rating in a specified control.
-  function getRating(u: User, c: string): string {
-    switch (c) {
-      case "bullet":
-        return u.bulletRating + ""
-      case "blitz":
-        return u.blitzRating + ""
-      case "rapid":
-        return u.rapidRating + ""
-      default:
-        return "No access"
-    }
-  }
-
   return (
-    <div className="mainContainer">
-      <div className="home">
-        <div className="playersCounter">
-          Players online: {cc}
-        </div>
-
-        <h1>Welcome, {user.username}!</h1>
-
-        {rooms.length ?
-          <div className="rooms">
-            <h2>Availible games:</h2>
-            <div className="filters">
-              <Select
-                htmlFor="control"
-                labelText="Control:"
-                options={["All", "Bullet", "Blitz", "Rapid"]}
-                onChangeHandler={() => { }}
-              />
-
-              <Select
-                htmlFor="bonus"
-                labelText="Time bonus:"
-                options={["All", "0", "1", "2", "10"]}
-                onChangeHandler={() => { }}
-              />
-            </div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Owner</th>
-                  <th>Control</th>
-                  <th>Time bonus<br />(sec.)</th>
-                  <th>Rating</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rooms.map((room, index) =>
-                  <tr
-                    key={index}
-                    onClick={room.owner.id !== user.id ?
-                      () => { handleJoinRoom(room.id) } : () => { }}
-                  >
-                    <td>
-                      {room.owner.username}
-                    </td>
-                    <td>
-                      {room.control}
-                    </td>
-                    <td>
-                      {room.bonus}
-                    </td>
-                    <td>
-                      {getRating(room.owner, room.control)}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div > :
-          <div>
-            There are no availible games yet.
-          </div>}
-
-        <Button
-          onClickHandler={() => { setIsDialogActive(true) }}
-          text="Create a game"
-        />
-
-        {/* <div className="playerStatus">
-          Connection: {ic
-            ? <img src={check} alt="yes" />
-            : <img src={error} alt="no" />
-          }
-        </div> */}
-
-        <div className="footer">
-          <a href="https://github.com/BelikovArtem/justchess_fullstack">
-            Source code
-          </a>
-          <br />
-          [<a href="https://www.figma.com/community/file/971870797656870866">
-            Chess Simple Assets
-          </a>] by [<a href="https://www.figma.com/@swierq">Maciej Świerczek</a>]
-          used under [
-          <a href="https://creativecommons.org/licenses/by/4.0/">
-            CC BY 4.0
-          </a>
-          ] licence terms
-        </div>
+    <div className="home">
+      <div className="playersCounter">
+        Players online: {cc}
       </div>
 
+      <h1>Welcome, {user.username}!</h1>
+
+      {rooms.length == 0 && <div>
+        There are no availible games yet.
+      </div>}
+
+      {rooms.length > 0 && <div className="rooms">
+        <div className="headRow">
+          <div className="col">Owner</div>
+          <div className="col">Control</div>
+          <div className="col">Time bonus<br />(sec.)</div>
+          <div className="col">Rating</div>
+        </div>
+        <div className="roomsTable">
+          {rooms.map((room, index) =>
+            <div
+              key={index}
+              className="row"
+              onClick={room.ownerId !== user.id ?
+                () => { handleJoinRoom(room.id) } : () => { }}
+            >
+              <div className="col">
+                {"Guest-" + room.ownerId.substring(0, 8)}
+              </div>
+              <div className="col">
+                {room.control}
+              </div>
+              <div className="col">
+                {room.bonus}
+              </div>
+              <div className="col" />
+            </div>
+          )}
+        </div>
+      </div>}
+
+      <Button
+        onClickHandler={() => { setIsDialogActive(true) }}
+        text="Create a game"
+      />
+
+      <div className="footer">
+        <a href="https://github.com/BelikovArtem/justchess_fullstack">
+          Source code
+        </a>
+        <br />
+        [<a href="https://www.figma.com/community/file/971870797656870866">
+          Chess Simple Assets
+        </a>] by [<a href="https://www.figma.com/@swierq">Maciej Świerczek</a>]
+        used under [
+        <a href="https://creativecommons.org/licenses/by/4.0/">
+          CC BY 4.0
+        </a>
+        ] licence terms
+      </div>
       {isDialogActive && (<Dialog
         header="Game parameters"
         content={[
@@ -228,6 +183,6 @@ export default function Home() {
         message={popupMessage}
         setIsActive={setIsPopupActive}
       />)}
-    </div >
+    </div>
   )
 }

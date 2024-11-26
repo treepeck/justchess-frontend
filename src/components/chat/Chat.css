@@ -41,6 +41,7 @@
   border-radius: 5px;
   height: 25px;
   font-size: small;
+  width: 100%;
 }
 
 .inputWrap img {

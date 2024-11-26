@@ -25,10 +25,6 @@ a .blackLayout {
   flex-direction: column-reverse;
 }
 
-.soundToggle {
-  margin: 0.5rem;
-}
-
 .soundToggle img {
   width: 2rem;
   height: 2rem;

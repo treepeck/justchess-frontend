@@ -59,11 +59,11 @@ export default class WS {
   }
 
   // Send a create room event with the specified parameters.
-  createRoom(c: string, b: number, o: User) {
+  createRoom(c: string, b: number, oId: string) {
     const e = new Event(EventAction.CREATE_ROOM, {
       control: c,
       bonus: b,
-      owner: o,
+      ownerId: oId,
     })
     this.sendEvent(e)
   }

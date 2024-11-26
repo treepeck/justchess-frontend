@@ -2,20 +2,13 @@
 export default class User {
   id: string
   username: string
-  gamesCount: number
-  blitzRating: number
-  rapidRating: number
-  bulletRating: number
+  accessToken: string
 
   constructor(
-    id: string, username: string, gamesCount: number,
-    blitzRating: number, rapidRating: number, bulletRating: number,
+    id: string, username: string, accessToken: string,
   ) {
     this.id = id
     this.username = username
-    this.gamesCount = gamesCount
-    this.blitzRating = blitzRating
-    this.rapidRating = rapidRating
-    this.bulletRating = bulletRating
+    this.accessToken = accessToken
   }
 }
