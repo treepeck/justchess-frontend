@@ -9,6 +9,7 @@
   height: 20%;
   flex: .2;
   order: 3;
+  font-size: medium;
 }
 
 .chat p {

@@ -59,7 +59,7 @@ export default function BoardPiece({ style, piece, onClickHandler,
 
     const droppable = elBelow.closest(".availible, .capture")
 
-    if (currentDroppable.current != droppable) {
+    if (currentDroppable.current !== droppable) {
       // leave droppable area
       if (currentDroppable.current) {
         currentDroppable.current.style.backgroundColor = ""

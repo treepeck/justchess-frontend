@@ -1,6 +1,5 @@
 // Misc
 import "./Board.css"
-import assets from "../../assets/pieces/pieces"
 import { useEffect, useRef, useState } from "react"
 import background from "../../assets/background.png"
 // Components
