@@ -1,7 +1,6 @@
 .miniprofile {
   width: 100%;
   display: flex;
-  font-size: large;
   flex-direction: row;
   font-size: small;
 }
@@ -12,6 +11,7 @@
   align-content: center;
   justify-content: center;
   align-items: center;
+  font-size: larger;
 }
 
 .status img {

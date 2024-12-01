@@ -81,6 +81,7 @@ export default function Play() {
     ws?.setEventHandler(EventAction.LAST_MOVE, handleLastMove)
     ws?.setEventHandler(EventAction.END_RESULT, handleEndGame)
     ws?.setEventHandler(EventAction.GAME_INFO, handleUpdateGame)
+    ws?.setEventHandler(EventAction.MOVES, handleMoveHistory)
 
     return () => {
       ws?.leaveRoom()
@@ -89,6 +90,7 @@ export default function Play() {
       ws?.clearEventHandler(EventAction.GAME_INFO)
       ws?.clearEventHandler(EventAction.LAST_MOVE)
       ws?.clearEventHandler(EventAction.END_RESULT)
+      ws?.clearEventHandler(EventAction.MOVES)
     }
   }, [])
 
@@ -99,7 +101,7 @@ export default function Play() {
         break
 
       case GameStatus.Leave:
-        // TODO: handle players disconnections 
+
         break
 
       case GameStatus.Continues:
@@ -143,6 +145,35 @@ export default function Play() {
         playSound(sounds["move"])
       }
       setValidMoves(m.vm)
+      return newMoves
+    })
+  }
+
+  function handleMoveHistory(mh: Move[]) {
+    setMoves((prevMoves) => {
+      const newMoves = [...mh]
+      const lm = newMoves[newMoves.length - 1]
+      // handle odd moves
+      if (newMoves.length % 2 !== 0) {
+        setWhiteTime(lm.timeLeft / 1000000000)
+        setIsWTA(false)
+        setIsBTA(true)
+      } else { // even moves
+        setBlackTime(lm.timeLeft / 1000000000)
+        setIsWTA(true)
+        setIsBTA(false)
+      }
+
+      if (lm.lan.includes("#")) { // checkmate
+        // TODO: playSound(sounds["checkmate"])
+      } else if (lm.lan.includes("+")) { // check
+        playSound(sounds["check"])
+      } else if (lm.lan.includes("x")) { // capture
+        playSound(sounds["capture"])
+      } else {
+        playSound(sounds["move"])
+      }
+      setValidMoves(lm.vm)
       return newMoves
     })
   }

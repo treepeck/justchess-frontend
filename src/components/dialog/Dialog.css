@@ -48,8 +48,24 @@
 .close {
   background-color: #1f1b25;
   color: rgb(237, 237, 237);
-  width: 1.5rem;
-  height: 1.5rem;
+  height: 10%;
+  width: auto;
+  aspect-ratio: 1 / 1;
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: -10px;
+  right: -10px;
+  border-radius: 50%;
+}
+
+.home .close {
+  background-color: #1f1b25;
+  color: rgb(237, 237, 237);
+  height: 10%;
+  width: auto;
+  aspect-ratio: 1 / 1;
   position: absolute;
   display: flex;
   align-items: center;

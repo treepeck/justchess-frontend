@@ -1,5 +1,4 @@
 import Event, { EventAction } from "./event"
-import User from "../user"
 import { MoveDTO } from "../../game/move"
 
 // Describes the interactions with the Manager using WebSockets.

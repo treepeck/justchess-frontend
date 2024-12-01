@@ -13,7 +13,6 @@ import {
 } from "react"
 import { useNavigate } from "react-router-dom"
 
-import User from "../../api/user"
 import { useAuth } from "../../context/Auth"
 import { useConn } from "../../context/Conn"
 import { EventAction } from "../../api/ws/event"
@@ -103,7 +102,7 @@ export default function Home() {
 
       <h1>Welcome, {user.username}!</h1>
 
-      {rooms.length == 0 && <div>
+      {rooms.length === 0 && <div>
         There are no availible games yet.
       </div>}
 

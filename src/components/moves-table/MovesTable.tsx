@@ -1,7 +1,5 @@
 import "./MovesTable.css"
 import Move from "../../game/move"
-import { useState } from "react"
-import { dblClick } from "@testing-library/user-event/dist/click"
 
 type MovesTableProps = {
   moves: Move[]
