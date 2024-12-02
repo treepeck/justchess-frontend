@@ -34,7 +34,7 @@ export function AuthProvider() {
       const r = await api.getUserByRefreshToken()
       if (r.err != null) {
         const _r = await api.createGuest()
-        if (r.err != null) {
+        if (r.err == null) {
           setUser(_r.user as User)
           setIsReady(true)
         }
