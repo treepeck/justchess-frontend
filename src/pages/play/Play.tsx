@@ -287,7 +287,6 @@ export default function Play() {
           <div className={`boardLayout  ${side === "black" ? "blackLayout" : ""}`}>
             <Miniprofile
               id={game.black.id}
-              ic={game.black.isConnected}
               dur={blackTime}
               ita={isBTA}
             />
@@ -299,7 +298,6 @@ export default function Play() {
             />
             <Miniprofile
               id={game.white.id}
-              ic={game.white.isConnected}
               dur={whiteTime}
               ita={isWTA}
             />

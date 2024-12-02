@@ -142,7 +142,7 @@ export default function Home() {
       />
 
       <div className="footer">
-        <a href="https://github.com/BelikovArtem/justchess_fullstack">
+        <a href="https://github.com/BelikovArtem/justchess_frontend">
           Source code
         </a>
         <br />
