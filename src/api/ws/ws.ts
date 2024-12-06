@@ -14,7 +14,7 @@ export default class WS {
   constructor(at: string) {
     // define the server url and ws protocol
     this.serverUrl = "api.justchess.org"
-    this.protocol = "ws://"
+    this.protocol = "wss://"
     this.handlers = new Map()
 
     // establish a WebSocket connection
