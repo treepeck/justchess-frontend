@@ -5,7 +5,7 @@ export default class API {
   private serverUrl: string
 
   constructor() {
-    this.serverUrl = "https://api.justchess.org"
+    this.serverUrl = "http://localhost:3502"
   }
 
   // Fetches the user info by refresh token provided in a request cookie.

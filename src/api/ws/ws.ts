@@ -13,8 +13,8 @@ export default class WS {
   // It also defines the serverUrl and WebSocket`s protocol fields.
   constructor(at: string) {
     // define the server url and ws protocol
-    this.serverUrl = "api.justchess.org"
-    this.protocol = "wss://"
+    this.serverUrl = "localhost:3502"
+    this.protocol = "ws://"
     this.handlers = new Map()
 
     // establish a WebSocket connection
