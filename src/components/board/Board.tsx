@@ -185,9 +185,11 @@ export default function Board({ side, lastMove,
       )}
 
       {isPSWA && promotionMove && <PieceSelection
+        style={{
+          transform: transform(posFromString(promotionMove.to))
+        }}
         onSelect={handlePromotion}
         side={side}
-        posFile={posFromString(promotionMove.to).file}
         setIsActive={setIsPSWA}
       />}
 
