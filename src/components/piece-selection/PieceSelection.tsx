@@ -5,19 +5,17 @@ type PieceSelectionProps = {
   onSelect: (p: string) => void,
   side: string,
   setIsActive: (ia: boolean) => void,
-  posFile: number
+  style: React.CSSProperties,
 }
 
 export default function PieceSelection(props: PieceSelectionProps) {
-  const pieces = ["queen", "knight", "rook", "bishop"]
+  const pieces = ["♕", "♘", "♖", "♗"]
 
   return (
     <div className={styles.container} onClick={() => props.setIsActive(false)}>
       <div
         className={styles.content}
-        style={{
-          marginLeft: `calc(${(props.posFile - 1)}rem * 5)`
-        }}
+        style={props.style}
       >
         {pieces.map(piece => (
           <img

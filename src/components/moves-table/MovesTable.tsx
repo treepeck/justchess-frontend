@@ -27,7 +27,7 @@ export default function MovesTable({ moves }: MovesTableProps) {
       </div>
       <div className="movesTable">
         {movePairs.map((pair, ind) => (
-          <div className="row">
+          <div className="row" key={ind}>
             <div className="ind">
               {ind + 1}
             </div>
