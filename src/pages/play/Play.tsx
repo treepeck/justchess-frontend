@@ -181,6 +181,8 @@ export default function Play() {
   function handleEndGame(result: { r: number, w: number }) {
     setResult(result)
     setIsCDA(true)
+    setIsWTA(false)
+    setIsBTA(false)
   }
 
   function handleAbortGame() {
