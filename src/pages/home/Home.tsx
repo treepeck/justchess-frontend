@@ -1,6 +1,4 @@
 import "./Home.css"
-import check from "../../assets/check.png"
-import error from "../../assets/error.png"
 
 import Popup from "../../components/popup/Popup"
 import Button from "../../components/button/Button"
@@ -102,11 +100,7 @@ export default function Home() {
 
       <h1>Welcome, {user.username}!</h1>
 
-      {rooms.length === 0 && <div>
-        There are no availible games yet.
-      </div>}
-
-      {rooms.length > 0 && <div className="rooms">
+      <div className="rooms">
         <div className="headRow">
           <div className="col">Owner</div>
           <div className="col">Control</div>
@@ -134,7 +128,7 @@ export default function Home() {
             </div>
           )}
         </div>
-      </div>}
+      </div>
 
       <Button
         onClickHandler={() => { setIsDialogActive(true) }}
@@ -142,10 +136,6 @@ export default function Home() {
       />
 
       <div className="footer">
-        <a href="https://github.com/BelikovArtem/justchess-frontend">
-          Source code
-        </a>
-        <br />
         [<a href="https://www.figma.com/community/file/971870797656870866">
           Chess Simple Assets
         </a>] by [<a href="https://www.figma.com/@swierq">Maciej Świerczek</a>]
