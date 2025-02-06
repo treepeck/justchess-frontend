@@ -1,0 +1,18 @@
+.header {
+	height: 100vh;
+	padding-left: 1rem;
+	background-color: var(--background);
+	border: 5px solid gray;
+}
+
+.header li:not(:last-child) {
+	margin-bottom: 10cqmax;
+}
+
+.header li:nth-child(1) {
+	font-size: x-large;
+}
+
+.header li {
+	font-size: large;
+}
