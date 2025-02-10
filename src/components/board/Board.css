@@ -1,0 +1,26 @@
+.board {
+	width: 40rem;
+	height: 40rem;
+	display: grid;
+	grid-template-columns: repeat(8, 1fr);
+	background-image: url("../../../public/background.png");
+	background-size: cover;
+	cursor: pointer;
+}
+
+.board-square {
+	width: 5rem;
+	height: 5rem;
+	font-size: xx-large;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.selected {
+	background-color: rgb(178, 223, 237);
+}
+
+.legal:hover {
+	border: 5px solid rgb(130, 151, 105);
+}

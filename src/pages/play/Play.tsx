@@ -1,7 +1,102 @@
 import "./Play.css"
+import { useState } from "react"
+import Game from "../../game/game"
+import { useTheme } from "../../context/Theme"
+import { CompletedMove, LegalMove, MoveType } from "../../game/move"
+import Board from "../../components/board/Board"
+import Message, { MessageType } from "../../ws/msg"
+import { useConnection } from "../../context/Connection"
+import { Result } from "../../game/result"
 
 export default function Play() {
-  return (
-    <h1 className="play">Play page</h1>
-  )
+	const { theme } = useTheme()
+
+	const { socket } = useConnection()
+	if (!socket) { return <p></p> }
+
+	const [game, setGame] = useState<Game | null>(null)
+	const [currentFEN, setCurrentFEN] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+	const [moves, setMoves] = useState<CompletedMove[]>([])
+	const [legalMoves, setLegalMoves] = useState<LegalMove[]>([
+		new LegalMove(16, 8, MoveType.Quiet),
+		new LegalMove(24, 8, MoveType.DoublePawnPush),
+		new LegalMove(17, 9, MoveType.Quiet),
+		new LegalMove(25, 9, MoveType.DoublePawnPush),
+		new LegalMove(18, 10, MoveType.Quiet),
+		new LegalMove(26, 10, MoveType.DoublePawnPush),
+		new LegalMove(19, 11, MoveType.Quiet),
+		new LegalMove(27, 11, MoveType.DoublePawnPush),
+		new LegalMove(20, 12, MoveType.Quiet),
+		new LegalMove(28, 12, MoveType.DoublePawnPush),
+		new LegalMove(21, 13, MoveType.Quiet),
+		new LegalMove(29, 13, MoveType.DoublePawnPush),
+		new LegalMove(22, 14, MoveType.Quiet),
+		new LegalMove(30, 14, MoveType.DoublePawnPush),
+		new LegalMove(23, 15, MoveType.Quiet),
+		new LegalMove(31, 15, MoveType.DoublePawnPush),
+		new LegalMove(16, 1, MoveType.Quiet),
+		new LegalMove(18, 1, MoveType.Quiet),
+		new LegalMove(21, 6, MoveType.Quiet),
+		new LegalMove(23, 6, MoveType.Quiet),
+	])
+
+	socket.socket.onmessage = (data) => {
+		const msg = new Message(new Uint8Array(data.data))
+
+		switch (msg.type) {
+			case MessageType.GAME_INFO:
+				setGame(msg.payload)
+				break
+
+			case MessageType.LAST_MOVE:
+				setMoves(_moves => [..._moves, { san: msg.payload.san, fen: msg.payload.fen }])
+				setCurrentFEN(msg.payload.fen)
+				setLegalMoves(msg.payload.legalMoves)
+				break
+		}
+	}
+
+	if (game == null) {
+		return (
+			<div className="waiting" data-theme={theme}>
+				<p>Waiting for the other player</p>
+			</div>
+		)
+	}
+
+	return (
+		<div className="main-container" data-theme={theme}>
+			<div>White player: {game?.whiteId}</div>
+			<div>Black player: {game?.blackId}</div>
+			<div>Game result: {game?.result}</div>
+			<div>Time control: {game?.timeControl}</div>
+			<div>Time bonus: {game?.timeBonus}</div>
+
+			<Board fen={currentFEN} legalMoves={legalMoves}
+				onMove={(move: LegalMove) => {
+					socket.sendMove(move)
+				}}
+			/>
+
+			<table>
+				<thead>
+					<tr>
+						<th>#</th>
+						<th>White</th>
+						<th>Black</th>
+					</tr>
+				</thead>
+				<tbody>
+					{moves.map((move, index) =>
+						<tr
+							key={index}
+						>
+							<td>{index + 1}</td>
+							<td>{move.san}</td>
+						</tr>
+					)}
+				</tbody>
+			</table>
+		</div>
+	)
 }

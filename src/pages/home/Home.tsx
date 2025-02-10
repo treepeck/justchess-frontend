@@ -2,8 +2,8 @@ import "./Home.css"
 import { useEffect, useState } from "react"
 import { useTheme } from "../../context/Theme"
 import { useNavigate } from "react-router-dom"
-import Message, { MessageType } from "../../ws/msg"
-import Sidebar from "../../components/header/Header"
+import { MessageType } from "../../ws/msg"
+import Header from "../../components/header/Header"
 import { useConnection } from "../../context/Connection"
 
 export type Room = {
@@ -14,37 +14,30 @@ export type Room = {
 
 export default function Home() {
 	const { theme } = useTheme()
-	const { socket } = useConnection()
+	const { socket, messageQueue, setMessageQueue } = useConnection()
+	if (!socket) { return <p></p> }
 	const [rooms, setRooms] = useState<Room[]>([])
 	const [clientsCounter, setClientsCounter] = useState<number>(0)
 
 	const navigate = useNavigate()
 
-	if (!socket) {
-		return
-	}
-
 	useEffect(() => {
-		// Get info about availible rooms.
-		socket.sendGetRooms()
-	}, [])
+		if (messageQueue.length == 0) { return }
 
-	// Recieve and process the messages from the server.
-	socket.socket.onmessage = (data) => {
-		const msg = new Message(new Uint8Array(data.data))
+		const [msg, ...remaining] = messageQueue
 		switch (msg.type) {
 			case MessageType.CLIENTS_COUNTER:
 				setClientsCounter(msg.payload)
 				break
 
 			case MessageType.ADD_ROOM:
-				for (const r of rooms) {
-					// Do not add duplicates.
-					if (r.id == msg.payload.id) {
-						return
+				setRooms(prevRooms => {
+					// Do not add room duplicates.
+					if (prevRooms.some(r => r.id === msg.payload.id)) {
+						return prevRooms
 					}
-				}
-				setRooms(_rooms => [...rooms, msg.payload])
+					return [...prevRooms, msg.payload]
+				})
 				break
 
 			case MessageType.REMOVE_ROOM:
@@ -57,11 +50,13 @@ export default function Home() {
 				navigate(`/play/${msg.payload}`)
 				break
 		}
-	}
+		// Remove the processed message from the queue.
+		setMessageQueue(remaining)
+	}, [messageQueue])
 
 	return (
 		<div className="main-container" data-theme={theme}>
-			<Sidebar />
+			<Header />
 			<div className="clients-counter">
 				Online: {clientsCounter}
 			</div>
@@ -80,8 +75,6 @@ export default function Home() {
 							className="rooms-data-row"
 							onClick={(e) => {
 								socket.sendJoinRoom(room.id)
-								// @ts-ignore
-								e.target.disable = true
 							}}
 						>
 							<td>{room.timeControl}</td>

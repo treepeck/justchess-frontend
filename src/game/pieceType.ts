@@ -1,0 +1,15 @@
+export enum PieceType {
+	WhitePawn,
+	BlackPawn,
+	WhiteKnight,
+	BlackKnight,
+	WhiteBishop,
+	BlackBishop,
+	WhiteRook,
+	BlackRook,
+	WhiteQueen,
+	BlackQueen,
+	WhiteKing,
+	BlackKing,
+	NoPiece,
+}

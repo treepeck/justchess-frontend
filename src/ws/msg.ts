@@ -1,9 +1,9 @@
+import { LegalMove } from "../game/move"
+
 // Should be exactly the same as in backend. [justchess/pkg/ws/#MessageType].
 export enum MessageType {
-	GET_ROOMS,
 	CREATE_ROOM,
 	JOIN_ROOM,
-	LEAVE_ROOM,
 	MOVE,
 	CLIENTS_COUNTER,
 	ADD_ROOM,
@@ -33,16 +33,8 @@ export default class Message {
 				break
 
 			case MessageType.ADD_ROOM: {
-				let id: string = ""
-				for (let i = 0; i < 16; i++) {
-					if (i == 4 || i == 6 || i == 8 || i == 10) {
-						id += "-"
-					}
-					id += ((byteArr[i] >> 4) & 0xF).toString(16)
-					id += (byteArr[i] & 0xF).toString(16)
-				}
 				this.payload = {
-					id: id,
+					id: decodeId(byteArr, 0, 16),
 					timeControl: byteArr[16],
 					timeBonus: byteArr[17],
 				}
@@ -50,16 +42,44 @@ export default class Message {
 
 			case MessageType.REMOVE_ROOM:
 			case MessageType.REDIRECT: {
-				let id: string = ""
-				for (let i = 0; i < 16; i++) {
-					if (i == 4 || i == 6 || i == 8 || i == 10) {
-						id += "-"
-					}
-					id += ((byteArr[i] >> 4) & 0xF).toString(16)
-					id += (byteArr[i] & 0xF).toString(16)
-				}
-				this.payload = id
+				this.payload = decodeId(byteArr, 0, 16)
 			} break
+
+			case MessageType.GAME_INFO:
+				this.payload = {
+					whiteId: decodeId(byteArr, 0, 16),
+					blackId: decodeId(byteArr, 16, 32),
+					result: byteArr[32],
+					timeControl: byteArr[33],
+					timeBonus: byteArr[34],
+				}
+				break
+
+			case MessageType.LAST_MOVE:
+				// This message consist of three parts: SAN, FEN and legal moves.
+				// Parts are separated by a 0xFF byte.
+				let sanPart: number[] = []
+				let fenPart: number[] = []
+				let legalMoves: LegalMove[] = []
+				let i;
+				for (i = 0; i < byteArr.length - 1; i++) {
+					if (byteArr[i] == 0xFF) { break }
+					sanPart.push(byteArr[i])
+				}
+				for (i = i + 1; i < byteArr.length - 1; i++) {
+					if (byteArr[i] == 0xFF) { break }
+					fenPart.push(byteArr[i])
+				}
+				for (i = i + 1; i < byteArr.length - 1; i += 3) {
+					legalMoves.push(new LegalMove(byteArr[i], byteArr[i + 1],
+						byteArr[i + 2]))
+				}
+				this.payload = {
+					san: String.fromCharCode(...sanPart),
+					fen: String.fromCharCode(...fenPart),
+					legalMoves: legalMoves,
+				}
+				break
 
 			default:
 				this.payload = 0
@@ -67,3 +87,15 @@ export default class Message {
 	}
 }
 
+function decodeId(byteArr: Uint8Array, begin: number, end: number): string {
+	let id: string = ""
+	for (let i = begin; i < end; i++) {
+		if (i == (begin + 4) || i == (begin + 6) ||
+			i == (begin + 8) || i == (begin + 10)) {
+			id += "-"
+		}
+		id += ((byteArr[i] >> 4) & 0xF).toString(16)
+		id += (byteArr[i] & 0xF).toString(16)
+	}
+	return id
+}

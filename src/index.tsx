@@ -1,7 +1,6 @@
 import "./index.css"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
-
 import {
 	Route,
 	RouteObject,
@@ -17,8 +16,8 @@ import ConnectionProvider from "./context/Connection"
 const routes: RouteObject[] = createRoutesFromElements(
 	<Route element={<ConnectionProvider />}>
 		<Route element={<ThemeProvider />}>
-			<Route element={<Home />} path="/" />
 			<Route element={<Play />} path="/play/:roomId" />
+			<Route element={<Home />} path="/" />
 		</Route>
 	</Route>
 )

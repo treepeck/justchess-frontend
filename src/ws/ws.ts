@@ -1,3 +1,4 @@
+import { LegalMove } from "../game/move"
 import { MessageType } from "./msg"
 
 export default class _WebSocket {
@@ -15,12 +16,6 @@ export default class _WebSocket {
 		// Establish a WebSocket connection.
 		this.socket = new WebSocket(`${this.protocol}${this.serverUrl}/ws`)
 		this.socket.binaryType = "arraybuffer"
-	}
-
-	sendGetRooms() {
-		const data = new Uint8Array(1)
-		data[0] = MessageType.GET_ROOMS
-		this.socket.send(data)
 	}
 
 	sendCreateRoom(control: number, bonus: number) {
@@ -46,6 +41,15 @@ export default class _WebSocket {
 			data[i] = parseInt(withoutDashes.substring(i * 2, (i * 2) + 2), 16)
 		}
 		data[16] = MessageType.JOIN_ROOM
+		this.socket.send(data)
+	}
+
+	sendMove(move: LegalMove) {
+		const data = new Uint8Array(4)
+		data[0] = move.to
+		data[1] = move.from
+		data[2] = move.type
+		data[3] = MessageType.MOVE
 		this.socket.send(data)
 	}
 
