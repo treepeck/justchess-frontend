@@ -1,1 +1,18 @@
-.theme-toggle {}
+.theme-toggle {
+	border: none;
+	border-radius: 50%;
+	background-color: transparent;
+	text-decoration: none;
+	height: 100%;
+	aspect-ratio: 1/1;
+	background-size: cover;
+
+}
+
+.day {
+	background-image: url("../../../public/light_mode.png");
+}
+
+.night {
+	background-image: url("../../../public/dark_mode.png");
+}
