@@ -1,8 +1,8 @@
 import "./Board.css"
 import { useEffect, useState } from "react"
-import { LegalMove } from "../../game/move"
+import { LegalMove, MoveType } from "../../game/move"
 import { PieceType } from "../../game/pieceType"
-import { parseFEN, piece2ASCII } from "../../game/fen"
+import { FEN2Board, parseActiveColor, piece2ClassName } from "../../game/fen"
 
 type BoardProps = {
 	fen: string
@@ -12,14 +12,17 @@ type BoardProps = {
 
 export default function Board(props: BoardProps) {
 	const [selected, setSelected] = useState<number | null>(null)
-	const [board, setBoard] = useState<PieceType[]>(parseFEN(props.fen))
+	const [board, setBoard] = useState<PieceType[]>(FEN2Board(props.fen))
+	// Is piece selection window active.
+	const [isPSWA, setIsPSWA] = useState<boolean>(false)
+	const [promoMove, setPromoMove] = useState<LegalMove | null>(null)
 
 	useEffect(() => {
-		setBoard(parseFEN(props.fen))
+		setBoard(FEN2Board(props.fen))
 	}, [props.fen])
 
-	function getClassName(index: number): string {
-		let name = "board-square"
+	function getClassName(index: number, piece: PieceType): string {
+		let name = "board-square " + piece2ClassName(piece) + " "
 		if (index == selected) {
 			return name + " selected"
 		}
@@ -38,22 +41,58 @@ export default function Board(props: BoardProps) {
 		}
 		for (const legalMove of props.legalMoves) {
 			if (legalMove.from == selected && legalMove.to == index) {
-				props.onMove(legalMove)
+				if (legalMove.type < 6) { // If move type is not promotion.
+					props.onMove(legalMove)
+				} else {
+					setIsPSWA(true)
+					setPromoMove(legalMove)
+				}
 				return
 			}
 		}
 		setSelected(index)
 	}
 
+	// pieceType - 0 - knight, 1 - bishop, 2 - rook, 3 - queen.
+	function handlePromotion(pieceType: number) {
+		if (!promoMove) { return }
+		let mt: MoveType
+		// If the move was a capture.
+		if (promoMove.type >= 10) {
+			mt = 10 + pieceType
+		} else {
+			mt = 6 + pieceType
+		}
+		const m = new LegalMove(promoMove.to, promoMove.from, mt)
+		props.onMove(m)
+		setIsPSWA(false)
+	}
+
 	return (
 		<div className="board">
+			{isPSWA && (
+				<div className="piece-selection-container" onClick={() => setIsPSWA(false)}>
+					<div className={`${parseActiveColor(props.fen)}-knight`}
+						onClick={() => handlePromotion(MoveType.KnightPromo)}
+					/>
+					<div className={`${parseActiveColor(props.fen)}-bishop`}
+						onClick={() => handlePromotion(MoveType.BishopPromo)}
+					/>
+					<div className={`${parseActiveColor(props.fen)}-rook`}
+						onClick={() => handlePromotion(MoveType.RookPromo)}
+					/>
+					<div className={`${parseActiveColor(props.fen)}-queen`}
+						onClick={() => handlePromotion(MoveType.QueenPromo)}
+					/>
+				</div>
+			)}
+
 			{board.map((piece, index) =>
 				<div
 					key={index}
-					className={getClassName(index)}
+					className={getClassName(index, piece)}
 					onClick={() => handleClickSquare(index)}
 				>
-					{piece2ASCII(piece)}
 				</div>
 			)
 			}

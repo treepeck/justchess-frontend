@@ -41,52 +41,84 @@ export default function Home() {
 				break
 
 			case MessageType.REMOVE_ROOM:
-				setRooms((prevRooms) => prevRooms.filter(room =>
-					room.id !== msg.payload
-				))
+				removeRoom(msg.payload)
 				break
 
-			case MessageType.REDIRECT:
-				navigate(`/play/${msg.payload}`)
+			case MessageType.GAME_INFO:
+				navigate(`/${msg.payload.roomId}`)
 				break
 		}
 		// Remove the processed message from the queue.
 		setMessageQueue(remaining)
 	}, [messageQueue])
 
+	function removeRoom(id: string) {
+		setRooms((prevRooms) => prevRooms.filter(room =>
+			room.id !== id
+		))
+	}
+
 	return (
 		<div className="main-container" data-theme={theme}>
 			<Header />
-			<div className="clients-counter">
-				Online: {clientsCounter}
+
+			<div className="home-container">
+				<div className="table">
+					<div className="caption">Availible games</div>
+
+					<div className="table-header">
+						<div className="col">
+							Control
+						</div>
+						<div className="col">
+							Bonus
+						</div>
+					</div>
+
+					<div className="table-body">
+						{rooms.map((room, index) =>
+							<div
+								className="row"
+								onClick={() => {
+									socket.sendJoinRoom(room.id)
+									removeRoom(room.id)
+								}}
+								key={index}
+							>
+								<div className="col">
+									{room.timeControl}
+								</div>
+
+								<div className="col">
+									{room.timeBonus}
+								</div>
+							</div>)}
+					</div>
+				</div>
+
+				<div className="buttons-section">
+					<button
+						onClick={() => {
+							socket.sendCreateRoom(10, 10)
+
+						}}
+					>
+						CREATE A NEW GAME
+					</button>
+
+					<button
+						onClick={() => { }}
+					>
+						PLAY WITH THE COMPUTER
+					</button>
+				</div>
 			</div>
 
-			<table className="rooms">
-				<thead>
-					<tr className="rooms-header">
-						<th>Time control</th>
-						<th>Time bonus</th>
-					</tr>
-				</thead>
-				<tbody>
-					{rooms.map((room, index) =>
-						<tr
-							key={index}
-							className="rooms-data-row"
-							onClick={(e) => {
-								socket.sendJoinRoom(room.id)
-							}}
-						>
-							<td>{room.timeControl}</td>
-							<td>{room.timeBonus}</td>
-						</tr>
-					)}
-				</tbody>
-			</table>
-
-			<button onClick={() => socket.sendCreateRoom(10, 10)}>
-				Create a new game
-			</button>
-		</div>
+			<div className="footer">
+				<div className="clients-counter">
+					Online: {clientsCounter}
+				</div>
+			</div>
+		</div >
 	)
 }

@@ -8,7 +8,8 @@ export default {
 	entry: "./src/index.tsx",
 	output: {
 		path: import.meta.dirname + '/dist/',
-		filename: "[name][contenthash].js"
+		filename: "[name][contenthash].js",
+		publicPath: "/",
 	},
 	module: {
 		rules: [
@@ -34,4 +35,7 @@ export default {
 			filename: "[name].[contenthash].css"
 		})
 	],
+	devServer: {
+		historyApiFallback: true,
+	},
 }

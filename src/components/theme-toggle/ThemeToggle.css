@@ -6,13 +6,17 @@
 	height: 100%;
 	aspect-ratio: 1/1;
 	background-size: cover;
+	cursor: pointer;
+}
 
+.theme-toggle:hover {
+	border: 2px solid white;
 }
 
 .day {
-	background-image: url("../../../public/light_mode.png");
+	background-image: url("../../../public/assets/light_mode.png");
 }
 
 .night {
-	background-image: url("../../../public/dark_mode.png");
+	background-image: url("../../../public/assets/dark_mode.png");
 }

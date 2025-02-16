@@ -4,6 +4,7 @@ import { LegalMove } from "../game/move"
 export enum MessageType {
 	CREATE_ROOM,
 	JOIN_ROOM,
+	LEAVE_ROOM,
 	MOVE,
 	CLIENTS_COUNTER,
 	ADD_ROOM,
