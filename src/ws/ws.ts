@@ -27,20 +27,14 @@ export default class _WebSocket {
 	}
 
 	sendJoinRoom(id: string) {
-		let withoutDashes = ""
-		for (let i = 0; i < id.length; i++) {
-			if (i == 8 || i == 13 || i == 18 || i == 23) {
-				continue
-			}
-			withoutDashes += id[i]
-		}
-
-		const data = new Uint8Array(17)
-		for (let i = 0; i < 16; i++) {
-			console.log(withoutDashes.substring(i * 2, (i * 2) + 2))
-			data[i] = parseInt(withoutDashes.substring(i * 2, (i * 2) + 2), 16)
-		}
+		const data = this.encodeId(id)
 		data[16] = MessageType.JOIN_ROOM
+		this.socket.send(data)
+	}
+
+	sendLeaveRoom() {
+		const data = new Uint8Array(1)
+		data[0] = MessageType.LEAVE_ROOM
 		this.socket.send(data)
 	}
 
@@ -51,6 +45,23 @@ export default class _WebSocket {
 		data[2] = move.type
 		data[3] = MessageType.MOVE
 		this.socket.send(data)
+	}
+
+	private encodeId(id: string): Uint8Array {
+		// Remove the dashes from the uuid string.
+		let withoutDashes = ""
+		for (let i = 0; i < id.length; i++) {
+			if (i == 8 || i == 13 || i == 18 || i == 23) {
+				continue
+			}
+			withoutDashes += id[i]
+		}
+
+		const data = new Uint8Array(17)
+		for (let i = 0; i < 16; i++) {
+			data[i] = parseInt(withoutDashes.substring(i * 2, (i * 2) + 2), 16)
+		}
+		return data
 	}
 
 	close() {

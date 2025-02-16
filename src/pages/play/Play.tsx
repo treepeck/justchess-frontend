@@ -1,23 +1,45 @@
 import "./Play.css"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Game from "../../game/game"
 import { useTheme } from "../../context/Theme"
-import { CompletedMove, LegalMove, MoveType } from "../../game/move"
 import Board from "../../components/board/Board"
-import Message, { MessageType } from "../../ws/msg"
+import { MessageType } from "../../ws/msg"
 import { useConnection } from "../../context/Connection"
-import { Result } from "../../game/result"
+import { CompletedMove, LegalMove, MoveType } from "../../game/move"
 
 export default function Play() {
 	const { theme } = useTheme()
 
-	const { socket } = useConnection()
+	const { socket, messageQueue, setMessageQueue } = useConnection()
 	if (!socket) { return <p></p> }
+
+	useEffect(() => {
+		return () => socket.sendLeaveRoom()
+	}, [])
+
+	useEffect(() => {
+		if (messageQueue.length == 0) { return }
+
+		const [msg, ...remaining] = messageQueue
+		switch (msg.type) {
+			case MessageType.GAME_INFO:
+				setGame(msg.payload)
+				break
+
+			case MessageType.LAST_MOVE:
+				setMoves(_moves => [..._moves, { san: msg.payload.san, fen: msg.payload.fen }])
+				setCurrentFEN(msg.payload.fen)
+				setLegalMoves(msg.payload.legalMoves)
+				break
+		}
+		setMessageQueue(remaining)
+	}, [messageQueue])
 
 	const [game, setGame] = useState<Game | null>(null)
 	const [currentFEN, setCurrentFEN] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
 	const [moves, setMoves] = useState<CompletedMove[]>([])
 	const [legalMoves, setLegalMoves] = useState<LegalMove[]>([
+		// Default legal moves.
 		new LegalMove(16, 8, MoveType.Quiet),
 		new LegalMove(24, 8, MoveType.DoublePawnPush),
 		new LegalMove(17, 9, MoveType.Quiet),
@@ -40,37 +62,19 @@ export default function Play() {
 		new LegalMove(23, 6, MoveType.Quiet),
 	])
 
-	socket.socket.onmessage = (data) => {
-		const msg = new Message(new Uint8Array(data.data))
-
-		switch (msg.type) {
-			case MessageType.GAME_INFO:
-				setGame(msg.payload)
-				break
-
-			case MessageType.LAST_MOVE:
-				setMoves(_moves => [..._moves, { san: msg.payload.san, fen: msg.payload.fen }])
-				setCurrentFEN(msg.payload.fen)
-				setLegalMoves(msg.payload.legalMoves)
-				break
-		}
-	}
-
 	if (game == null) {
 		return (
-			<div className="waiting" data-theme={theme}>
-				<p>Waiting for the other player</p>
-			</div>
+			<p>Waiting for the second player</p>
 		)
 	}
 
 	return (
 		<div className="main-container" data-theme={theme}>
-			<div>White player: {game?.whiteId}</div>
-			<div>Black player: {game?.blackId}</div>
-			<div>Game result: {game?.result}</div>
-			<div>Time control: {game?.timeControl}</div>
-			<div>Time bonus: {game?.timeBonus}</div>
+			<div>White player: {game.whiteId}</div>
+			<div>Black player: {game.blackId}</div>
+			<div>Game result: {game.result}</div>
+			<div>Time control: {game.timeControl}</div>
+			<div>Time bonus: {game.timeBonus}</div>
 
 			<Board fen={currentFEN} legalMoves={legalMoves}
 				onMove={(move: LegalMove) => {

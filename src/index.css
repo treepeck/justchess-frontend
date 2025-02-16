@@ -8,11 +8,13 @@
 
 /* Dark theme values by default. */
 :root {
+	--containersBg: #343a46;
 	--background: #23272f;
 	--text: #ffffff;
 }
 
 [data-theme="light"] {
+	--containersBg: #f6f7f9;
 	--background: #ffffff;
 	--text: #23272f;
 }

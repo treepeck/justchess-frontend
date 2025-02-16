@@ -1,6 +1,6 @@
 import { PieceType } from "./pieceType"
 
-export function parseFEN(fen: string): PieceType[] {
+export function FEN2Board(fen: string): PieceType[] {
 	const rows = fen.split(" ")[0].split("/")
 	const _board: PieceType[] = new Array(64)
 
@@ -38,20 +38,26 @@ export function parseFEN(fen: string): PieceType[] {
 	return _board
 }
 
-export function piece2ASCII(pt: PieceType): string {
+// parseActiveColor returns "w" for white or "b" for black.
+export function parseActiveColor(FEN: string): string {
+	const fields = FEN.split(" ")
+	return fields[1]
+}
+
+export function piece2ClassName(pt: PieceType): string {
 	switch (pt) {
-		case PieceType.WhitePawn: return "♙"
-		case PieceType.BlackPawn: return "♟"
-		case PieceType.WhiteKnight: return "♘"
-		case PieceType.BlackKnight: return "♞"
-		case PieceType.WhiteBishop: return "♗"
-		case PieceType.BlackBishop: return "♝"
-		case PieceType.WhiteRook: return "♖"
-		case PieceType.BlackRook: return "♜"
-		case PieceType.WhiteQueen: return "♕"
-		case PieceType.BlackQueen: return "♛"
-		case PieceType.WhiteKing: return "♔"
-		case PieceType.BlackKing: return "♚"
+		case PieceType.WhitePawn: return "white-pawn"
+		case PieceType.BlackPawn: return "black-pawn"
+		case PieceType.WhiteKnight: return "white-knight"
+		case PieceType.BlackKnight: return "black-knight"
+		case PieceType.WhiteBishop: return "white-bishop"
+		case PieceType.BlackBishop: return "black-bishop"
+		case PieceType.WhiteRook: return "white-rook"
+		case PieceType.BlackRook: return "black-rook"
+		case PieceType.WhiteQueen: return "white-queen"
+		case PieceType.BlackQueen: return "black-queen"
+		case PieceType.WhiteKing: return "white-king"
+		case PieceType.BlackKing: return "black-king"
 		default: return ""
 	}
 }

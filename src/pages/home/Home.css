@@ -1,4 +1,79 @@
-.clients-counter {
+.home-container {
+	display: flex;
+	font-size: large;
+	width: 100%;
+	height: calc(100% - 6rem);
+}
+
+.home-container .table {
+	background-color: var(--containersBg);
+	text-align: center;
+	width: 35rem;
+	height: 35rem;
+	margin: auto;
+	gap: .5rem;
+	border-radius: .5rem;
+}
+
+.home-container .table .table-header {
+	display: flex;
+	height: 1.5rem;
+}
+
+.home-container .table .table-body {
+	height: calc(100% - 3rem);
+	overflow-y: auto;
+}
+
+.home-container .table .table-body .row {
+	display: flex;
+	height: 1.5rem;
+	cursor: pointer;
+}
+
+.row:hover {
+	background-color: #dddddd50;
+}
+
+.home-container .table .col {
+	flex: 1;
+}
+
+.home-container .table .caption {
+	font-weight: bold;
+	height: 1.5rem;
+}
+
+.home-container .buttons-section {
+	display: flex;
+	flex-direction: column;
+	margin: auto;
+	gap: .5rem;
+}
+
+.home-container .buttons-section button {
+	height: 1.5rem;
+	width: 30rem;
+	border-radius: 5px;
+	background-color: #3692e7;
+	border: 2px solid #294a68;
+	color: white;
+	cursor: pointer;
+}
+
+.home-container .buttons-section button:hover {
+	border: 2px solid white;
+}
+
+.home-container .clients-counter {
 	color: var(--text);
 	background-color: var(--background);
+}
+
+.home-container .footer {
+	display: flex;
+	font-size: medium;
+	align-items: center;
+	width: 100%;
+	height: 3rem;
 }

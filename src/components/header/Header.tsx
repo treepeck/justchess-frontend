@@ -4,11 +4,11 @@ import ThemeToggle from "../theme-toggle/ThemeToggle"
 
 export default function Sidebar() {
 	return (
-		<header className="header">
-			<nav>
+		<div className="header">
+			<div>
 				<Link to="http://localhost:3000/">JustChess.org</Link>
-			</nav>
+			</div>
 			<ThemeToggle />
-		</header>
+		</div>
 	)
 }
