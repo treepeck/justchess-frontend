@@ -1,12 +1,13 @@
 import "./Home.css"
+import _WebSocket from "../../ws/ws"
 import { useEffect, useState } from "react"
 import { useTheme } from "../../context/Theme"
-import { useNavigate } from "react-router-dom"
-import { MessageType } from "../../ws/msg"
 import Header from "../../components/header/Header"
+import Message, { MessageType } from "../../ws/msg"
+import { useNavigate } from "react-router-dom"
 import { useConnection } from "../../context/Connection"
 
-export type Room = {
+export type Game = {
 	id: string,
 	timeBonus: number,
 	timeControl: number,
@@ -14,12 +15,15 @@ export type Room = {
 
 export default function Home() {
 	const { theme } = useTheme()
+	const navigate = useNavigate()
+	// List of all availible games.
+	const [games, setGames] = useState<Game[]>([])
 	const { socket, messageQueue, setMessageQueue } = useConnection()
-	if (!socket) { return <p></p> }
-	const [rooms, setRooms] = useState<Room[]>([])
 	const [clientsCounter, setClientsCounter] = useState<number>(0)
 
-	const navigate = useNavigate()
+	useEffect(() => {
+		socket?.sendGetAvailibleGames()
+	}, [])
 
 	useEffect(() => {
 		if (messageQueue.length == 0) { return }
@@ -30,35 +34,63 @@ export default function Home() {
 				setClientsCounter(msg.payload)
 				break
 
-			case MessageType.ADD_ROOM:
-				setRooms(prevRooms => {
+			case MessageType.ADD_GAME:
+				setGames(prevGames => {
 					// Do not add room duplicates.
-					if (prevRooms.some(r => r.id === msg.payload.id)) {
-						return prevRooms
+					if (prevGames.some(r => r.id === msg.payload.id)) {
+						return prevGames
 					}
-					return [...prevRooms, msg.payload]
+					return [...prevGames, msg.payload]
 				})
 				break
 
-			case MessageType.REMOVE_ROOM:
-				removeRoom(msg.payload)
+			case MessageType.REDIRECT:
+				navigate(`/${msg.payload}`)
 				break
 
-			case MessageType.GAME_INFO:
-				navigate(`/${msg.payload.roomId}`)
+			case MessageType.REMOVE_GAME:
+				removeGame(msg.payload)
 				break
+
+			default: return
 		}
 		// Remove the processed message from the queue.
 		setMessageQueue(remaining)
 	}, [messageQueue])
 
-	function removeRoom(id: string) {
-		setRooms((prevRooms) => prevRooms.filter(room =>
-			room.id !== id
+	function handleMessage(msg: Message) {
+		switch (msg.type) {
+			case MessageType.CLIENTS_COUNTER:
+				setClientsCounter(msg.payload)
+				break
+
+			case MessageType.ADD_GAME:
+				setGames(prevGames => {
+					// Do not add duplicates.
+					if (prevGames.some(g => g.id === msg.payload.id)) {
+						return prevGames
+					}
+					return [...prevGames, msg.payload]
+				})
+				break
+
+			case MessageType.REMOVE_GAME:
+				removeGame(msg.payload)
+				break
+
+			case MessageType.REDIRECT:
+				navigate(`/${msg.payload}`)
+				break
+		}
+	}
+
+	function removeGame(id: string) {
+		setGames((prevGames) => prevGames.filter(game =>
+			game.id !== id
 		))
 	}
 
-	return (
+	return socket && (
 		<div className="main-container" data-theme={theme}>
 			<Header />
 
@@ -76,21 +108,20 @@ export default function Home() {
 					</div>
 
 					<div className="table-body">
-						{rooms.map((room, index) =>
+						{games.map((game, index) =>
 							<div
 								className="row"
 								onClick={() => {
-									socket.sendJoinRoom(room.id)
-									removeRoom(room.id)
+									socket.sendJoinGame(game.id)
 								}}
 								key={index}
 							>
 								<div className="col">
-									{room.timeControl}
+									{game.timeControl}
 								</div>
 
 								<div className="col">
-									{room.timeBonus}
+									{game.timeBonus}
 								</div>
 							</div>)}
 					</div>
@@ -99,8 +130,7 @@ export default function Home() {
 				<div className="buttons-section">
 					<button
 						onClick={() => {
-							socket.sendCreateRoom(10, 10)
-
+							socket.sendCreateGame(10, 10)
 						}}
 					>
 						CREATE A NEW GAME

@@ -1,7 +1,12 @@
+export enum Status {
+	NotStarted,
+	Continues,
+	WhiteDisconnected,
+	BlackDisconnected,
+}
+
 export enum Result {
 	Unknown,
-	Continues,
-	Aborted,
 	Checkmate,
 	Timeout,
 	Stalemate,

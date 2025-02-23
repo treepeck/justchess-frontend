@@ -3,18 +3,26 @@ import { useEffect, useState } from "react"
 import Game from "../../game/game"
 import { useTheme } from "../../context/Theme"
 import Board from "../../components/board/Board"
-import { MessageType } from "../../ws/msg"
-import { useConnection } from "../../context/Connection"
+import Message, { MessageType } from "../../ws/msg"
 import { CompletedMove, LegalMove, MoveType } from "../../game/move"
+import Header from "../../components/header/Header"
+import { useNavigate, useParams } from "react-router-dom"
+import { Status } from "../../game/enums"
+import _WebSocket from "../../ws/ws"
+import { useConnection } from "../../context/Connection"
 
 export default function Play() {
+	const { roomId } = useParams()
 	const { theme } = useTheme()
-
+	const navigate = useNavigate()
 	const { socket, messageQueue, setMessageQueue } = useConnection()
-	if (!socket) { return <p></p> }
 
 	useEffect(() => {
-		return () => socket.sendLeaveRoom()
+		if (socket == null) return
+
+		socket.sendGetGame()
+
+		return () => socket.sendLeaveGame()
 	}, [])
 
 	useEffect(() => {
@@ -27,11 +35,14 @@ export default function Play() {
 				break
 
 			case MessageType.LAST_MOVE:
-				setMoves(_moves => [..._moves, { san: msg.payload.san, fen: msg.payload.fen }])
+				setMoves(_ => [...moves, { san: msg.payload.san, fen: msg.payload.fen }])
 				setCurrentFEN(msg.payload.fen)
 				setLegalMoves(msg.payload.legalMoves)
 				break
+
+			default: return
 		}
+
 		setMessageQueue(remaining)
 	}, [messageQueue])
 
@@ -62,45 +73,87 @@ export default function Play() {
 		new LegalMove(23, 6, MoveType.Quiet),
 	])
 
-	if (game == null) {
-		return (
-			<p>Waiting for the second player</p>
-		)
+	function formatFullmovePairs(moves: CompletedMove[]): {
+		white: string,
+		black: string
+	}[] {
+		const pairs: any = []
+		for (let i = 0; i < moves.length; i += 2) {
+			pairs.push({
+				white: moves[i].san,
+				black: moves[i + 1] ? moves[i + 1].san : "",
+			})
+		}
+		return pairs
 	}
 
-	return (
+	if (game == null) {
+		return
+	}
+
+	return socket && (
 		<div className="main-container" data-theme={theme}>
-			<div>White player: {game.whiteId}</div>
-			<div>Black player: {game.blackId}</div>
-			<div>Game result: {game.result}</div>
-			<div>Time control: {game.timeControl}</div>
-			<div>Time bonus: {game.timeBonus}</div>
+			<Header />
 
-			<Board fen={currentFEN} legalMoves={legalMoves}
-				onMove={(move: LegalMove) => {
-					socket.sendMove(move)
-				}}
-			/>
+			<div className="play-container">
+				<div className="game-info">
+					<div>White player: {game.whiteId}</div>
+					<div>Black player: {game.blackId}</div>
+					<div>Game status: {game.status}</div>
+				</div>
 
-			<table>
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>White</th>
-						<th>Black</th>
-					</tr>
-				</thead>
-				<tbody>
-					{moves.map((move, index) =>
-						<tr
-							key={index}
-						>
-							<td>{index + 1}</td>
-							<td>{move.san}</td>
-						</tr>
-					)}
-				</tbody>
-			</table>
-		</div>
+				<Board
+					fen={currentFEN}
+					legalMoves={legalMoves}
+					onMove={(move: LegalMove) => {
+						socket.sendMakeMove(move)
+					}}
+				/>
+
+				<div className="table">
+					<div className="caption">Completed moves</div>
+
+					<div className="table-header">
+						<div className="col">
+							#
+						</div>
+
+						<div className="col">
+							White
+						</div>
+
+						<div className="col">
+							Black
+						</div>
+					</div>
+
+					<div className="table-body">
+						{formatFullmovePairs(moves).map((fullmove, index) =>
+							<div
+								className="row"
+								// TODO: add move undo.
+								onClick={() => { }}
+								key={index}
+							>
+								<div className="col">
+									{index + 1}
+								</div>
+
+								<div className="col">
+									{fullmove.white}
+								</div>
+
+								<div className="col">
+									{fullmove.black}
+								</div>
+							</div>)}
+					</div>
+				</div>
+			</div>
+
+			<div className="footer">
+				Copyright 2024-2025 Artem Bielikov. All rights reserved.
+			</div>
+		</div >
 	)
 }

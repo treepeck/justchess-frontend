@@ -1,16 +1,14 @@
 .board {
-	width: 40rem;
-	height: 40rem;
+	width: 35rem;
+	height: 35rem;
 	display: grid;
-	grid-template-columns: repeat(8, 1fr);
+	grid-template-columns: repeat(8, 12.5%);
 	background-image: url("../../../public/assets/background.png");
 	background-size: cover;
 	cursor: pointer;
 }
 
 .board-square {
-	width: 5rem;
-	height: 5rem;
 	font-size: xx-large;
 	display: flex;
 	align-items: center;
@@ -23,7 +21,7 @@
 }
 
 .legal:hover {
-	border: 5px solid rgb(130, 151, 105);
+	box-shadow: inset 0px 0px 0px 5px rgb(130, 151, 105);
 }
 
 .piece-selection-container {
@@ -34,7 +32,7 @@
 
 .piece-selection-container div {
 	width: 12.5%;
-	aspect-ratio: 1/1;
+	height: 12.5%;
 }
 
 .white-pawn {

@@ -26,6 +26,8 @@ export default function Board(props: BoardProps) {
 		if (index == selected) {
 			return name + " selected"
 		}
+
+		// TODO: Highlight legal moves only for allies pieces.
 		for (const legalMove of props.legalMoves) {
 			if (legalMove.from == selected && legalMove.to == index) {
 				name += " legal"
@@ -36,9 +38,8 @@ export default function Board(props: BoardProps) {
 	}
 
 	function handleClickSquare(index: number) {
-		if (selected == null) {
-			setSelected(index)
-		}
+		if (selected == null) { setSelected(index) }
+
 		for (const legalMove of props.legalMoves) {
 			if (legalMove.from == selected && legalMove.to == index) {
 				if (legalMove.type < 6) { // If move type is not promotion.

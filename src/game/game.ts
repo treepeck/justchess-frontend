@@ -1,24 +1,19 @@
 import { CompletedMove } from "./move";
-import { Result } from "./result";
+import { Result, Status } from "./enums";
 
 export default class Game {
-	roomId: string
 	whiteId: string
 	blackId: string
+	status: Status
 	result: Result
-	timeControl: number
-	timeBonus: number
 	moves: CompletedMove[]
 
-	constructor(rId: string, wId: string, bId: string, r: Result, moves: CompletedMove[],
-		tControl: number, tBonus: number,
+	constructor(wId: string, bId: string, s: Status, r: Result, moves: CompletedMove[]
 	) {
-		this.roomId = rId
 		this.whiteId = wId
 		this.blackId = bId
+		this.status = s
 		this.result = r
 		this.moves = moves
-		this.timeControl = tControl
-		this.timeBonus = tBonus
 	}
 }

@@ -1,22 +1,21 @@
-import { LegalMove } from "../game/move"
+import { CompletedMove, LegalMove } from "../game/move"
 
-// Should be exactly the same as in backend. [justchess/pkg/ws/#MessageType].
+// Must be exactly the same as in backend.
 export enum MessageType {
-	CREATE_ROOM,
-	JOIN_ROOM,
-	LEAVE_ROOM,
-	MOVE,
+	// Sent by clients. 
+	GET_AVAILIBLE_GAMES,
+	CREATE_GAME,
+	JOIN_GAME,
+	GET_GAME,
+	LEAVE_GAME,
+	MAKE_MOVE,
+	// Sent by server.
 	CLIENTS_COUNTER,
-	ADD_ROOM,
-	REMOVE_ROOM,
+	ADD_GAME,
+	REMOVE_GAME,
 	REDIRECT,
-	CHAT,
-	LAST_MOVE,
-	MOVES,
-	STATUS,
 	GAME_INFO,
-	RESULT,
-	ABORT,
+	LAST_MOVE,
 }
 
 export default class Message {
@@ -33,26 +32,27 @@ export default class Message {
 					byteArr[2] << 16 | byteArr[3] << 24
 				break
 
-			case MessageType.ADD_ROOM: {
+			case MessageType.ADD_GAME:
 				this.payload = {
 					id: decodeId(byteArr, 0, 16),
 					timeControl: byteArr[16],
 					timeBonus: byteArr[17],
 				}
-			} break
+				break
 
-			case MessageType.REMOVE_ROOM:
-			case MessageType.REDIRECT: {
+			case MessageType.REMOVE_GAME:
+			case MessageType.REDIRECT:
 				this.payload = decodeId(byteArr, 0, 16)
-			} break
+				break
 
 			case MessageType.GAME_INFO:
+				// The COMPLETED_MOVE contains two parts: SAN and FEN.
+				// Parts are separated by a 0xFF byte.
 				this.payload = {
 					whiteId: decodeId(byteArr, 0, 16),
 					blackId: decodeId(byteArr, 16, 32),
-					result: byteArr[32],
-					timeControl: byteArr[33],
-					timeBonus: byteArr[34],
+					status: byteArr[32],
+					result: byteArr[33],
 				}
 				break
 

@@ -6,7 +6,7 @@ export default class _WebSocket {
 	private protocol: string
 	socket: WebSocket
 
-	// Establishes a WebSocket connection with the server (see Manager type).
+	// Establishes a WebSocket connection with the server.
 	// The connection is stored in the socket field.
 	// It also defines the serverUrl and WebSocket`s protocol fields.
 	constructor() {
@@ -18,32 +18,44 @@ export default class _WebSocket {
 		this.socket.binaryType = "arraybuffer"
 	}
 
-	sendCreateRoom(control: number, bonus: number) {
+	sendGetAvailibleGames() {
+		const data = new Uint8Array(1)
+		data[0] = MessageType.GET_AVAILIBLE_GAMES
+		this.socket.send(data)
+	}
+
+	sendCreateGame(control: number, bonus: number) {
 		const data = new Uint8Array(3)
 		data[0] = control
 		data[1] = bonus
-		data[2] = MessageType.CREATE_ROOM
+		data[2] = MessageType.CREATE_GAME
 		this.socket.send(data)
 	}
 
-	sendJoinRoom(id: string) {
+	sendJoinGame(id: string) {
 		const data = this.encodeId(id)
-		data[16] = MessageType.JOIN_ROOM
+		data[16] = MessageType.JOIN_GAME
 		this.socket.send(data)
 	}
 
-	sendLeaveRoom() {
+	sendGetGame() {
 		const data = new Uint8Array(1)
-		data[0] = MessageType.LEAVE_ROOM
+		data[0] = MessageType.GET_GAME
 		this.socket.send(data)
 	}
 
-	sendMove(move: LegalMove) {
+	sendLeaveGame() {
+		const data = new Uint8Array(1)
+		data[0] = MessageType.LEAVE_GAME
+		this.socket.send(data)
+	}
+
+	sendMakeMove(move: LegalMove) {
 		const data = new Uint8Array(4)
 		data[0] = move.to
 		data[1] = move.from
 		data[2] = move.type
-		data[3] = MessageType.MOVE
+		data[3] = MessageType.MAKE_MOVE
 		this.socket.send(data)
 	}
 

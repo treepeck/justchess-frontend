@@ -7,6 +7,7 @@ import {
 import _WebSocket from "../ws/ws"
 import { Outlet } from "react-router-dom"
 import Message from "../ws/msg"
+import { useTheme } from "./Theme"
 
 type ConnectionCtx = {
 	socket: _WebSocket | null,
@@ -24,6 +25,8 @@ export default function ConnectionProvider() {
 	// After processing the message, consumer should delete the message from the queue. 
 	const [messageQueue, setMessageQueue] = useState<Message[]>([])
 	const [isConnected, setIsConnected] = useState<boolean>(false)
+
+	const { theme } = useTheme()
 
 	useEffect(() => {
 		const s = new _WebSocket()
@@ -54,7 +57,7 @@ export default function ConnectionProvider() {
 		}}>
 			{isConnected ? (
 				<Outlet />
-			) : <div>
+			) : <div className="main-container" data-theme={theme}>
 				Connection with the server was lost.
 				If the problem persists after reloading the page,
 				please try again later.

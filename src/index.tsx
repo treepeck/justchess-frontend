@@ -14,8 +14,8 @@ import ThemeProvider from "./context/Theme"
 import ConnectionProvider from "./context/Connection"
 
 const routes: RouteObject[] = createRoutesFromElements(
-	<Route element={<ConnectionProvider />}>
-		<Route element={<ThemeProvider />}>
+	<Route element={<ThemeProvider />}>
+		<Route element={<ConnectionProvider />}>
 			<Route element={<Play />} path="/:roomId" />
 			<Route element={<Home />} path="/" />
 		</Route>
