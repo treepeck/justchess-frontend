@@ -8,6 +8,7 @@ import _WebSocket from "../ws/ws"
 import { Outlet } from "react-router-dom"
 import Message from "../ws/msg"
 import { useTheme } from "./Theme"
+import { useAuthentication } from "./Authentication"
 
 type ConnectionCtx = {
 	socket: _WebSocket | null,
@@ -20,6 +21,7 @@ const ConnectionContext = createContext<ConnectionCtx>({
 })
 
 export default function ConnectionProvider() {
+	const { accessToken } = useAuthentication()
 	const [socket, setSocket] = useState<_WebSocket | null>(null)
 	// Stores all incomming messages, so they can be processed by provider consumers.
 	// After processing the message, consumer should delete the message from the queue. 
@@ -29,7 +31,8 @@ export default function ConnectionProvider() {
 	const { theme } = useTheme()
 
 	useEffect(() => {
-		const s = new _WebSocket()
+		// This component cannot be rendered if the accessToken is invalid.
+		const s = new _WebSocket(accessToken as string)
 
 		// Recieve and store the messages from the server.
 		s.socket.onmessage = (data) => {

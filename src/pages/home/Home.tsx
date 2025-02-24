@@ -36,7 +36,7 @@ export default function Home() {
 
 			case MessageType.ADD_GAME:
 				setGames(prevGames => {
-					// Do not add room duplicates.
+					// Do not add game duplicates.
 					if (prevGames.some(r => r.id === msg.payload.id)) {
 						return prevGames
 					}

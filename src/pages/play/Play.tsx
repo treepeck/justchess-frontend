@@ -3,18 +3,15 @@ import { useEffect, useState } from "react"
 import Game from "../../game/game"
 import { useTheme } from "../../context/Theme"
 import Board from "../../components/board/Board"
-import Message, { MessageType } from "../../ws/msg"
+import { MessageType } from "../../ws/msg"
 import { CompletedMove, LegalMove, MoveType } from "../../game/move"
 import Header from "../../components/header/Header"
-import { useNavigate, useParams } from "react-router-dom"
 import { Status } from "../../game/enums"
 import _WebSocket from "../../ws/ws"
 import { useConnection } from "../../context/Connection"
 
 export default function Play() {
-	const { roomId } = useParams()
 	const { theme } = useTheme()
-	const navigate = useNavigate()
 	const { socket, messageQueue, setMessageQueue } = useConnection()
 
 	useEffect(() => {

@@ -41,7 +41,8 @@ export function FEN2Board(fen: string): PieceType[] {
 // parseActiveColor returns "w" for white or "b" for black.
 export function parseActiveColor(FEN: string): string {
 	const fields = FEN.split(" ")
-	return fields[1]
+	if (fields[1] == "w") { return "white" }
+	return "black"
 }
 
 export function piece2ClassName(pt: PieceType): string {

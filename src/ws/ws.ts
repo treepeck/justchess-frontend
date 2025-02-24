@@ -9,12 +9,12 @@ export default class _WebSocket {
 	// Establishes a WebSocket connection with the server.
 	// The connection is stored in the socket field.
 	// It also defines the serverUrl and WebSocket`s protocol fields.
-	constructor() {
+	constructor(accessToken: string) {
 		this.serverUrl = "localhost:3502"
 		this.protocol = "ws://"
 
 		// Establish a WebSocket connection.
-		this.socket = new WebSocket(`${this.protocol}${this.serverUrl}/ws`)
+		this.socket = new WebSocket(`${this.protocol}${this.serverUrl}/ws?access=${accessToken}`)
 		this.socket.binaryType = "arraybuffer"
 	}
 

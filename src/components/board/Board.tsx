@@ -74,16 +74,16 @@ export default function Board(props: BoardProps) {
 			{isPSWA && (
 				<div className="piece-selection-container" onClick={() => setIsPSWA(false)}>
 					<div className={`${parseActiveColor(props.fen)}-knight`}
-						onClick={() => handlePromotion(MoveType.KnightPromo)}
+						onClick={() => handlePromotion(0)}
 					/>
 					<div className={`${parseActiveColor(props.fen)}-bishop`}
-						onClick={() => handlePromotion(MoveType.BishopPromo)}
+						onClick={() => handlePromotion(1)}
 					/>
 					<div className={`${parseActiveColor(props.fen)}-rook`}
-						onClick={() => handlePromotion(MoveType.RookPromo)}
+						onClick={() => handlePromotion(2)}
 					/>
 					<div className={`${parseActiveColor(props.fen)}-queen`}
-						onClick={() => handlePromotion(MoveType.QueenPromo)}
+						onClick={() => handlePromotion(3)}
 					/>
 				</div>
 			)}

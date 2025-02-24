@@ -12,12 +12,15 @@ import Home from "./pages/home/Home"
 import Play from "./pages/play/Play"
 import ThemeProvider from "./context/Theme"
 import ConnectionProvider from "./context/Connection"
+import AuthenticationProvider from "./context/Authentication"
 
 const routes: RouteObject[] = createRoutesFromElements(
 	<Route element={<ThemeProvider />}>
-		<Route element={<ConnectionProvider />}>
-			<Route element={<Play />} path="/:roomId" />
-			<Route element={<Home />} path="/" />
+		<Route element={<AuthenticationProvider />}>
+			<Route element={<ConnectionProvider />}>
+				<Route element={<Play />} path="/:roomId" />
+				<Route element={<Home />} path="/" />
+			</Route>
 		</Route>
 	</Route>
 )
