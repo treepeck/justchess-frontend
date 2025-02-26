@@ -44,6 +44,7 @@ export default function Board(props: BoardProps) {
 			if (legalMove.from == selected && legalMove.to == index) {
 				if (legalMove.type < 6) { // If move type is not promotion.
 					props.onMove(legalMove)
+					setSelected(null)
 				} else {
 					setIsPSWA(true)
 					setPromoMove(legalMove)
@@ -66,6 +67,7 @@ export default function Board(props: BoardProps) {
 		}
 		const m = new LegalMove(promoMove.to, promoMove.from, mt)
 		props.onMove(m)
+		setSelected(null)
 		setIsPSWA(false)
 	}
 
@@ -95,8 +97,7 @@ export default function Board(props: BoardProps) {
 					onClick={() => handleClickSquare(index)}
 				>
 				</div>
-			)
-			}
+			)}
 		</div >
 	)
 }

@@ -38,12 +38,6 @@ export default class _WebSocket {
 		this.socket.send(data)
 	}
 
-	sendGetGame() {
-		const data = new Uint8Array(1)
-		data[0] = MessageType.GET_GAME
-		this.socket.send(data)
-	}
-
 	sendLeaveGame() {
 		const data = new Uint8Array(1)
 		data[0] = MessageType.LEAVE_GAME

@@ -1,14 +1,16 @@
 .board {
 	width: 35rem;
 	height: 35rem;
-	display: grid;
-	grid-template-columns: repeat(8, 12.5%);
+	display: flex;
+	flex-wrap: wrap-reverse;
 	background-image: url("../../../public/assets/background.png");
 	background-size: cover;
 	cursor: pointer;
 }
 
 .board-square {
+	width: 12.5%;
+	height: 12.5%;
 	font-size: xx-large;
 	display: flex;
 	align-items: center;

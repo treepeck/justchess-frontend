@@ -4,14 +4,14 @@ import { Outlet } from "react-router-dom"
 import { createContext, useContext, useEffect, useState } from "react"
 
 type AuthenticationCtx = {
-	user: User | null,
-	accessToken: string | null,
+	user: User,
+	accessToken: string,
 	setUser: (_: User) => void
 }
 
 const AuthenticationContext = createContext<AuthenticationCtx>({
-	user: null,
-	accessToken: null,
+	user: new User("", "", 0, 0, 0, 0, 0, new Date(), false, 0, ""),
+	accessToken: "",
 	setUser: (_: User) => { }
 })
 
@@ -49,15 +49,13 @@ export default function AuthenticationProvider() {
 		fetchMe()
 	}, [])
 
-	return (
+	return isReady && (
 		<AuthenticationContext.Provider value={{
-			user: user,
-			accessToken: accessToken,
+			user: user as User,
+			accessToken: accessToken as string,
 			setUser: setUser
 		}}>
-			{isReady ? (
-				<Outlet /> // Render child component when ready with fetching.
-			) : null}
+			<Outlet />
 		</AuthenticationContext.Provider>
 	)
 }

@@ -1,20 +1,14 @@
+import { Status } from "../game/enums"
 import { CompletedMove, LegalMove } from "../game/move"
 
 // Must be exactly the same as in backend.
 export enum MessageType {
 	// Sent by clients. 
-	GET_AVAILIBLE_GAMES,
-	CREATE_GAME,
-	JOIN_GAME,
-	GET_GAME,
-	LEAVE_GAME,
 	MAKE_MOVE,
+
 	// Sent by server.
-	CLIENTS_COUNTER,
-	ADD_GAME,
-	REMOVE_GAME,
-	REDIRECT,
-	GAME_INFO,
+	ROOM_INFO,
+	GAME,
 	LAST_MOVE,
 }
 
@@ -26,33 +20,19 @@ export default class Message {
 	constructor(byteArr: Uint8Array) {
 		// The last byte stores a message type.
 		this.type = byteArr[byteArr.length - 1]
+
 		switch (this.type) {
-			case MessageType.CLIENTS_COUNTER:
-				this.payload = byteArr[0] | byteArr[1] << 8 |
-					byteArr[2] << 16 | byteArr[3] << 24
-				break
-
-			case MessageType.ADD_GAME:
-				this.payload = {
-					id: decodeId(byteArr, 0, 16),
-					timeControl: byteArr[16],
-					timeBonus: byteArr[17],
-				}
-				break
-
-			case MessageType.REMOVE_GAME:
-			case MessageType.REDIRECT:
-				this.payload = decodeId(byteArr, 0, 16)
-				break
-
-			case MessageType.GAME_INFO:
-				// The COMPLETED_MOVE contains two parts: SAN and FEN.
-				// Parts are separated by a 0xFF byte.
-				this.payload = {
-					whiteId: decodeId(byteArr, 0, 16),
-					blackId: decodeId(byteArr, 16, 32),
-					status: byteArr[32],
-					result: byteArr[33],
+			case MessageType.ROOM_INFO:
+				if (byteArr[0] == Status.IN_PROGRESS) {
+					this.payload = {
+						status: byteArr[0],
+						whiteId: decodeId(byteArr, 1, 17),
+						blackId: decodeId(byteArr, 17, 33)
+					}
+				} else {
+					this.payload = {
+						status: byteArr[0]
+					}
 				}
 				break
 
@@ -82,8 +62,35 @@ export default class Message {
 				}
 				break
 
-			default:
-				this.payload = 0
+			case MessageType.GAME: {
+				// Parse completed moves:
+				let i = 0
+				const moves: CompletedMove[] = []
+
+				// The 0xAF byte separates the completed moves from current legal moves.
+				for (; byteArr[i] != 0xAF;) {
+					let san = ""
+					let fen = ""
+					for (; byteArr[i] != 0xFF; i++) {
+						san += String.fromCharCode(byteArr[i])
+					}
+					for (i = i + 1; byteArr[i] != 0xFF; i++) {
+						fen += String.fromCharCode(byteArr[i])
+					}
+					i++
+					moves.push(new CompletedMove(san, fen))
+				}
+
+				const legalMoves: LegalMove[] = []
+				for (i = i + 1; i < byteArr.length - 1; i += 3) {
+					legalMoves.push(new LegalMove(byteArr[i], byteArr[i + 1], byteArr[i + 2]))
+				}
+
+				this.payload = {
+					moves: moves,
+					legalMoves: legalMoves
+				}
+			} break
 		}
 	}
 }

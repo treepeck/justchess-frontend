@@ -1,53 +1,26 @@
-import "./Play.css"
-import { useEffect, useState } from "react"
-import Game from "../../game/game"
+import "./App.css"
+import _WebSocket from "../../ws/ws"
 import { useTheme } from "../../context/Theme"
-import Board from "../../components/board/Board"
-import { MessageType } from "../../ws/msg"
+import { useEffect, useState } from "react"
+import Message, { MessageType } from "../../ws/msg"
+import { useAuthentication } from "../../context/Authentication"
 import { CompletedMove, LegalMove, MoveType } from "../../game/move"
 import Header from "../../components/header/Header"
+import Board from "../../components/board/Board"
 import { Status } from "../../game/enums"
-import _WebSocket from "../../ws/ws"
-import { useConnection } from "../../context/Connection"
 
-export default function Play() {
+export default function App() {
 	const { theme } = useTheme()
-	const { socket, messageQueue, setMessageQueue } = useConnection()
+	const { accessToken } = useAuthentication()
+	const [socket, setSocket] = useState<_WebSocket | null>(null)
 
-	useEffect(() => {
-		if (socket == null) return
-
-		socket.sendGetGame()
-
-		return () => socket.sendLeaveGame()
-	}, [])
-
-	useEffect(() => {
-		if (messageQueue.length == 0) { return }
-
-		const [msg, ...remaining] = messageQueue
-		switch (msg.type) {
-			case MessageType.GAME_INFO:
-				setGame(msg.payload)
-				break
-
-			case MessageType.LAST_MOVE:
-				setMoves(_ => [...moves, { san: msg.payload.san, fen: msg.payload.fen }])
-				setCurrentFEN(msg.payload.fen)
-				setLegalMoves(msg.payload.legalMoves)
-				break
-
-			default: return
-		}
-
-		setMessageQueue(remaining)
-	}, [messageQueue])
-
-	const [game, setGame] = useState<Game | null>(null)
-	const [currentFEN, setCurrentFEN] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+	const [whiteId, setWhiteId] = useState<string>("")
+	const [blackId, setBlackId] = useState<string>("")
 	const [moves, setMoves] = useState<CompletedMove[]>([])
+	const [status, setStatus] = useState<Status>(Status.ABANDONED)
+	const [currentFEN, setCurrentFEN] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+	// Default legal moves.
 	const [legalMoves, setLegalMoves] = useState<LegalMove[]>([
-		// Default legal moves.
 		new LegalMove(16, 8, MoveType.Quiet),
 		new LegalMove(24, 8, MoveType.DoublePawnPush),
 		new LegalMove(17, 9, MoveType.Quiet),
@@ -70,6 +43,51 @@ export default function Play() {
 		new LegalMove(23, 6, MoveType.Quiet),
 	])
 
+
+	useEffect(() => {
+		const s = new _WebSocket(accessToken as string)
+
+		// Recieve and store the messages from the server.
+		s.socket.onmessage = (data) => {
+			const msg = new Message(new Uint8Array(data.data))
+			handleMessage(msg)
+		}
+
+		s.socket.onclose = () => {
+			setSocket(null)
+		}
+
+		s.socket.onopen = () => {
+			setSocket(s)
+		}
+
+		return () => s.close()
+	}, [])
+
+	function handleMessage(msg: Message) {
+		switch (msg.type) {
+			case MessageType.ROOM_INFO:
+				setStatus(msg.payload.status)
+				if (msg.payload.status == Status.IN_PROGRESS) {
+					setWhiteId(msg.payload.whiteId)
+					setBlackId(msg.payload.blackId)
+				}
+				break
+
+			case MessageType.LAST_MOVE:
+				setMoves(prevMoves => [...prevMoves, new CompletedMove(msg.payload.san, msg.payload.fen)])
+				setCurrentFEN(msg.payload.fen)
+				setLegalMoves(msg.payload.legalMoves)
+				break
+
+			case MessageType.GAME:
+				setMoves(msg.payload.moves)
+				setLegalMoves(msg.payload.legalMoves)
+				setCurrentFEN(msg.payload.moves[msg.payload.moves.length - 1].fen)
+				break
+		}
+	}
+
 	function formatFullmovePairs(moves: CompletedMove[]): {
 		white: string,
 		black: string
@@ -84,21 +102,18 @@ export default function Play() {
 		return pairs
 	}
 
-	if (game == null) {
-		return
-	}
-
 	return socket && (
 		<div className="main-container" data-theme={theme}>
+
+			<div>
+				WhiteId: {whiteId}
+				BlackId: {blackId}
+				Status: {status}
+			</div>
+
 			<Header />
 
 			<div className="play-container">
-				<div className="game-info">
-					<div>White player: {game.whiteId}</div>
-					<div>Black player: {game.blackId}</div>
-					<div>Game status: {game.status}</div>
-				</div>
-
 				<Board
 					fen={currentFEN}
 					legalMoves={legalMoves}

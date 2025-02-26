@@ -1,8 +1,9 @@
 export enum Status {
-	NotStarted,
-	Continues,
-	WhiteDisconnected,
-	BlackDisconnected,
+	ABANDONED,
+	WAITING,
+	IN_PROGRESS,
+	WHITE_DISCONNECTED,
+	BLACK_DISCONNECTED
 }
 
 export enum Result {

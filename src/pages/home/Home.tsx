@@ -6,6 +6,7 @@ import Header from "../../components/header/Header"
 import Message, { MessageType } from "../../ws/msg"
 import { useNavigate } from "react-router-dom"
 import { useConnection } from "../../context/Connection"
+import { useAuthentication } from "../../context/Authentication"
 
 export type Game = {
 	id: string,
@@ -16,6 +17,7 @@ export type Game = {
 export default function Home() {
 	const { theme } = useTheme()
 	const navigate = useNavigate()
+	const { user } = useAuthentication()
 	// List of all availible games.
 	const [games, setGames] = useState<Game[]>([])
 	const { socket, messageQueue, setMessageQueue } = useConnection()
@@ -35,6 +37,11 @@ export default function Home() {
 				break
 
 			case MessageType.ADD_GAME:
+				if (msg.payload.id == user.id) {
+					navigate(`/${msg.payload.id}`)
+					removeGame(msg.payload.id)
+				}
+
 				setGames(prevGames => {
 					// Do not add game duplicates.
 					if (prevGames.some(r => r.id === msg.payload.id)) {
@@ -42,10 +49,6 @@ export default function Home() {
 					}
 					return [...prevGames, msg.payload]
 				})
-				break
-
-			case MessageType.REDIRECT:
-				navigate(`/${msg.payload}`)
 				break
 
 			case MessageType.REMOVE_GAME:
@@ -57,32 +60,6 @@ export default function Home() {
 		// Remove the processed message from the queue.
 		setMessageQueue(remaining)
 	}, [messageQueue])
-
-	function handleMessage(msg: Message) {
-		switch (msg.type) {
-			case MessageType.CLIENTS_COUNTER:
-				setClientsCounter(msg.payload)
-				break
-
-			case MessageType.ADD_GAME:
-				setGames(prevGames => {
-					// Do not add duplicates.
-					if (prevGames.some(g => g.id === msg.payload.id)) {
-						return prevGames
-					}
-					return [...prevGames, msg.payload]
-				})
-				break
-
-			case MessageType.REMOVE_GAME:
-				removeGame(msg.payload)
-				break
-
-			case MessageType.REDIRECT:
-				navigate(`/${msg.payload}`)
-				break
-		}
-	}
 
 	function removeGame(id: string) {
 		setGames((prevGames) => prevGames.filter(game =>
@@ -112,7 +89,8 @@ export default function Home() {
 							<div
 								className="row"
 								onClick={() => {
-									socket.sendJoinGame(game.id)
+									removeGame(game.id)
+									navigate(`/${game.id}`)
 								}}
 								key={index}
 							>
