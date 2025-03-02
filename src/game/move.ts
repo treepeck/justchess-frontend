@@ -20,10 +20,13 @@ export class CompletedMove {
 	san: string
 	// Forsyth-Edwards Notation after completing the move.
 	fen: string
+	// Clock value.
+	timeLeft: number
 
-	constructor(san: string, fen: string) {
+	constructor(san: string, fen: string, timeLeft: number) {
 		this.san = san
 		this.fen = fen
+		this.timeLeft = timeLeft
 	}
 }
 

@@ -26,12 +26,10 @@ export function FEN2Board(fen: string): PieceType[] {
 				_board[sqInd] = next
 				sqInd++
 			} else {
-				let emptySq = parseInt(rows[i][j])
-				// Fill empty squares.
-				for (let k = sqInd; k <= sqInd + emptySq; k++) {
-					_board[k] = PieceType.NoPiece
+				let emptySq = sqInd + parseInt(rows[i][j])
+				for (; sqInd < emptySq; sqInd++) {
+					_board[sqInd] = PieceType.NoPiece
 				}
-				sqInd += emptySq
 			}
 		}
 	}
