@@ -1,9 +1,9 @@
 export enum Status {
-	ABANDONED,
-	WAITING,
+	OPEN,
 	IN_PROGRESS,
 	WHITE_DISCONNECTED,
-	BLACK_DISCONNECTED
+	BLACK_DISCONNECTED,
+	OVER
 }
 
 export enum Result {
@@ -11,8 +11,8 @@ export enum Result {
 	Checkmate,
 	Timeout,
 	Stalemate,
-	InsufficienMaterial,
+	InsufficientMaterial,
 	FiftyMoves,
 	Repetition,
-	Agreement,
+	Agreement
 }

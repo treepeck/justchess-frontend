@@ -29,7 +29,7 @@ export default function Board(props: BoardProps) {
 
 		// TODO: Highlight legal moves only for allies pieces.
 		for (const legalMove of props.legalMoves) {
-			if (legalMove.from == selected && legalMove.to == index) {
+			if (legalMove.s == selected && legalMove.d == index) {
 				name += " legal"
 				break
 			}
@@ -41,8 +41,8 @@ export default function Board(props: BoardProps) {
 		if (selected == null) { setSelected(index) }
 
 		for (const legalMove of props.legalMoves) {
-			if (legalMove.from == selected && legalMove.to == index) {
-				if (legalMove.type < 6) { // If move type is not promotion.
+			if (legalMove.s == selected && legalMove.d == index) {
+				if (legalMove.t < 6) { // If move type is not promotion.
 					props.onMove(legalMove)
 					setSelected(null)
 				} else {
@@ -60,12 +60,12 @@ export default function Board(props: BoardProps) {
 		if (!promoMove) { return }
 		let mt: MoveType
 		// If the move was a capture.
-		if (promoMove.type >= 10) {
+		if (promoMove.t >= 10) {
 			mt = 10 + pieceType
 		} else {
 			mt = 6 + pieceType
 		}
-		const m = new LegalMove(promoMove.to, promoMove.from, mt)
+		const m = new LegalMove(promoMove.d, promoMove.s, mt)
 		props.onMove(m)
 		setSelected(null)
 		setIsPSWA(false)

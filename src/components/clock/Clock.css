@@ -1,0 +1,11 @@
+.clock {
+	margin-left: auto;
+	font-size: larger;
+	display: flex;
+	align-items: center;
+}
+
+.active {
+	background-color: rgb(130, 151, 105, .3);
+	border-radius: 5px;
+}

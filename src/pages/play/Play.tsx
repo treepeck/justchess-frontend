@@ -1,56 +1,50 @@
-import "./App.css"
+import "./Play.css"
+import Game from "../../game/game"
 import _WebSocket from "../../ws/ws"
-import { useTheme } from "../../context/Theme"
 import { useEffect, useState } from "react"
-import Message, { MessageType } from "../../ws/msg"
-import { useAuthentication } from "../../context/Authentication"
-import { CompletedMove, LegalMove, MoveType } from "../../game/move"
-import Header from "../../components/header/Header"
+import { useNavigate } from "react-router-dom"
+import { useTheme } from "../../context/Theme"
 import Board from "../../components/board/Board"
-import { Status } from "../../game/enums"
+import { Result, Status } from "../../game/enums"
+import Header from "../../components/header/Header"
+import Dialog from "../../components/dialog/Dialog"
+import { Message, MessageType } from "../../ws/message"
+import { CompletedMove, LegalMove } from "../../game/move"
+import { useAuthentication } from "../../context/Authentication"
+import Miniprofile from "../../components/miniprofile/Miniprofile"
 
-export default function App() {
+type RoomStatus = {
+	status: Status,
+	whiteId: string,
+	blackId: string,
+	clients: number,
+}
+
+export default function Play() {
 	const { theme } = useTheme()
+	const navigate = useNavigate()
 	const { accessToken } = useAuthentication()
+	const [game, setGame] = useState<Game>(new Game())
+	const [whiteTime, setWhiteTime] = useState<number>(0)
+	const [blackTime, setBlackTime] = useState<number>(0)
+	const [result, setResult] = useState<Result>(Result.Unknown)
 	const [socket, setSocket] = useState<_WebSocket | null>(null)
-
-	const [whiteId, setWhiteId] = useState<string>("")
-	const [blackId, setBlackId] = useState<string>("")
-	const [moves, setMoves] = useState<CompletedMove[]>([])
-	const [status, setStatus] = useState<Status>(Status.ABANDONED)
-	const [currentFEN, setCurrentFEN] = useState<string>("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
-	// Default legal moves.
-	const [legalMoves, setLegalMoves] = useState<LegalMove[]>([
-		new LegalMove(16, 8, MoveType.Quiet),
-		new LegalMove(24, 8, MoveType.DoublePawnPush),
-		new LegalMove(17, 9, MoveType.Quiet),
-		new LegalMove(25, 9, MoveType.DoublePawnPush),
-		new LegalMove(18, 10, MoveType.Quiet),
-		new LegalMove(26, 10, MoveType.DoublePawnPush),
-		new LegalMove(19, 11, MoveType.Quiet),
-		new LegalMove(27, 11, MoveType.DoublePawnPush),
-		new LegalMove(20, 12, MoveType.Quiet),
-		new LegalMove(28, 12, MoveType.DoublePawnPush),
-		new LegalMove(21, 13, MoveType.Quiet),
-		new LegalMove(29, 13, MoveType.DoublePawnPush),
-		new LegalMove(22, 14, MoveType.Quiet),
-		new LegalMove(30, 14, MoveType.DoublePawnPush),
-		new LegalMove(23, 15, MoveType.Quiet),
-		new LegalMove(31, 15, MoveType.DoublePawnPush),
-		new LegalMove(16, 1, MoveType.Quiet),
-		new LegalMove(18, 1, MoveType.Quiet),
-		new LegalMove(21, 6, MoveType.Quiet),
-		new LegalMove(23, 6, MoveType.Quiet),
-	])
-
+	const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
+	const [status, setStatus] = useState<RoomStatus>({
+		status: Status.OVER,
+		whiteId: "",
+		blackId: "",
+		clients: 0
+	})
 
 	useEffect(() => {
-		const s = new _WebSocket(accessToken as string)
+		const id = window.location.href.substring(22)
+		const s = new _WebSocket(`/room?id=${id}&`, accessToken)
 
 		// Recieve and store the messages from the server.
-		s.socket.onmessage = (data) => {
-			const msg = new Message(new Uint8Array(data.data))
-			handleMessage(msg)
+		s.socket.onmessage = (raw) => {
+			const msg = JSON.parse(raw.data)
+			handleMessage(msg as Message)
 		}
 
 		s.socket.onclose = () => {
@@ -65,25 +59,36 @@ export default function App() {
 	}, [])
 
 	function handleMessage(msg: Message) {
-		switch (msg.type) {
-			case MessageType.ROOM_INFO:
-				setStatus(msg.payload.status)
-				if (msg.payload.status == Status.IN_PROGRESS) {
-					setWhiteId(msg.payload.whiteId)
-					setBlackId(msg.payload.blackId)
-				}
+		switch (msg.t) {
+			case MessageType.ROOM_STATUS:
+				setStatus({
+					status: msg.d.s,
+					whiteId: msg.d.w,
+					blackId: msg.d.b,
+					clients: msg.d.c
+				})
+				setWhiteTime(msg.d.wt)
+				setBlackTime(msg.d.bt)
 				break
 
 			case MessageType.LAST_MOVE:
-				setMoves(prevMoves => [...prevMoves, new CompletedMove(msg.payload.san, msg.payload.fen)])
-				setCurrentFEN(msg.payload.fen)
-				setLegalMoves(msg.payload.legalMoves)
+				setGame(prevGame => {
+					const newGame = new Game()
+					if (prevGame.moves.length % 2 == 0) {
+						setWhiteTime(msg.d.t)
+					} else {
+						setBlackTime(msg.d.t)
+					}
+					newGame.currentFEN = msg.d.f
+					newGame.legalMoves = msg.d.l
+					newGame.moves = [...prevGame.moves, msg.d]
+					return newGame
+				})
 				break
 
-			case MessageType.GAME:
-				setMoves(msg.payload.moves)
-				setLegalMoves(msg.payload.legalMoves)
-				setCurrentFEN(msg.payload.moves[msg.payload.moves.length - 1].fen)
+			case MessageType.GAME_RESULT:
+				setResult(msg.d.r)
+				setIsDialogActive(true)
 				break
 		}
 	}
@@ -95,32 +100,128 @@ export default function App() {
 		const pairs: any = []
 		for (let i = 0; i < moves.length; i += 2) {
 			pairs.push({
-				white: moves[i].san,
-				black: moves[i + 1] ? moves[i + 1].san : "",
+				white: moves[i].s,
+				black: moves[i + 1] ? moves[i + 1].s : "",
 			})
 		}
 		return pairs
 	}
 
-	return socket && (
-		<div className="main-container" data-theme={theme}>
+	function formatResult(): string {
+		switch (result) {
+			case Result.Checkmate:
+				return "by checkmate"
 
-			<div>
-				WhiteId: {whiteId}
-				BlackId: {blackId}
-				Status: {status}
+			case Result.Timeout:
+				return "by timeout"
+
+			case Result.Stalemate:
+				return "by stalemate"
+
+			case Result.InsufficientMaterial:
+				return "by insufficient material"
+
+			case Result.FiftyMoves:
+				return "by fifty moves rule"
+
+			case Result.Repetition:
+				return "by threefold repetition"
+
+			case Result.Agreement:
+				return "by agreement"
+
+			default:
+				return "by unknown reason"
+		}
+	}
+
+	function formatWinner(): string {
+		switch (result) {
+			case Result.Checkmate:
+				if (game.moves.length % 2 == 0) {
+					return "Black won"
+				}
+				return "White won"
+
+			case Result.Timeout:
+				if (game.moves.length % 2 == 0) {
+					return "Black won"
+				}
+				return "White won"
+
+			default:
+				return "Draw"
+		}
+	}
+
+	function getActiveTimerColor(): string {
+		if (status.status == Status.OPEN || status.status == Status.OVER) {
+			return ""
+		}
+
+		if (game.moves.length % 2 == 0) {
+			return "white"
+		}
+		return "black"
+	}
+
+	if (socket == null) { return }
+
+	if (status.status == Status.OPEN) {
+		return (
+			<div className="main-container" data-theme={theme}>
+				<div className="loader">
+					<div className="loader-content">
+						Waiting for the second player
+						<div className="dots">
+							<div className="loading-dot" />
+							<div className="loading-dot" />
+							<div className="loading-dot" />
+						</div>
+					</div>
+				</div>
 			</div>
+		)
+	}
 
+	if (isDialogActive) {
+		return (
+			<div className="main-container" data-theme={theme}>
+				<Dialog onClick={() => setIsDialogActive(false)}>
+					<>
+						<div>
+							{formatWinner()}
+						</div>
+						<div>
+							{formatResult()}
+						</div>
+						<button onClick={() => navigate("/")}>
+							Home page
+						</button>
+					</>
+				</Dialog>
+			</div>
+		)
+	}
+
+	return (
+		<div className="main-container" data-theme={theme}>
 			<Header />
-
 			<div className="play-container">
-				<Board
-					fen={currentFEN}
-					legalMoves={legalMoves}
-					onMove={(move: LegalMove) => {
-						socket.sendMakeMove(move)
-					}}
-				/>
+
+				<div className="board-container">
+					<Miniprofile id={status.blackId} time={blackTime}
+						setTime={setBlackTime} isActive={"black" == getActiveTimerColor()} />
+					<Board
+						fen={game.currentFEN}
+						legalMoves={game.legalMoves}
+						onMove={(move: LegalMove) => {
+							socket.sendMakeMove(move)
+						}}
+					/>
+					<Miniprofile id={status.whiteId} time={whiteTime}
+						setTime={setWhiteTime} isActive={"white" == getActiveTimerColor()} />
+				</div>
 
 				<div className="table">
 					<div className="caption">Completed moves</div>
@@ -140,7 +241,7 @@ export default function App() {
 					</div>
 
 					<div className="table-body">
-						{formatFullmovePairs(moves).map((fullmove, index) =>
+						{formatFullmovePairs(game.moves).map((fullmove, index) =>
 							<div
 								className="row"
 								// TODO: add move undo.
@@ -161,10 +262,6 @@ export default function App() {
 							</div>)}
 					</div>
 				</div>
-			</div>
-
-			<div className="footer">
-				Copyright 2024-2025 Artem Bielikov. All rights reserved.
 			</div>
 		</div >
 	)

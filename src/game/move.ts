@@ -17,27 +17,30 @@ export enum MoveType {
 
 export class CompletedMove {
 	// Standard Algebraic Notation.
-	san: string
+	s: string
 	// Forsyth-Edwards Notation after completing the move.
-	fen: string
+	f: string
 	// Clock value.
-	timeLeft: number
+	t: number
+	// Legal moves for the next player.  
+	l: LegalMove[]
 
-	constructor(san: string, fen: string, timeLeft: number) {
-		this.san = san
-		this.fen = fen
-		this.timeLeft = timeLeft
+	constructor(s: string, f: string, t: number, l: LegalMove[]) {
+		this.s = s
+		this.f = f
+		this.t = t
+		this.l = l
 	}
 }
 
 export class LegalMove {
-	to: number
-	from: number
-	type: MoveType
+	d: number // To.
+	s: number // From.
+	t: MoveType // Type.
 
-	constructor(to: number, from: number, type: MoveType) {
-		this.to = to
-		this.from = from
-		this.type = type
+	constructor(d: number, s: number, t: MoveType) {
+		this.d = d
+		this.s = s
+		this.t = t
 	}
 }

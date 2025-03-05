@@ -3,79 +3,119 @@ import _WebSocket from "../../ws/ws"
 import { useEffect, useState } from "react"
 import { useTheme } from "../../context/Theme"
 import Header from "../../components/header/Header"
-import Message, { MessageType } from "../../ws/msg"
-import { useNavigate } from "react-router-dom"
-import { useConnection } from "../../context/Connection"
+import { Message, MessageType } from "../../ws/message"
 import { useAuthentication } from "../../context/Authentication"
+import { useNavigate } from "react-router-dom"
+import Dialog from "../../components/dialog/Dialog"
+import Slider from "../../components/slider/Slider"
 
-export type Game = {
+export type Room = {
 	id: string,
-	timeBonus: number,
-	timeControl: number,
+	b: number,
+	c: number,
 }
 
 export default function Home() {
 	const { theme } = useTheme()
+	const { user, accessToken } = useAuthentication()
 	const navigate = useNavigate()
-	const { user } = useAuthentication()
-	// List of all availible games.
-	const [games, setGames] = useState<Game[]>([])
-	const { socket, messageQueue, setMessageQueue } = useConnection()
+	const [socket, setSocket] = useState<_WebSocket | null>(null)
+	const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
+
+	const [rooms, setRooms] = useState<Room[]>([])
+	const [timeControl, setTimeControl] = useState<number>(10)
+	const [timeBonus, setTimeBonus] = useState<number>(10)
 	const [clientsCounter, setClientsCounter] = useState<number>(0)
 
 	useEffect(() => {
-		socket?.sendGetAvailibleGames()
+		const s = new _WebSocket("/hub?", accessToken)
+
+		// Recieve and store the messages from the server.
+		s.socket.onmessage = (raw) => {
+			const msg = JSON.parse(raw.data)
+			handleMessage(msg as Message)
+		}
+
+		s.socket.onclose = () => {
+			setSocket(null)
+		}
+
+		s.socket.onopen = () => {
+			setSocket(s)
+		}
+
+		return () => s.close()
 	}, [])
 
-	useEffect(() => {
-		if (messageQueue.length == 0) { return }
-
-		const [msg, ...remaining] = messageQueue
-		switch (msg.type) {
+	function handleMessage(msg: Message) {
+		switch (msg.t) {
 			case MessageType.CLIENTS_COUNTER:
-				setClientsCounter(msg.payload)
+				setClientsCounter(msg.d.c)
 				break
 
-			case MessageType.ADD_GAME:
-				if (msg.payload.id == user.id) {
-					navigate(`/${msg.payload.id}`)
-					removeGame(msg.payload.id)
+			case MessageType.ADD_ROOM:
+				if (msg.d.id == user.id) {
+					navigate(`/${user.id}`)
+					return
 				}
 
-				setGames(prevGames => {
-					// Do not add game duplicates.
-					if (prevGames.some(r => r.id === msg.payload.id)) {
-						return prevGames
+				setRooms(prevRooms => {
+					// Do not add duplicates.
+					if (prevRooms.some(room => room.id === msg.d.id)) {
+						return prevRooms
 					}
-					return [...prevGames, msg.payload]
+					return [...prevRooms, msg.d]
 				})
 				break
 
-			case MessageType.REMOVE_GAME:
-				removeGame(msg.payload)
+			case MessageType.REMOVE_ROOM:
+				setRooms(prevRooms => prevRooms.filter(room =>
+					room.id !== msg.d.id
+				))
 				break
-
-			default: return
 		}
-		// Remove the processed message from the queue.
-		setMessageQueue(remaining)
-	}, [messageQueue])
-
-	function removeGame(id: string) {
-		setGames((prevGames) => prevGames.filter(game =>
-			game.id !== id
-		))
 	}
 
-	return socket && (
+	if (isDialogActive) {
+		return (
+			<div className="main-container" data-theme={theme}>
+				<Dialog onClick={() => setIsDialogActive(false)}>
+					<>
+						<Slider
+							min={1}
+							max={180}
+							value={timeControl}
+							setValue={setTimeControl}
+							text="Time control in minutes:"
+						/>
+						<Slider
+							min={1}
+							max={180}
+							value={timeBonus}
+							setValue={setTimeBonus}
+							text="Time bonus in seconds:"
+						/>
+						<button onClick={() => socket?.sendCreateRoom(timeControl, timeBonus)}>
+							Create
+						</button>
+					</>
+				</Dialog>
+			</div>
+		)
+	}
+
+	return (
 		<div className="main-container" data-theme={theme}>
 			<Header />
 
 			<div className="home-container">
 				<div className="table">
-					<div className="caption">Availible games</div>
+					<div className="caption">Active games</div>
 
 					<div className="table-header">
+						<div className="col">
+							Creator
+						</div>
 						<div className="col">
 							Control
 						</div>
@@ -85,47 +125,41 @@ export default function Home() {
 					</div>
 
 					<div className="table-body">
-						{games.map((game, index) =>
+						{rooms.map((room, index) => (
 							<div
 								className="row"
-								onClick={() => {
-									removeGame(game.id)
-									navigate(`/${game.id}`)
-								}}
 								key={index}
+								onClick={() => {
+									navigate(`/${room.id}`)
+								}}
 							>
 								<div className="col">
-									{game.timeControl}
+									{room.id}
 								</div>
-
 								<div className="col">
-									{game.timeBonus}
+									{room.c}
 								</div>
-							</div>)}
+								<div className="col">
+									{room.b}
+								</div>
+							</div>
+						))}
 					</div>
 				</div>
 
 				<div className="buttons-section">
-					<button
-						onClick={() => {
-							socket.sendCreateGame(10, 10)
-						}}
-					>
+					<button onClick={() => setIsDialogActive(true)}>
 						CREATE A NEW GAME
 					</button>
 
-					<button
-						onClick={() => { }}
-					>
+					<button onClick={() => setIsDialogActive(true)}>
 						PLAY WITH THE COMPUTER
 					</button>
 				</div>
 			</div>
 
-			<div className="footer">
-				<div className="clients-counter">
-					Online: {clientsCounter}
-				</div>
+			<div className="clients-counter">
+				Players in lobby: {clientsCounter}
 			</div>
 		</div >
 	)

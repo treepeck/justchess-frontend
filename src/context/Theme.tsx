@@ -30,7 +30,6 @@ export default function ThemeProvider() {
 			theme: _theme,
 			setTheme: _setTheme,
 		}}>
-			{/* Render child components. */}
 			<Outlet />
 		</ThemeContext.Provider>
 	)
