@@ -1,79 +1,52 @@
-.home-container {
-	display: flex;
-	font-size: large;
-	width: 100%;
-	height: calc(100% - 6rem);
+.table {
+	width: 20rem;
+	height: 30rem;
+	margin: auto auto 1rem auto;
 }
 
-.home-container .table {
-	background-color: var(--containersBg);
-	text-align: center;
-	width: 35rem;
-	height: 35rem;
-	margin: auto;
-	gap: .5rem;
-	border-radius: .5rem;
+.button {
+	width: 10rem;
+	margin: 0 auto auto auto;
+	height: 1rem;
 }
 
-.home-container .table .table-header {
-	display: flex;
-	height: 1.5rem;
+.dialog-container .dialog .slider-container {
+	margin: .5rem auto 0 auto;
+	width: 90%;
 }
 
-.home-container .table .table-body {
-	height: calc(100% - 3rem);
-	overflow-y: auto;
+.dialog-container .dialog .radio-group {
+	margin: 1rem auto 0 auto;
+	width: 90%;
 }
 
-.home-container .table .table-body .row {
-	display: flex;
-	height: 1.5rem;
-	cursor: pointer;
+.dialog-container .dialog .button {
+	width: 60%;
+	margin: auto auto 1rem auto;
+	height: 2rem;
 }
 
-.row:hover {
-	background-color: #dddddd50;
+@media (min-width: 640px) {
+	.table {
+		width: 35rem;
+		height: 30rem;
+	}
+
+	.button {
+		width: 20rem;
+		height: 1.5rem;
+		font-size: large;
+	}
 }
 
-.home-container .table .col {
-	flex: 1;
-}
+@media (min-width: 1024px) {
+	.table {
+		width: 50rem;
+		height: 40rem;
+	}
 
-.home-container .table .caption {
-	font-weight: bold;
-	height: 1.5rem;
-}
-
-.home-container .buttons-section {
-	display: flex;
-	flex-direction: column;
-	margin: auto;
-	gap: .5rem;
-}
-
-.home-container .buttons-section button {
-	height: 1.5rem;
-	width: 30rem;
-	border-radius: 5px;
-	background-color: #3692e7;
-	border: 2px solid #294a68;
-	color: white;
-	cursor: pointer;
-}
-
-.home-container .buttons-section button:hover {
-	border: 2px solid white;
-}
-
-.home-container .clients-counter {
-	color: var(--text);
-	background-color: var(--background);
-}
-
-.home-container .footer {
-	display: flex;
-	font-size: medium;
-	align-items: center;
-	width: 100%;
-	height: 3rem;
+	.button {
+		width: 30rem;
+		height: 2rem;
+	}
 }

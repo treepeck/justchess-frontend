@@ -16,13 +16,17 @@ export default function Slider(props: SliderProps) {
 				{props.text} {props.value}
 			</div>
 
-			<input
-				type="range"
-				value={props.value}
-				onChange={(e) => props.setValue(parseInt(e.target.value))}
-				min={props.min}
-				max={props.max}
-			/>
+			<div className="input-container">
+				{props.min}
+				<input
+					type="range"
+					value={props.value}
+					onChange={(e) => props.setValue(parseInt(e.target.value))}
+					min={props.min}
+					max={props.max}
+				/>
+				{props.max}
+			</div>
 		</div>
 	)
 }

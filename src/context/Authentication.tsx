@@ -51,8 +51,8 @@ export default function AuthenticationProvider() {
 
 	return isReady && (
 		<AuthenticationContext.Provider value={{
-			user: user as User,
-			accessToken: accessToken as string,
+			user: user!,
+			accessToken: accessToken!,
 			setUser: setUser
 		}}>
 			<Outlet />

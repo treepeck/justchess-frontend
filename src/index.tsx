@@ -26,7 +26,7 @@ const routes: RouteObject[] = createRoutesFromElements(
 
 const router = createBrowserRouter(routes)
 
-const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
+const root = ReactDOM.createRoot(document.getElementById("root")!)
 root.render(
 	<StrictMode>
 		<RouterProvider router={router} />

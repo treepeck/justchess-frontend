@@ -2,17 +2,20 @@ import "./Home.css"
 import _WebSocket from "../../ws/ws"
 import { useEffect, useState } from "react"
 import { useTheme } from "../../context/Theme"
-import Header from "../../components/header/Header"
-import { Message, MessageType } from "../../ws/message"
-import { useAuthentication } from "../../context/Authentication"
 import { useNavigate } from "react-router-dom"
 import Dialog from "../../components/dialog/Dialog"
 import Slider from "../../components/slider/Slider"
+import Header from "../../components/header/Header"
+import { Message, MessageType } from "../../ws/message"
+import { useAuthentication } from "../../context/Authentication"
+import Table from "../../components/table/Table"
+import RadioButtons from "../../components/radio-buttons/RadioButtons"
+import Button from "../../components/button/Button"
 
 export type Room = {
 	id: string,
-	b: number,
-	c: number,
+	b: number, // Time bonus.
+	c: number, // Time control.
 }
 
 export default function Home() {
@@ -23,6 +26,7 @@ export default function Home() {
 	const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
 
 	const [rooms, setRooms] = useState<Room[]>([])
+	const [opponent, setOpponent] = useState<string>("")
 	const [timeControl, setTimeControl] = useState<number>(10)
 	const [timeBonus, setTimeBonus] = useState<number>(10)
 	const [clientsCounter, setClientsCounter] = useState<number>(0)
@@ -76,91 +80,63 @@ export default function Home() {
 		}
 	}
 
-	if (isDialogActive) {
-		return (
-			<div className="main-container" data-theme={theme}>
-				<Dialog onClick={() => setIsDialogActive(false)}>
-					<>
-						<Slider
-							min={1}
-							max={180}
-							value={timeControl}
-							setValue={setTimeControl}
-							text="Time control in minutes:"
-						/>
-						<Slider
-							min={1}
-							max={180}
-							value={timeBonus}
-							setValue={setTimeBonus}
-							text="Time bonus in seconds:"
-						/>
-						<button onClick={() => socket?.sendCreateRoom(timeControl, timeBonus)}>
-							Create
-						</button>
-					</>
-				</Dialog>
-			</div>
-		)
-	}
-
 	return (
 		<div className="main-container" data-theme={theme}>
 			<Header />
 
-			<div className="home-container">
-				<div className="table">
-					<div className="caption">Active games</div>
+			<Table
+				caption="Active games"
+				headerCols={["Creator", "Control", "Bonus"]}
+				bodyRows={rooms}
+				bodyOnClick={(e) => {
+					const id = e.currentTarget.dataset.row
+					navigate(`/${id}`)
+				}}
+			/>
 
-					<div className="table-header">
-						<div className="col">
-							Creator
-						</div>
-						<div className="col">
-							Control
-						</div>
-						<div className="col">
-							Bonus
-						</div>
-					</div>
-
-					<div className="table-body">
-						{rooms.map((room, index) => (
-							<div
-								className="row"
-								key={index}
-								onClick={() => {
-									navigate(`/${room.id}`)
-								}}
-							>
-								<div className="col">
-									{room.id}
-								</div>
-								<div className="col">
-									{room.c}
-								</div>
-								<div className="col">
-									{room.b}
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
-
-				<div className="buttons-section">
-					<button onClick={() => setIsDialogActive(true)}>
-						CREATE A NEW GAME
-					</button>
-
-					<button onClick={() => setIsDialogActive(true)}>
-						PLAY WITH THE COMPUTER
-					</button>
-				</div>
-			</div>
+			<Button
+				text="CREATE A NEW GAME"
+				onClick={() => setIsDialogActive(true)}
+			/>
 
 			<div className="clients-counter">
 				Players in lobby: {clientsCounter}
 			</div>
+
+			{isDialogActive && (
+				<Dialog caption="Create a game" onClick={() => { setIsDialogActive(false) }}>
+					<>
+						<RadioButtons
+							caption="Choose an opponent:"
+							options={["User", "Computer"]}
+							onChange={(e) => {
+								const selected = e.target.value
+								setOpponent(selected)
+							}}
+						/>
+						<Slider
+							value={timeControl}
+							setValue={setTimeControl}
+							min={1}
+							max={180}
+							text="Time control in minutes:"
+						/>
+						<Slider
+							value={timeBonus}
+							setValue={setTimeBonus}
+							min={0}
+							max={180}
+							text="Time bonus in seconds:"
+						/>
+						<Button
+							text="Start"
+							onClick={() => {
+								socket!.sendCreateRoom(opponent == "Computer", timeControl, timeBonus)
+							}}
+						/>
+					</>
+				</Dialog>
+			)}
 		</div >
 	)
 }

@@ -1,6 +1,4 @@
 .slider-container {
-	/* display: flex; */
-	/* flex-direction: column; */
 	width: 85%;
 }
 
@@ -9,4 +7,9 @@
 	width: 100%;
 	background-color: var(--text);
 	border-radius: 5%;
+}
+
+.input-container {
+	display: flex;
+
 }
