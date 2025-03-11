@@ -1,3 +1,4 @@
+import { CompletedMove, LegalMove } from "../game/move"
 import User from "./user"
 
 export default class HTTP {
@@ -17,9 +18,7 @@ export default class HTTP {
 					"Content-Type": "application/json",
 				},
 			})
-			if (!r.ok) {
-				return null
-			}
+			if (!r.ok) { return null }
 
 			return await r.json()
 		} catch {
@@ -35,9 +34,7 @@ export default class HTTP {
 				credentials: "include",
 			})
 
-			if (!r.ok) {
-				return null
-			}
+			if (!r.ok) { return null }
 
 			return await r.json()
 		} catch {
@@ -54,9 +51,7 @@ export default class HTTP {
 				method: "GET",
 				credentials: "include",
 			})
-			if (!r.ok) {
-				return null
-			}
+			if (!r.ok) { return null }
 
 			return await r.text()
 		} catch {

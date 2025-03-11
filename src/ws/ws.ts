@@ -17,12 +17,13 @@ export default class _WebSocket {
 		this.socket = new WebSocket(`${this.protocol}${this.serverUrl}${url}access=${accessToken}`)
 	}
 
-	sendCreateRoom(control: number, bonus: number) {
+	sendCreateRoom(isVSEngine: boolean, control: number, bonus: number) {
 		const msg = JSON.stringify({
 			t: MessageType.CREATE_ROOM,
 			d: {
 				c: control,
-				b: bonus
+				b: bonus,
+				e: isVSEngine
 			}
 		})
 		this.socket.send(msg)

@@ -1,29 +1,36 @@
 import "./Play.css"
 import Game from "../../game/game"
 import _WebSocket from "../../ws/ws"
-import { useEffect, useState } from "react"
+import { fromUCI, LegalMove } from "../../game/move"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useTheme } from "../../context/Theme"
-import Board from "../../components/board/Board"
 import { Result, Status } from "../../game/enums"
 import Header from "../../components/header/Header"
 import Dialog from "../../components/dialog/Dialog"
+import Clock from "../../components/clock/Clock"
 import { Message, MessageType } from "../../ws/message"
-import { CompletedMove, LegalMove } from "../../game/move"
 import { useAuthentication } from "../../context/Authentication"
+import Button from "../../components/button/Button"
 import Miniprofile from "../../components/miniprofile/Miniprofile"
+import Board from "../../components/board/Board"
+import Table from "../../components/table/Table"
+import Engine from "../../components/engine/Engine"
 
 type RoomStatus = {
 	status: Status,
 	whiteId: string,
 	blackId: string,
 	clients: number,
+	isVSEngine: boolean
 }
 
 export default function Play() {
 	const { theme } = useTheme()
 	const navigate = useNavigate()
-	const { accessToken } = useAuthentication()
+	const { user, accessToken } = useAuthentication()
+	const engine = useRef<Worker | null>(null)
+
 	const [game, setGame] = useState<Game>(new Game())
 	const [whiteTime, setWhiteTime] = useState<number>(0)
 	const [blackTime, setBlackTime] = useState<number>(0)
@@ -34,7 +41,8 @@ export default function Play() {
 		status: Status.OVER,
 		whiteId: "",
 		blackId: "",
-		clients: 0
+		clients: 0,
+		isVSEngine: false,
 	})
 
 	useEffect(() => {
@@ -65,7 +73,8 @@ export default function Play() {
 					status: msg.d.s,
 					whiteId: msg.d.w,
 					blackId: msg.d.b,
-					clients: msg.d.c
+					clients: msg.d.c,
+					isVSEngine: msg.d.e,
 				})
 				setWhiteTime(msg.d.wt)
 				setBlackTime(msg.d.bt)
@@ -74,11 +83,6 @@ export default function Play() {
 			case MessageType.LAST_MOVE:
 				setGame(prevGame => {
 					const newGame = new Game()
-					if (prevGame.moves.length % 2 == 0) {
-						setWhiteTime(msg.d.t)
-					} else {
-						setBlackTime(msg.d.t)
-					}
 					newGame.currentFEN = msg.d.f
 					newGame.legalMoves = msg.d.l
 					newGame.moves = [...prevGame.moves, msg.d]
@@ -91,20 +95,6 @@ export default function Play() {
 				setIsDialogActive(true)
 				break
 		}
-	}
-
-	function formatFullmovePairs(moves: CompletedMove[]): {
-		white: string,
-		black: string
-	}[] {
-		const pairs: any = []
-		for (let i = 0; i < moves.length; i += 2) {
-			pairs.push({
-				white: moves[i].s,
-				black: moves[i + 1] ? moves[i + 1].s : "",
-			})
-		}
-		return pairs
 	}
 
 	function formatResult(): string {
@@ -154,115 +144,128 @@ export default function Play() {
 		}
 	}
 
-	function getActiveTimerColor(): string {
+	function formatFullmovePairs(): {
+		index: number,
+		white: string,
+		black: string
+	}[] {
+		const pairs: any = []
+		let cnt = 1
+		for (let i = 0; i < game.moves.length; i += 2) {
+			pairs.push({
+				index: cnt,
+				white: game.moves[i].s,
+				black: game.moves[i + 1] ? game.moves[i + 1].s : "",
+			})
+			cnt++
+		}
+		return pairs
+	}
+
+	function getActiveId(): string {
 		if (status.status == Status.OPEN || status.status == Status.OVER) {
 			return ""
 		}
 
 		if (game.moves.length % 2 == 0) {
-			return "white"
+			return status.whiteId
 		}
-		return "black"
-	}
-
-	if (socket == null) { return }
-
-	if (status.status == Status.OPEN) {
-		return (
-			<div className="main-container" data-theme={theme}>
-				<div className="loader">
-					<div className="loader-content">
-						Waiting for the second player
-						<div className="dots">
-							<div className="loading-dot" />
-							<div className="loading-dot" />
-							<div className="loading-dot" />
-						</div>
-					</div>
-				</div>
-			</div>
-		)
-	}
-
-	if (isDialogActive) {
-		return (
-			<div className="main-container" data-theme={theme}>
-				<Dialog onClick={() => setIsDialogActive(false)}>
-					<>
-						<div>
-							{formatWinner()}
-						</div>
-						<div>
-							{formatResult()}
-						</div>
-						<button onClick={() => navigate("/")}>
-							Home page
-						</button>
-					</>
-				</Dialog>
-			</div>
-		)
+		return status.blackId
 	}
 
 	return (
 		<div className="main-container" data-theme={theme}>
 			<Header />
-			<div className="play-container">
 
+			<div className="play-container">
 				<div className="board-container">
-					<Miniprofile id={status.blackId} time={blackTime}
-						setTime={setBlackTime} isActive={"black" == getActiveTimerColor()} />
+					<div className="row">
+						<Miniprofile
+							id={status.isVSEngine ? user.id == status.blackId ? user.id : "Stockfish 16" : status.blackId}
+						/>
+						<Clock
+							time={blackTime}
+							setTime={setBlackTime}
+							isActive={status.blackId == getActiveId()}
+						/>
+					</div>
 					<Board
 						fen={game.currentFEN}
 						legalMoves={game.legalMoves}
-						onMove={(move: LegalMove) => {
-							socket.sendMakeMove(move)
+						onMove={(m: LegalMove) => {
+							socket!.sendMakeMove(m)
 						}}
 					/>
-					<Miniprofile id={status.whiteId} time={whiteTime}
-						setTime={setWhiteTime} isActive={"white" == getActiveTimerColor()} />
-				</div>
-
-				<div className="table">
-					<div className="caption">Completed moves</div>
-
-					<div className="table-header">
-						<div className="col">
-							#
-						</div>
-
-						<div className="col">
-							White
-						</div>
-
-						<div className="col">
-							Black
-						</div>
-					</div>
-
-					<div className="table-body">
-						{formatFullmovePairs(game.moves).map((fullmove, index) =>
-							<div
-								className="row"
-								// TODO: add move undo.
-								onClick={() => { }}
-								key={index}
-							>
-								<div className="col">
-									{index + 1}
-								</div>
-
-								<div className="col">
-									{fullmove.white}
-								</div>
-
-								<div className="col">
-									{fullmove.black}
-								</div>
-							</div>)}
+					<div className="row">
+						<Miniprofile
+							id={status.isVSEngine ? user.id == status.whiteId ? user.id : "Stockfish 16" : status.whiteId}
+						/>
+						<Clock
+							time={whiteTime}
+							setTime={setWhiteTime}
+							isActive={status.whiteId == getActiveId()}
+						/>
 					</div>
 				</div>
+
+				<Table
+					caption="Completed moves"
+					headerCols={["#", "White", "Black"]}
+					bodyRows={formatFullmovePairs()}
+					bodyOnClick={() => { }}
+				/>
+
+				{/* TODO: replace with chat. */}
+				<Table
+					caption="Completed moves"
+					headerCols={["#", "White", "Black"]}
+					bodyRows={formatFullmovePairs()}
+					bodyOnClick={() => { }}
+				/>
 			</div>
+
+			<div className="clients-counter">
+				Players in room: {status.clients}
+			</div>
+
+			{status.status == Status.OPEN && (
+				<Dialog caption="Waiting for the second player" onClick={() => { }}
+				>
+					<div className="dots">
+						<div className="loading-dot" />
+						<div className="loading-dot" />
+						<div className="loading-dot" />
+					</div>
+				</Dialog>
+			)}
+
+			{isDialogActive && (
+				<Dialog caption="Game over" onClick={() => setIsDialogActive(false)}>
+					<>
+						<div className="winner">
+							{formatWinner()}
+						</div>
+						<div className="result">
+							{formatResult()}
+						</div>
+						<Button
+							text="Home page"
+							onClick={() => navigate("/")}
+						/>
+					</>
+				</Dialog>
+			)}
+
+			{/* Spawn engine worker. */}
+			{status.isVSEngine && (
+				<Engine
+					socket={socket!}
+					engine={engine}
+					currentFEN={game.currentFEN}
+					legalMoves={game.legalMoves}
+					isTurn={getActiveId() != user.id}
+				/>
+			)}
 		</div >
 	)
 }

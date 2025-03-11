@@ -1,9 +1,9 @@
 .slider-container {
 	width: 85%;
+	text-align: left;
 }
 
 .slider-container input {
-	/* appearance: none; */
 	width: 100%;
 	background-color: var(--text);
 	border-radius: 5%;
@@ -11,5 +11,4 @@
 
 .input-container {
 	display: flex;
-
 }

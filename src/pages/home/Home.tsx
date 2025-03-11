@@ -11,6 +11,7 @@ import { useAuthentication } from "../../context/Authentication"
 import Table from "../../components/table/Table"
 import RadioButtons from "../../components/radio-buttons/RadioButtons"
 import Button from "../../components/button/Button"
+import { useEngineConf } from "../../context/EngineConf"
 
 export type Room = {
 	id: string,
@@ -21,14 +22,16 @@ export type Room = {
 export default function Home() {
 	const { theme } = useTheme()
 	const { user, accessToken } = useAuthentication()
+	const { threads, hashSize, difficulty, setThreads, setHashSize, setDifficulty } = useEngineConf()
+
 	const navigate = useNavigate()
 	const [socket, setSocket] = useState<_WebSocket | null>(null)
 	const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
 
 	const [rooms, setRooms] = useState<Room[]>([])
-	const [opponent, setOpponent] = useState<string>("")
-	const [timeControl, setTimeControl] = useState<number>(10)
+	const [opponent, setOpponent] = useState<string>("User")
 	const [timeBonus, setTimeBonus] = useState<number>(10)
+	const [timeControl, setTimeControl] = useState<number>(10)
 	const [clientsCounter, setClientsCounter] = useState<number>(0)
 
 	useEffect(() => {
@@ -107,27 +110,50 @@ export default function Home() {
 				<Dialog caption="Create a game" onClick={() => { setIsDialogActive(false) }}>
 					<>
 						<RadioButtons
-							caption="Choose an opponent:"
+							caption="Choose an opponent: "
 							options={["User", "Computer"]}
-							onChange={(e) => {
-								const selected = e.target.value
-								setOpponent(selected)
-							}}
+							value={opponent}
+							setValue={setOpponent}
 						/>
 						<Slider
 							value={timeControl}
 							setValue={setTimeControl}
 							min={1}
 							max={180}
-							text="Time control in minutes:"
+							text="Time control in minutes: "
 						/>
 						<Slider
 							value={timeBonus}
 							setValue={setTimeBonus}
 							min={0}
 							max={180}
-							text="Time bonus in seconds:"
+							text="Time bonus in seconds: "
 						/>
+						{opponent == "Computer" && (
+							<div className="engine-params">
+								<p>Engine: Stockfish 16</p>
+								<Slider
+									value={threads}
+									setValue={setThreads}
+									min={1}
+									max={navigator.hardwareConcurrency / 2}
+									text="The number of CPU threads used for searching: "
+								/>
+								<RadioButtons
+									caption="The size of the hash table in MB: "
+									options={["32", "64", "128", "512"]}
+									value={hashSize}
+									setValue={setHashSize}
+								/>
+								<Slider
+									value={difficulty}
+									setValue={setDifficulty}
+									min={1}
+									max={20}
+									text="Difficulty level:"
+								/>
+							</div>
+						)}
 						<Button
 							text="Start"
 							onClick={() => {
@@ -137,6 +163,6 @@ export default function Home() {
 					</>
 				</Dialog>
 			)}
-		</div >
+		</div>
 	)
 }

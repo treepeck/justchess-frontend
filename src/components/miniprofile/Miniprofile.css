@@ -1,11 +1,4 @@
 .miniprofile {
-	width: 100%;
-	display: flex;
-	flex-direction: row;
-	overflow: hidden;
-}
-
-.miniprofile p {
-	width: 50%;
-	text-align: center;
+	font-size: medium;
+	margin-right: auto;
 }

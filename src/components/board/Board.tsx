@@ -27,7 +27,6 @@ export default function Board(props: BoardProps) {
 			return name + " selected"
 		}
 
-		// TODO: Highlight legal moves only for allies pieces.
 		for (const legalMove of props.legalMoves) {
 			if (legalMove.s == selected && legalMove.d == index) {
 				name += " legal"

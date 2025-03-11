@@ -1,15 +1,14 @@
-import "./RadioButtons.css"
 import { useState } from "react"
+import "./RadioButtons.css"
 
 type RadioButtonsProps = {
 	caption: string,
 	options: string[],
-	onChange: React.ChangeEventHandler<HTMLInputElement>,
+	value: any,
+	setValue: React.Dispatch<React.SetStateAction<any>>
 }
 
-export default function RadioButtons({ caption, options, onChange }: RadioButtonsProps) {
-	const [checked, setChecked] = useState<number>(0)
-
+export default function RadioButtons({ caption, options, value, setValue }: RadioButtonsProps) {
 	return (
 		<div className="radio-group">
 			<div className="r-caption">{caption}</div>
@@ -18,14 +17,16 @@ export default function RadioButtons({ caption, options, onChange }: RadioButton
 				<div key={index} className="r-option">
 					<input
 						type="radio"
-						id={option}
-						name="option"
-						value={option}
-						onChange={(e) => {
-							setChecked(index)
-							onChange(e)
+						name={caption}
+						value={value}
+						onChange={() => {
+							if (typeof value == "number") {
+								setValue(parseInt(option))
+							} else {
+								setValue(option)
+							}
 						}}
-						checked={index == checked}
+						checked={value == option}
 					/>
 					<label htmlFor={option}>{option}</label>
 				</div>

@@ -29,7 +29,11 @@ export default function Table({ caption, headerCols, bodyRows, bodyOnClick }: Ta
 						data-row={row.id}
 						key={index}
 					>
-						{row}
+						{Object.entries(row).map(([key, val]) => (
+							<div className="col" key={key}>
+								{val as any}
+							</div>
+						))}
 					</div>
 				))}
 			</div>
