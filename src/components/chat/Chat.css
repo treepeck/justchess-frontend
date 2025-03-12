@@ -1,0 +1,35 @@
+.chat {
+	gap: 1rem;
+	border-radius: .5rem;
+	background-color: var(--containersBg);
+	display: flex;
+	flex-direction: column;
+	padding: 1rem;
+}
+
+.chat p {
+	text-align: center;
+	margin: 0 auto auto auto;
+	font-weight: bold;
+	height: 1.5rem;
+}
+
+.chat .messages {
+	/* Minus caption and input container - both 1.5rem */
+	height: calc(100% - 3rem);
+	overflow-y: auto;
+}
+
+.chat .input-container input {
+	width: calc(100% - 1.5rem);
+}
+
+.chat .input-container button {
+	width: 1.5rem;
+	height: 1.5rem;
+	background-size: cover;
+	border: none;
+	background-color: transparent;
+	background-image: url("../../../public/assets/send.png");
+	cursor: pointer;
+}

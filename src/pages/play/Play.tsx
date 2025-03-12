@@ -16,6 +16,7 @@ import Miniprofile from "../../components/miniprofile/Miniprofile"
 import Board from "../../components/board/Board"
 import Table from "../../components/table/Table"
 import Engine from "../../components/engine/Engine"
+import Chat from "../../components/chat/Chat"
 
 type RoomStatus = {
 	status: Status,
@@ -86,6 +87,11 @@ export default function Play() {
 					newGame.currentFEN = msg.d.f
 					newGame.legalMoves = msg.d.l
 					newGame.moves = [...prevGame.moves, msg.d]
+					if ((newGame.moves.length) % 2 == 0) {
+						setBlackTime(msg.d.t)
+					} else {
+						setWhiteTime(msg.d.t)
+					}
 					return newGame
 				})
 				break
@@ -167,10 +173,10 @@ export default function Play() {
 			return ""
 		}
 
-		if (game.moves.length % 2 == 0) {
-			return status.whiteId
+		if ((game.moves.length + 1) % 2 == 0) {
+			return status.blackId
 		}
-		return status.blackId
+		return status.whiteId
 	}
 
 	return (
@@ -215,13 +221,9 @@ export default function Play() {
 					bodyOnClick={() => { }}
 				/>
 
-				{/* TODO: replace with chat. */}
-				<Table
-					caption="Completed moves"
-					headerCols={["#", "White", "Black"]}
-					bodyRows={formatFullmovePairs()}
-					bodyOnClick={() => { }}
-				/>
+				{!status.isVSEngine && (<Chat
+					socket={socket!}
+				/>)}
 			</div>
 
 			<div className="clients-counter">

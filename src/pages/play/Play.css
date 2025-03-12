@@ -26,6 +26,12 @@
 	margin: auto auto 1rem auto;
 }
 
+.play-container .chat {
+	width: 20rem;
+	height: 10rem;
+	margin: auto auto 1rem auto;
+}
+
 .dots {
 	display: flex;
 	flex-direction: row;
@@ -62,7 +68,12 @@
 	}
 
 	.play-container .table {
-		width: 30rem;
+		width: 25rem;
+		height: 10rem;
+	}
+
+	.play-container .chat {
+		width: 25rem;
 		height: 10rem;
 	}
 }
@@ -80,6 +91,13 @@
 	}
 
 	.play-container .table {
+		height: 30rem;
+		margin: auto;
+		order: 3;
+	}
+
+	.play-container .chat {
+		height: 30rem;
 		margin: auto;
 		order: 1;
 	}

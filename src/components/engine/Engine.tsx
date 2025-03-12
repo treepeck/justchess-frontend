@@ -31,7 +31,9 @@ export default function Engine({ socket, engine, currentFEN, legalMoves, isTurn 
 	useEffect(() => {
 		if (isTurn && isReady) {
 			engine.current!.postMessage(`position fen ${currentFEN}`)
-			engine.current!.postMessage(`go movetime 2000`)
+			window.setTimeout(() => {
+				engine.current!.postMessage(`go depth ${difficulty}`)
+			}, 3000)
 		}
 	}, [isTurn, isReady])
 
@@ -52,7 +54,8 @@ export default function Engine({ socket, engine, currentFEN, legalMoves, isTurn 
 				engine.current?.postMessage(`setoption name Threads value ${threads}`)
 				engine.current?.postMessage(`setoption name Hash value ${hashSize}`)
 				engine.current?.postMessage("setoption name MultiPV value 1")
-				engine.current?.postMessage(`setoption name Skill Level value ${difficulty}`)
+				engine.current?.postMessage("setoption name UCI_LimitStrength value true")
+				engine.current?.postMessage("setoption name UCI_Elo value 2000")
 				engine.current?.postMessage("isready")
 				break
 

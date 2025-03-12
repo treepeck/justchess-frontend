@@ -7,26 +7,26 @@ type ClockProps = {
 	isActive: boolean,
 }
 
-export default function Clock(props: ClockProps) {
+export default function Clock({ time, setTime, isActive }: ClockProps) {
 	function formatTime(): string {
-		const seconds = props.time % 60
-		const minutes = Math.floor(props.time / 60)
+		const seconds = time % 60
+		const minutes = Math.floor(time / 60)
 		return `${minutes < 10 ? "0" : ""}${minutes}:${seconds < 10 ? "0" : ""}${seconds}`
 	}
 
 	useEffect(() => {
-		let interval: NodeJS.Timeout | undefined
-		if (props.isActive && props.time > 0) {
-			interval = setInterval(() => {
-				props.setTime(prevTime => prevTime - 1)
+		let interval: number | undefined
+		if (isActive && time > 0) {
+			interval = window.setTimeout(() => {
+				setTime(prevTime => prevTime - 1)
 			}, 1000)
 		}
 
-		return () => clearInterval(interval)
-	}, [props.isActive])
+		return () => window.clearTimeout(interval)
+	}, [isActive, time])
 
 	return (
-		<div className={"clock " + (props.isActive ? "active" : "")}>
+		<div className={"clock" + (isActive ? " active" : "")}>
 			{formatTime()}
 		</div>
 	)

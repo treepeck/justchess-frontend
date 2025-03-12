@@ -37,6 +37,14 @@ export default class _WebSocket {
 		this.socket.send(msg)
 	}
 
+	sendChat(data: string) {
+		const msg = JSON.stringify({
+			t: MessageType.CHAT,
+			d: data
+		})
+		this.socket.send(msg)
+	}
+
 	close() {
 		this.socket.close()
 	}
