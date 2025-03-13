@@ -62,28 +62,13 @@ function squareToNumber(square: string): number {
 	const rank = parseInt(square[1]) - 1
 
 	switch (file) {
-		case "a":
-			return 8 * rank
-
-		case "b":
-			return 8 * rank + 1
-
-		case "c":
-			return 8 * rank + 2
-
-		case "d":
-			return 8 * rank + 3
-
-		case "e":
-			return 8 * rank + 4
-
-		case "f":
-			return 8 * rank + 5
-
-		case "g":
-			return 8 * rank + 6
-
-		default:
-			return 8 * rank + 7
+		case "a": return 8 * rank
+		case "b": return 8 * rank + 1
+		case "c": return 8 * rank + 2
+		case "d": return 8 * rank + 3
+		case "e": return 8 * rank + 4
+		case "f": return 8 * rank + 5
+		case "g": return 8 * rank + 6
+		default: return 8 * rank + 7
 	}
 }

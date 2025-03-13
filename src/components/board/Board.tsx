@@ -1,101 +1,116 @@
+// Styling.
 import "./Board.css"
-import { useEffect, useState } from "react"
-import { LegalMove, MoveType } from "../../game/move"
+
+// React stuff.
+import { useReducer } from "react"
+import { reducer, init, Action } from "./board.reducer"
+
+// Game "logic".
 import { PieceType } from "../../game/pieceType"
+import { LegalMove } from "../../game/move"
 import { FEN2Board, parseActiveColor, piece2ClassName } from "../../game/fen"
 
 type BoardProps = {
 	fen: string
-	legalMoves: LegalMove[]
+	side: number // 0 - White, 1 - Black.
 	onMove: Function
+	checked: PieceType
+	legalMoves: LegalMove[]
 }
 
-export default function Board(props: BoardProps) {
-	const [selected, setSelected] = useState<number | null>(null)
-	const [board, setBoard] = useState<PieceType[]>(FEN2Board(props.fen))
-	// Is piece selection window active.
-	const [isPSWA, setIsPSWA] = useState<boolean>(false)
-	const [promoMove, setPromoMove] = useState<LegalMove | null>(null)
-
-	useEffect(() => {
-		setBoard(FEN2Board(props.fen))
-	}, [props.fen])
+export default function Board({ fen, side, onMove, checked, legalMoves }: BoardProps) {
+	const [state, dispatch] = useReducer(reducer, init)
 
 	function getClassName(index: number, piece: PieceType): string {
-		let name = "board-square " + piece2ClassName(piece) + " "
-		if (index == selected) {
-			return name + " selected"
+		let name = "board-square " + piece2ClassName(piece)
+
+		name += index == state.selected ? " selected" : ""
+
+		if (legalMoves.find(el => el.s == state.selected && el.d == index)) {
+			name += " legal"
 		}
 
-		for (const legalMove of props.legalMoves) {
-			if (legalMove.s == selected && legalMove.d == index) {
-				name += " legal"
-				break
-			}
+		if (state.marked.find(el => el === index)) {
+			name += " marked"
 		}
-		return name
+
+		return piece === checked ? name + " checked" : name
 	}
 
-	function handleClickSquare(index: number) {
-		if (selected == null) { setSelected(index) }
+	function handleClickSquare(index: number, piece: PieceType) {
+		dispatch({ type: Action.CLEAR_MARKED, payload: null })
 
-		for (const legalMove of props.legalMoves) {
-			if (legalMove.s == selected && legalMove.d == index) {
+		if ((piece + 1) % 2 == (side ^ 1) && piece != PieceType.NoPiece) {
+			dispatch({ type: Action.SET_SELECTED, payload: index })
+			return
+		}
+
+		for (const legalMove of legalMoves) {
+			if (legalMove.s == state.selected && legalMove.d == index) {
 				if (legalMove.t < 6) { // If move type is not promotion.
-					props.onMove(legalMove)
-					setSelected(null)
+					onMove(legalMove)
+					dispatch({ type: Action.SET_SELECTED, payload: null })
 				} else {
-					setIsPSWA(true)
-					setPromoMove(legalMove)
+					dispatch({ type: Action.TOGGLE_DIALOG, payload: true })
+					dispatch({ type: Action.SET_PROMOTION_MOVE, payload: legalMove })
 				}
 				return
 			}
 		}
-		setSelected(index)
 	}
 
 	// pieceType - 0 - knight, 1 - bishop, 2 - rook, 3 - queen.
 	function handlePromotion(pieceType: number) {
-		if (!promoMove) { return }
-		let mt: MoveType
-		// If the move was a capture.
-		if (promoMove.t >= 10) {
-			mt = 10 + pieceType
+		if (!state.promotionMove) return
+
+		let mt = state.promotionMove.t >= 10 ? 10 + pieceType : 6 + pieceType
+		onMove(new LegalMove(state.promotionMove.d, state.promotionMove.s, mt))
+
+		dispatch({ type: Action.SET_SELECTED, payload: null })
+		dispatch({ type: Action.TOGGLE_DIALOG, payload: false })
+	}
+
+	function handleMarkSquare(index: number) {
+		if (state.marked.find(el => el === index)) {
+			dispatch({ type: Action.REMOVE_MARKED, payload: index })
 		} else {
-			mt = 6 + pieceType
+			dispatch({ type: Action.ADD_MARKED, payload: index })
 		}
-		const m = new LegalMove(promoMove.d, promoMove.s, mt)
-		props.onMove(m)
-		setSelected(null)
-		setIsPSWA(false)
 	}
 
 	return (
-		<div className="board">
-			{isPSWA && (
-				<div className="piece-selection-container" onClick={() => setIsPSWA(false)}>
-					<div className={`${parseActiveColor(props.fen)}-knight`}
+		<div className={`board ${side ? "black" : "white"}`}>
+			{state.isDialogActive && (
+				<div className="piece-selection-container" onClick={() => dispatch({
+					type: Action.TOGGLE_DIALOG, payload: false
+				})}>
+					<div className={`${parseActiveColor(fen)}-knight`}
 						onClick={() => handlePromotion(0)}
 					/>
-					<div className={`${parseActiveColor(props.fen)}-bishop`}
+					<div className={`${parseActiveColor(fen)}-bishop`}
 						onClick={() => handlePromotion(1)}
 					/>
-					<div className={`${parseActiveColor(props.fen)}-rook`}
+					<div className={`${parseActiveColor(fen)}-rook`}
 						onClick={() => handlePromotion(2)}
 					/>
-					<div className={`${parseActiveColor(props.fen)}-queen`}
+					<div className={`${parseActiveColor(fen)}-queen`}
 						onClick={() => handlePromotion(3)}
 					/>
 				</div>
 			)}
 
-			{board.map((piece, index) =>
+			{FEN2Board(fen).map((piece, index) =>
 				<div
 					key={index}
 					className={getClassName(index, piece)}
-					onClick={() => handleClickSquare(index)}
-				>
-				</div>
+					// Left click.
+					onClick={() => handleClickSquare(index, piece)}
+					// Right click.
+					onContextMenu={e => {
+						e.preventDefault()
+						handleMarkSquare(index)
+					}}
+				/>
 			)}
 		</div >
 	)

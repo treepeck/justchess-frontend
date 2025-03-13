@@ -15,9 +15,14 @@
 	justify-content: center;
 }
 
+.play-container .board-container.blackL {
+	flex-direction: column-reverse;
+}
+
 .play-container .board-container .row {
 	display: flex;
 	width: 100%;
+	padding: 0 .5rem 0 .5rem;
 }
 
 .play-container .table {

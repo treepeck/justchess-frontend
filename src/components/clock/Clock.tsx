@@ -1,13 +1,15 @@
-import { useEffect } from "react"
 import "./Clock.css"
+import { useEffect } from "react"
+import { Action, IAction } from "../../pages/play/play.reducer"
 
 type ClockProps = {
 	time: number, // In seconds.
-	setTime: React.Dispatch<React.SetStateAction<number>>,
+	color: string,
+	dispatch: React.ActionDispatch<[action: IAction]>
 	isActive: boolean,
 }
 
-export default function Clock({ time, setTime, isActive }: ClockProps) {
+export default function Clock({ time, color, dispatch, isActive }: ClockProps) {
 	function formatTime(): string {
 		const seconds = time % 60
 		const minutes = Math.floor(time / 60)
@@ -18,7 +20,11 @@ export default function Clock({ time, setTime, isActive }: ClockProps) {
 		let interval: number | undefined
 		if (isActive && time > 0) {
 			interval = window.setTimeout(() => {
-				setTime(prevTime => prevTime - 1)
+				if (color == "white") {
+					dispatch({ type: Action.SET_WHITE_TIME, payload: time - 1 })
+				} else {
+					dispatch({ type: Action.SET_BLACK_TIME, payload: time - 1 })
+				}
 			}, 1000)
 		}
 

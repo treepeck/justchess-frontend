@@ -9,6 +9,15 @@
 	border-radius: .5rem;
 }
 
+.board.black {
+	transform: rotate(180deg);
+}
+
+/* Preserve rotating the images. */
+.black>div {
+	transform: rotate(-180deg);
+}
+
 .board-square {
 	width: 12.5%;
 	height: 12.5%;
@@ -95,4 +104,12 @@
 
 .black-king {
 	background-image: url("../../../public/assets/pieces/black/king.png");
+}
+
+.checked {
+	background-color: rgb(255, 0, 0, .3);
+}
+
+.marked {
+	background-color: rgb(0, 255, 0, .3);
 }

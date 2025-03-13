@@ -1,50 +1,42 @@
+// Styling.
 import "./Play.css"
-import Game from "../../game/game"
+
+// Connection with the server.
 import _WebSocket from "../../ws/ws"
-import { fromUCI, LegalMove } from "../../game/move"
-import { useEffect, useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Message, MessageType } from "../../ws/message"
+
+// React stuff.
+import { useEffect, useRef, useReducer } from "react"
+import { reducer, init, Action } from "./play.reducer"
+
+// Hooks.
 import { useTheme } from "../../context/Theme"
+import { useNavigate } from "react-router-dom"
+import { useAuthentication } from "../../context/Authentication"
+
+// Game "logic".
+import { LegalMove } from "../../game/move"
 import { Result, Status } from "../../game/enums"
+
+// Components.
+import Chat from "../../components/chat/Chat"
+import Table from "../../components/table/Table"
+import Clock from "../../components/clock/Clock"
+import Board from "../../components/board/Board"
 import Header from "../../components/header/Header"
 import Dialog from "../../components/dialog/Dialog"
-import Clock from "../../components/clock/Clock"
-import { Message, MessageType } from "../../ws/message"
-import { useAuthentication } from "../../context/Authentication"
 import Button from "../../components/button/Button"
-import Miniprofile from "../../components/miniprofile/Miniprofile"
-import Board from "../../components/board/Board"
-import Table from "../../components/table/Table"
 import Engine from "../../components/engine/Engine"
-import Chat from "../../components/chat/Chat"
-
-type RoomStatus = {
-	status: Status,
-	whiteId: string,
-	blackId: string,
-	clients: number,
-	isVSEngine: boolean
-}
+import Miniprofile from "../../components/miniprofile/Miniprofile"
+import { PieceType } from "../../game/pieceType"
 
 export default function Play() {
 	const { theme } = useTheme()
 	const navigate = useNavigate()
-	const { user, accessToken } = useAuthentication()
 	const engine = useRef<Worker | null>(null)
+	const { user, accessToken } = useAuthentication()
 
-	const [game, setGame] = useState<Game>(new Game())
-	const [whiteTime, setWhiteTime] = useState<number>(0)
-	const [blackTime, setBlackTime] = useState<number>(0)
-	const [result, setResult] = useState<Result>(Result.Unknown)
-	const [socket, setSocket] = useState<_WebSocket | null>(null)
-	const [isDialogActive, setIsDialogActive] = useState<boolean>(false)
-	const [status, setStatus] = useState<RoomStatus>({
-		status: Status.OVER,
-		whiteId: "",
-		blackId: "",
-		clients: 0,
-		isVSEngine: false,
-	})
+	const [state, dispatch] = useReducer(reducer, init)
 
 	useEffect(() => {
 		const id = window.location.href.substring(22)
@@ -56,13 +48,9 @@ export default function Play() {
 			handleMessage(msg as Message)
 		}
 
-		s.socket.onclose = () => {
-			setSocket(null)
-		}
+		s.socket.onopen = () => dispatch({ type: Action.SET_SOCKET, payload: s })
 
-		s.socket.onopen = () => {
-			setSocket(s)
-		}
+		s.socket.onclose = () => dispatch({ type: Action.SET_SOCKET, payload: null })
 
 		return () => s.close()
 	}, [])
@@ -70,83 +58,47 @@ export default function Play() {
 	function handleMessage(msg: Message) {
 		switch (msg.t) {
 			case MessageType.ROOM_STATUS:
-				setStatus({
-					status: msg.d.s,
-					whiteId: msg.d.w,
-					blackId: msg.d.b,
-					clients: msg.d.c,
-					isVSEngine: msg.d.e,
-				})
-				setWhiteTime(msg.d.wt)
-				setBlackTime(msg.d.bt)
+				dispatch({ type: Action.SET_ROOM_STATUS, payload: msg.d })
 				break
 
 			case MessageType.LAST_MOVE:
-				setGame(prevGame => {
-					const newGame = new Game()
-					newGame.currentFEN = msg.d.f
-					newGame.legalMoves = msg.d.l
-					newGame.moves = [...prevGame.moves, msg.d]
-					if ((newGame.moves.length) % 2 == 0) {
-						setBlackTime(msg.d.t)
-					} else {
-						setWhiteTime(msg.d.t)
-					}
-					return newGame
-				})
+				dispatch({ type: Action.SET_GAME, payload: msg.d })
 				break
 
 			case MessageType.GAME_RESULT:
-				setResult(msg.d.r)
-				setIsDialogActive(true)
+				dispatch({ type: Action.SET_RESULT, payload: msg.d.r })
 				break
 		}
 	}
 
 	function formatResult(): string {
-		switch (result) {
-			case Result.Checkmate:
-				return "by checkmate"
-
-			case Result.Timeout:
-				return "by timeout"
-
-			case Result.Stalemate:
-				return "by stalemate"
-
-			case Result.InsufficientMaterial:
-				return "by insufficient material"
-
-			case Result.FiftyMoves:
-				return "by fifty moves rule"
-
-			case Result.Repetition:
-				return "by threefold repetition"
-
-			case Result.Agreement:
-				return "by agreement"
-
-			default:
-				return "by unknown reason"
+		switch (state.result) {
+			case Result.Checkmate: return "by checkmate"
+			case Result.Timeout: return "by timeout"
+			case Result.Stalemate: return "by stalemate"
+			case Result.InsufficientMaterial: return "by insufficient material"
+			case Result.FiftyMoves: return "by fifty moves rule"
+			case Result.Repetition: return "by threefold repetition"
+			case Result.Agreement: return "by agreement"
+			default: return "by unknown reason"
 		}
 	}
 
 	function formatWinner(): string {
-		switch (result) {
+		switch (state.result) {
 			case Result.Checkmate:
-				if (game.moves.length % 2 == 0) {
+				if (state.game.moves.length % 2 == 0) {
 					return "Black won"
 				}
 				return "White won"
 
 			case Result.Timeout:
-				if (game.moves.length % 2 == 0) {
+				if (state.game.moves.length % 2 == 0) {
 					return "Black won"
 				}
 				return "White won"
 
-			default:
-				return "Draw"
+			default: return "Draw"
 		}
 	}
 
@@ -157,11 +109,11 @@ export default function Play() {
 	}[] {
 		const pairs: any = []
 		let cnt = 1
-		for (let i = 0; i < game.moves.length; i += 2) {
+		for (let i = 0; i < state.game.moves.length; i += 2) {
 			pairs.push({
 				index: cnt,
-				white: game.moves[i].s,
-				black: game.moves[i + 1] ? game.moves[i + 1].s : "",
+				white: state.game.moves[i].s,
+				black: state.game.moves[i + 1] ? state.game.moves[i + 1].s : "",
 			})
 			cnt++
 		}
@@ -169,14 +121,24 @@ export default function Play() {
 	}
 
 	function getActiveId(): string {
-		if (status.status == Status.OPEN || status.status == Status.OVER) {
+		if (state.roomStatus.status == Status.OPEN ||
+			state.roomStatus.status == Status.OVER) {
 			return ""
 		}
 
-		if ((game.moves.length + 1) % 2 == 0) {
-			return status.blackId
+		if ((state.game.moves.length + 1) % 2 == 0) {
+			return state.roomStatus.blackId
 		}
-		return status.whiteId
+		return state.roomStatus.whiteId
+	}
+
+	// If both kings are not in check.
+	function getCheckedKing(): number {
+		const lastMove = state.game.moves[state.game.moves.length - 1]
+		if (lastMove?.s.includes("#") || lastMove?.s.includes("+")) {
+			return (state.game.moves.length + 1) % 2 == 0 ? PieceType.BlackKing : PieceType.WhiteKing
+		}
+		return -1
 	}
 
 	return (
@@ -184,32 +146,37 @@ export default function Play() {
 			<Header />
 
 			<div className="play-container">
-				<div className="board-container">
+				<div className={`board-container ${user.id == state.roomStatus.whiteId
+					? "white" : "blackL"}`}>
 					<div className="row">
 						<Miniprofile
-							id={status.isVSEngine ? user.id == status.blackId ? user.id : "Stockfish 16" : status.blackId}
+							id={state.roomStatus.blackId}
 						/>
 						<Clock
-							time={blackTime}
-							setTime={setBlackTime}
-							isActive={status.blackId == getActiveId()}
+							time={state.blackTime}
+							color={"black"}
+							dispatch={dispatch}
+							isActive={state.roomStatus.blackId == getActiveId()}
 						/>
 					</div>
 					<Board
-						fen={game.currentFEN}
-						legalMoves={game.legalMoves}
+						fen={state.game.currentFEN}
+						side={user.id == state.roomStatus.whiteId ? 0 : 1}
+						legalMoves={state.game.legalMoves}
 						onMove={(m: LegalMove) => {
-							socket!.sendMakeMove(m)
+							state.socket!.sendMakeMove(m)
 						}}
+						checked={getCheckedKing()}
 					/>
 					<div className="row">
 						<Miniprofile
-							id={status.isVSEngine ? user.id == status.whiteId ? user.id : "Stockfish 16" : status.whiteId}
+							id={state.roomStatus.whiteId}
 						/>
 						<Clock
-							time={whiteTime}
-							setTime={setWhiteTime}
-							isActive={status.whiteId == getActiveId()}
+							time={state.whiteTime}
+							color={"white"}
+							dispatch={dispatch}
+							isActive={state.roomStatus.whiteId == getActiveId()}
 						/>
 					</div>
 				</div>
@@ -221,16 +188,16 @@ export default function Play() {
 					bodyOnClick={() => { }}
 				/>
 
-				{!status.isVSEngine && (<Chat
-					socket={socket!}
+				{!state.roomStatus.isVSEngine && (<Chat
+					socket={state.socket!}
 				/>)}
 			</div>
 
 			<div className="clients-counter">
-				Players in room: {status.clients}
+				Players in room: {state.roomStatus.clients}
 			</div>
 
-			{status.status == Status.OPEN && (
+			{state.roomStatus.status == Status.OPEN && (
 				<Dialog caption="Waiting for the second player" onClick={() => { }}
 				>
 					<div className="dots">
@@ -241,8 +208,11 @@ export default function Play() {
 				</Dialog>
 			)}
 
-			{isDialogActive && (
-				<Dialog caption="Game over" onClick={() => setIsDialogActive(false)}>
+			{state.isDialogActive && (
+				<Dialog caption="Game over" onClick={() => dispatch({
+					type: Action.TOGGLE_DIALOG,
+					payload: false
+				})}>
 					<>
 						<div className="winner">
 							{formatWinner()}
@@ -259,12 +229,12 @@ export default function Play() {
 			)}
 
 			{/* Spawn engine worker. */}
-			{status.isVSEngine && (
+			{state.roomStatus.isVSEngine && (
 				<Engine
-					socket={socket!}
+					socket={state.socket!}
 					engine={engine}
-					currentFEN={game.currentFEN}
-					legalMoves={game.legalMoves}
+					currentFEN={state.game.currentFEN}
+					legalMoves={state.game.legalMoves}
 					isTurn={getActiveId() != user.id}
 				/>
 			)}

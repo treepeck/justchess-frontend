@@ -4,11 +4,11 @@ type MiniprofileProps = {
 	id: string,
 }
 
-export default function Miniprofile(props: MiniprofileProps) {
+export default function Miniprofile({ id }: MiniprofileProps) {
 
 	return (
 		<div className="miniprofile">
-			{props.id}
+			{id}
 		</div>
 	)
 }
