@@ -1,7 +1,6 @@
 import Game from "../../game/game"
 import _WebSocket from "../../ws/ws"
 import { Result, Status } from "../../game/enums"
-import { CompletedMove } from "../../game/move"
 
 type RoomStatus = {
 	status: Status,
@@ -19,6 +18,7 @@ export enum Action {
 	SET_RESULT,
 	TOGGLE_DIALOG,
 	SET_ROOM_STATUS,
+	ADD_CHAT
 }
 
 type State = {
@@ -29,6 +29,7 @@ type State = {
 	whiteTime: number,
 	blackTime: number,
 	result: Result,
+	chat: string[],
 }
 
 export const init: State = {
@@ -39,6 +40,7 @@ export const init: State = {
 	whiteTime: 0,
 	blackTime: 0,
 	result: Result.Unknown,
+	chat: [],
 }
 
 export interface IAction {
@@ -89,5 +91,8 @@ export function reducer(state: State, action: IAction) {
 				whiteTime: action.payload.wt,
 				blackTime: action.payload.bt
 			}
+
+		case Action.ADD_CHAT:
+			return { ...state, chat: [...state.chat, action.payload] }
 	}
 }

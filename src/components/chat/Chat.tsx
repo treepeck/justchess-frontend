@@ -4,12 +4,12 @@ import { useEffect, useState } from "react"
 
 type ChatProps = {
 	socket: _WebSocket,
+	chat: string[],
 }
 
-export default function Chat({ socket }: ChatProps) {
+export default function Chat({ socket, chat }: ChatProps) {
 	const [msg, setMsg] = useState("")
 	const [isInFocus, setIsInFocus] = useState<boolean>(false)
-	const [messages, setMessages] = useState<string[]>(["hi", "hello", "hi", "hello", "hi", "hello", "hi", "hello"])
 
 	// Listen to keyboard events if the chat input is selected to enable sending 
 	// messages by pressing Enter.
@@ -27,7 +27,7 @@ export default function Chat({ socket }: ChatProps) {
 	}, [isInFocus, msg])
 
 	function handleSendByEnter(e: KeyboardEvent) {
-		if (e.code === "Enter" || e.code === "NumpadEnter") {
+		if (e.code === "Enter" || e.code === "NumpadEnter" && msg.length > 1) {
 			e.preventDefault()
 			socket.sendChat(msg)
 			setMsg("")
@@ -39,7 +39,7 @@ export default function Chat({ socket }: ChatProps) {
 			<p>Chat</p>
 
 			<div className="messages">
-				{messages.map((msg, index) => (
+				{chat.map((msg, index) => (
 					<div className="message" key={index}>
 						{msg}
 					</div>
@@ -55,11 +55,14 @@ export default function Chat({ socket }: ChatProps) {
 					onFocus={() => setIsInFocus(true)}
 					onChange={e => setMsg(e.target.value)}
 					onBlur={() => setIsInFocus(false)}
+					maxLength={200}
 				/>
 				<button
 					onClick={() => {
-						socket.sendChat(msg)
-						setMsg("")
+						if (msg.length > 1) {
+							socket.sendChat(msg)
+							setMsg("")
+						}
 					}}
 				/>
 			</div>

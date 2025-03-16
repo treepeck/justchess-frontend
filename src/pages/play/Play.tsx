@@ -68,6 +68,10 @@ export default function Play() {
 			case MessageType.GAME_RESULT:
 				dispatch({ type: Action.SET_RESULT, payload: msg.d.r })
 				break
+
+			case MessageType.CHAT:
+				dispatch({ type: Action.ADD_CHAT, payload: msg.d })
+				break
 		}
 	}
 
@@ -190,6 +194,7 @@ export default function Play() {
 
 				{!state.roomStatus.isVSEngine && (<Chat
 					socket={state.socket!}
+					chat={state.chat}
 				/>)}
 			</div>
 
