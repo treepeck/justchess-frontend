@@ -60,10 +60,17 @@ export default function Home() {
 				break
 
 			case MessageType.ADD_ROOM:
-				if (msg.d.id == user.id) {
-					navigate(`/${user.id}`)
-					return
+				if (msg.d.cr == user.username) {
+					navigate(`/${msg.d.id}`)
 				}
+
+				for (const id of msg.d.p) {
+					if (id == user.id) {
+						navigate(`/${id}`)
+						return
+					}
+				}
+
 				dispatch({ type: Action.ADD_ROOM, payload: msg.d })
 				break
 
@@ -80,10 +87,16 @@ export default function Home() {
 			<Table
 				caption="Active games"
 				headerCols={["Creator", "Control", "Bonus"]}
-				bodyRows={state.rooms}
+				bodyRows={state.rooms.map((room) => {
+					return {
+						creator: room.cr, control: room.c, bonus: room.b
+					}
+				})}
 				bodyOnClick={(e) => {
-					const id = e.currentTarget.dataset.row
-					navigate(`/${id}`)
+					const index = e.currentTarget.dataset.row!
+					if (state.rooms[parseInt(index)]) {
+						navigate(`/${state.rooms[parseInt(index)].id}`)
+					}
 				}}
 			/>
 

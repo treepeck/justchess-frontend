@@ -1,4 +1,5 @@
 .board {
+	position: relative;
 	width: 100%;
 	aspect-ratio: 1/1;
 	display: flex;
@@ -58,6 +59,83 @@
 	background-color: #b1a7fc;
 }
 
+.checked {
+	background-color: rgb(255, 0, 0, .3);
+}
+
+.marked {
+	background-color: rgb(0, 255, 0, .3);
+}
+
+.files {
+	display: flex;
+	position: absolute;
+	width: 100%;
+	font-size: small;
+	font-weight: bold;
+}
+
+.black .files {
+	flex-direction: row-reverse;
+	top: 0;
+}
+
+.files div {
+	width: 12.5%;
+	padding-left: 10%;
+}
+
+.files div:nth-child(1n) {
+	color: white;
+}
+
+.files div:nth-child(2n) {
+	color: #adb2be;
+}
+
+.black .files div:nth-child(1n) {
+	color: #adb2be;
+}
+
+.black .files div:nth-child(2n) {
+	color: white;
+}
+
+.ranks {
+	padding: 3px;
+	font-size: small;
+	position: absolute;
+	height: 100%;
+	font-weight: bold;
+	display: flex;
+	flex-direction: column;
+}
+
+.black .ranks {
+	flex-direction: column-reverse;
+	right: 0;
+}
+
+.ranks div:nth-child(1n) {
+	color: #adb2be;
+}
+
+.ranks div:nth-child(2n) {
+	color: white;
+}
+
+.black .ranks div:nth-child(1n) {
+	color: white;
+}
+
+.black .ranks div:nth-child(2n) {
+	color: #adb2be;
+}
+
+.ranks div {
+	height: 12.5%;
+}
+
 .white-pawn {
 	background-image: url("../../../public/assets/pieces/white/pawn.png");
 }
@@ -104,12 +182,4 @@
 
 .black-king {
 	background-image: url("../../../public/assets/pieces/black/king.png");
-}
-
-.checked {
-	background-color: rgb(255, 0, 0, .3);
-}
-
-.marked {
-	background-color: rgb(0, 255, 0, .3);
 }

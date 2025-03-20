@@ -1,11 +1,11 @@
 import Game from "../../game/game"
 import _WebSocket from "../../ws/ws"
-import { Result, Status } from "../../game/enums"
+import { Result, Status, Winner } from "../../game/enums"
 
 type RoomStatus = {
 	status: Status,
-	whiteId: string,
-	blackId: string,
+	white: string,
+	black: string,
 	clients: number,
 	isVSEngine: boolean
 }
@@ -29,17 +29,19 @@ type State = {
 	whiteTime: number,
 	blackTime: number,
 	result: Result,
+	winner: Winner,
 	chat: string[],
 }
 
 export const init: State = {
 	socket: null,
 	isDialogActive: false,
-	roomStatus: { status: Status.OVER, whiteId: "", blackId: "", clients: 0, isVSEngine: false },
+	roomStatus: { status: Status.OVER, white: "", black: "", clients: 0, isVSEngine: false },
 	game: new Game(),
 	whiteTime: 0,
 	blackTime: 0,
 	result: Result.Unknown,
+	winner: Winner.None,
 	chat: [],
 }
 
@@ -67,7 +69,12 @@ export function reducer(state: State, action: IAction) {
 			}
 
 		case Action.SET_RESULT:
-			return { ...state, result: action.payload, isDialogActive: true }
+			return {
+				...state,
+				result: action.payload.r,
+				winner: action.payload.w,
+				isDialogActive: true
+			}
 
 		case Action.TOGGLE_DIALOG:
 			return { ...state, isDialogActive: action.payload }
@@ -83,8 +90,8 @@ export function reducer(state: State, action: IAction) {
 				...state,
 				roomStatus: {
 					status: action.payload.s,
-					whiteId: action.payload.w,
-					blackId: action.payload.b,
+					white: action.payload.w,
+					black: action.payload.b,
 					clients: action.payload.c,
 					isVSEngine: action.payload.e
 				},

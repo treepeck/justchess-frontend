@@ -9,5 +9,5 @@
 }
 
 .button:hover {
-	border: 2px solid var(--text);
+	outline: 2px solid var(--text);
 }

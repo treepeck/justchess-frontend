@@ -16,7 +16,7 @@ import { useAuthentication } from "../../context/Authentication"
 
 // Game "logic".
 import { LegalMove } from "../../game/move"
-import { Result, Status } from "../../game/enums"
+import { Result, Status, Winner } from "../../game/enums"
 
 // Components.
 import Chat from "../../components/chat/Chat"
@@ -66,7 +66,7 @@ export default function Play() {
 				break
 
 			case MessageType.GAME_RESULT:
-				dispatch({ type: Action.SET_RESULT, payload: msg.d.r })
+				dispatch({ type: Action.SET_RESULT, payload: msg.d })
 				break
 
 			case MessageType.CHAT:
@@ -83,24 +83,18 @@ export default function Play() {
 			case Result.InsufficientMaterial: return "by insufficient material"
 			case Result.FiftyMoves: return "by fifty moves rule"
 			case Result.Repetition: return "by threefold repetition"
-			case Result.Agreement: return "by agreement"
+			case Result.Resignation: return "by resignation"
 			default: return "by unknown reason"
 		}
 	}
 
 	function formatWinner(): string {
-		switch (state.result) {
-			case Result.Checkmate:
-				if (state.game.moves.length % 2 == 0) {
-					return "Black won"
-				}
+		switch (state.winner) {
+			case Winner.White:
 				return "White won"
 
-			case Result.Timeout:
-				if (state.game.moves.length % 2 == 0) {
-					return "Black won"
-				}
-				return "White won"
+			case Winner.Black:
+				return "Black won"
 
 			default: return "Draw"
 		}
@@ -124,16 +118,16 @@ export default function Play() {
 		return pairs
 	}
 
-	function getActiveId(): string {
+	function getActivePlayerName(): string | undefined {
 		if (state.roomStatus.status == Status.OPEN ||
 			state.roomStatus.status == Status.OVER) {
-			return ""
+			return undefined
 		}
 
 		if ((state.game.moves.length + 1) % 2 == 0) {
-			return state.roomStatus.blackId
+			return state.roomStatus.black
 		}
-		return state.roomStatus.whiteId
+		return state.roomStatus.white
 	}
 
 	// If both kings are not in check.
@@ -150,22 +144,22 @@ export default function Play() {
 			<Header />
 
 			<div className="play-container">
-				<div className={`board-container ${user.id == state.roomStatus.whiteId
+				<div className={`board-container ${user.username == state.roomStatus.white
 					? "white" : "blackL"}`}>
 					<div className="row">
 						<Miniprofile
-							id={state.roomStatus.blackId}
+							id={state.roomStatus.black}
 						/>
 						<Clock
 							time={state.blackTime}
 							color={"black"}
 							dispatch={dispatch}
-							isActive={state.roomStatus.blackId == getActiveId()}
+							isActive={state.roomStatus.black == getActivePlayerName()}
 						/>
 					</div>
 					<Board
 						fen={state.game.currentFEN}
-						side={user.id == state.roomStatus.whiteId ? 0 : 1}
+						side={user.username == state.roomStatus.white ? 0 : 1}
 						legalMoves={state.game.legalMoves}
 						onMove={(m: LegalMove) => {
 							state.socket!.sendMakeMove(m)
@@ -174,23 +168,36 @@ export default function Play() {
 					/>
 					<div className="row">
 						<Miniprofile
-							id={state.roomStatus.whiteId}
+							id={state.roomStatus.white}
 						/>
 						<Clock
 							time={state.whiteTime}
 							color={"white"}
 							dispatch={dispatch}
-							isActive={state.roomStatus.whiteId == getActiveId()}
+							isActive={state.roomStatus.white == getActivePlayerName()}
 						/>
 					</div>
 				</div>
 
-				<Table
-					caption="Completed moves"
-					headerCols={["#", "White", "Black"]}
-					bodyRows={formatFullmovePairs()}
-					bodyOnClick={() => { }}
-				/>
+				<div className="moves-container">
+					<Table
+						caption="Completed moves"
+						headerCols={["#", "White", "Black"]}
+						bodyRows={formatFullmovePairs()}
+						bodyOnClick={() => { }}
+					/>
+
+					{<Button
+						text="Resign"
+						onClick={() => {
+							if (state.roomStatus.status != Status.OVER &&
+								state.roomStatus.status != Status.OPEN
+							) {
+								state.socket?.sendResign()
+							}
+						}}
+					/>}
+				</div>
 
 				{!state.roomStatus.isVSEngine && (<Chat
 					socket={state.socket!}
@@ -240,7 +247,7 @@ export default function Play() {
 					engine={engine}
 					currentFEN={state.game.currentFEN}
 					legalMoves={state.game.legalMoves}
-					isTurn={getActiveId() != user.id}
+					isTurn={getActivePlayerName() != user.username}
 				/>
 			)}
 		</div >

@@ -14,5 +14,11 @@ export enum Result {
 	InsufficientMaterial,
 	FiftyMoves,
 	Repetition,
-	Agreement
+	Resignation
+}
+
+export enum Winner {
+	White,
+	Black,
+	None
 }

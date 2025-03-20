@@ -3,6 +3,7 @@ export enum MessageType {
 	CREATE_ROOM,
 	MAKE_MOVE,
 	CHAT,
+	RESIGN,
 	CLIENTS_COUNTER,
 	ADD_ROOM,
 	REMOVE_ROOM,

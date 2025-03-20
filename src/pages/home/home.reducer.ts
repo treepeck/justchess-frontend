@@ -2,6 +2,8 @@ import _WebSocket from "../../ws/ws"
 
 type Room = {
 	id: string,
+	p: string[], // Connected clients' id.
+	cr: string, // Creator's username.
 	c: number, // Time control.
 	b: number // Time bonus.
 }

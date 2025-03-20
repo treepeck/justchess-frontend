@@ -10,7 +10,7 @@ type AuthenticationCtx = {
 }
 
 const AuthenticationContext = createContext<AuthenticationCtx>({
-	user: new User("", "", 0, 0, 0, 0, 0, new Date(), false, 0, ""),
+	user: new User("", "", new Date(Date.now()), 0, ""),
 	accessToken: "",
 	setUser: (_: User) => { }
 })

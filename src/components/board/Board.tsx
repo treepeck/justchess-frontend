@@ -18,6 +18,9 @@ type BoardProps = {
 	legalMoves: LegalMove[]
 }
 
+const files = ["a", "b", "c", "d", "e", "f", "g", "h"]
+const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"]
+
 export default function Board({ fen, side, onMove, checked, legalMoves }: BoardProps) {
 	const [state, dispatch] = useReducer(reducer, init)
 
@@ -79,7 +82,7 @@ export default function Board({ fen, side, onMove, checked, legalMoves }: BoardP
 	}
 
 	return (
-		<div className={`board ${side ? "black" : "white"}`}>
+		<div className={`board ${side && "black"}`}>
 			{state.isDialogActive && (
 				<div className="piece-selection-container" onClick={() => dispatch({
 					type: Action.TOGGLE_DIALOG, payload: false
@@ -112,6 +115,22 @@ export default function Board({ fen, side, onMove, checked, legalMoves }: BoardP
 					}}
 				/>
 			)}
-		</div >
+
+			<div className="files">
+				{files.map((file, index) => (
+					<div key={index}>
+						{file}
+					</div>
+				))}
+			</div>
+
+			<div className="ranks">
+				{ranks.map((rank, index) => (
+					<div key={index}>
+						{rank}
+					</div>
+				))}
+			</div>
+		</div>
 	)
 }

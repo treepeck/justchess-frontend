@@ -47,6 +47,14 @@ export default class _WebSocket {
 		this.socket.send(msg)
 	}
 
+	sendResign() {
+		const msg = JSON.stringify({
+			t: MessageType.RESIGN,
+			d: null
+		})
+		this.socket.send(msg)
+	}
+
 	close() {
 		this.socket.close()
 	}

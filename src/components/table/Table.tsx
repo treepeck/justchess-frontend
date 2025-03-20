@@ -26,7 +26,7 @@ export default function Table({ caption, headerCols, bodyRows, bodyOnClick }: Ta
 					<div
 						className="row"
 						onClick={bodyOnClick}
-						data-row={row.id}
+						data-row={index}
 						key={index}
 					>
 						{Object.entries(row).map(([key, val]) => (

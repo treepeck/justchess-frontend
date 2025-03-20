@@ -15,6 +15,7 @@
 	justify-content: center;
 }
 
+
 .play-container .board-container.blackL {
 	flex-direction: column-reverse;
 }
@@ -22,13 +23,27 @@
 .play-container .board-container .row {
 	display: flex;
 	width: 100%;
-	padding: 0 .5rem 0 .5rem;
+	padding: .2rem;
 }
 
-.play-container .table {
+.play-container .moves-container {
+	height: 11.5rem;
 	width: 20rem;
-	height: 10rem;
+	display: flex;
+	flex-direction: column;
 	margin: auto auto 1rem auto;
+}
+
+.play-container .moves-container .table {
+	width: 100%;
+	height: calc(100%-4rem);
+	margin: auto auto 1rem auto;
+}
+
+.play-container .moves-container .button {
+	width: 70%;
+	height: 3rem;
+	margin: auto;
 }
 
 .play-container .chat {
@@ -72,13 +87,13 @@
 		height: 40rem;
 	}
 
-	.play-container .table {
-		width: 25rem;
-		height: 10rem;
+	.play-container .moves-container {
+		width: 35rem;
+		height: 11.5rem;
 	}
 
 	.play-container .chat {
-		width: 25rem;
+		width: 35rem;
 		height: 10rem;
 	}
 }
@@ -90,19 +105,21 @@
 	}
 
 	.play-container .board-container {
-		width: 35rem;
-		height: 40rem;
+		width: 25rem;
+		height: 28rem;
 		order: 2;
 	}
 
-	.play-container .table {
-		height: 30rem;
+	.play-container .moves-container {
+		height: 20rem;
+		width: 20rem;
 		margin: auto;
 		order: 3;
 	}
 
 	.play-container .chat {
-		height: 30rem;
+		height: 20rem;
+		width: 20rem;
 		margin: auto;
 		order: 1;
 	}
