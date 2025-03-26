@@ -1,5 +1,5 @@
-import HTTP from "../http/http"
-import User from "../http/user"
+import { refresh } from "../http/http"
+import { User } from "../http/types"
 import { Outlet } from "react-router-dom"
 import { createContext, useContext, useEffect, useState } from "react"
 
@@ -10,7 +10,7 @@ type AuthenticationCtx = {
 }
 
 const AuthenticationContext = createContext<AuthenticationCtx>({
-	user: new User("", "", new Date(Date.now()), 0, ""),
+	user: { id: "", username: "", registeredAt: new Date(Date.now()) },
 	accessToken: "",
 	setUser: (_: User) => { }
 })
@@ -22,28 +22,13 @@ export default function AuthenticationProvider() {
 
 	useEffect(() => {
 		const fetchMe = async function () {
-			const api = new HTTP()
+			// First of all, refresh tokens to gain access to the server resources.
+			const accessToken = await refresh()
+			if (accessToken) {
+				const username = localStorage.getItem("username")
 
-			const r = await api.getUserByRefreshToken()
-			if (r == null) {
-				const g = await api.createGuest()
-				if (g != null) {
-					setUser(g)
-
-					const t = await api.refreshTokens()
-					if (t != null) {
-						setAccessToken(t)
-						setIsReady(true)
-					}
-				}
 			} else {
-				setUser(r)
 
-				const t = await api.refreshTokens()
-				if (t != null) {
-					setAccessToken(t)
-					setIsReady(true)
-				}
 			}
 		}
 		fetchMe()

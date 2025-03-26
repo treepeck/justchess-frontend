@@ -11,12 +11,14 @@
 	--containersBg: #343a46;
 	--background: #23272f;
 	--text: #ffffff;
+	--inputBg: #21252d;
 }
 
 [data-theme="light"] {
 	--containersBg: #f6f7f9;
 	--background: #ffffff;
 	--text: #23272f;
+	--inputBg: #e3e5eb;
 }
 
 body {

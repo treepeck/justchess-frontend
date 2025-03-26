@@ -1,0 +1,35 @@
+main {
+	width: 20rem;
+	height: 30rem;
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 2rem;
+	padding: 1rem;
+	background-color: var(--containersBg);
+}
+
+main section p {
+	padding: 5px;
+	font-size: small;
+}
+
+main .button {
+	margin: auto 0 0 0;
+	height: 2rem;
+	width: 100%;
+}
+
+main .form-footer {
+	text-align: center;
+	font-size: small;
+}
+
+main .form-footer a {
+	color: #2f7ac0;
+}
+
+main .result {
+	color: white;
+	background-color: #244a3b;
+}

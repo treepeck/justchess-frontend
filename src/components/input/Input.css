@@ -1,0 +1,59 @@
+label {
+	width: 100%;
+	display: flex;
+	padding: .25rem;
+	gap: .25rem;
+	border-radius: 5px;
+	background-color: var(--inputBg);
+}
+
+label i {
+	width: 1.5rem;
+	height: 1.5rem;
+	background-size: cover;
+}
+
+label input {
+	width: calc(100% - 3rem);
+	color: var(--text);
+	border: none;
+	background-color: transparent;
+	box-sizing: border-box;
+}
+
+label input.password {
+	width: calc(100% - 4.5rem);
+}
+
+label:hover {
+	outline: 1px solid #7f7f7f;
+}
+
+label input:focus {
+	outline: none;
+}
+
+label .mail {
+	background-image: url("../../../public/assets/mail.png");
+}
+
+label .username {
+	background-image: url("../../../public/assets/user.png");
+}
+
+label .password {
+	background-image: url("../../../public/assets/password.png");
+}
+
+label .check {
+	background-image: url("../../../public/assets/check.png");
+}
+
+label .error {
+	background-image: url("../../../public/assets/error.png");
+}
+
+label .eye {
+	user-select: none;
+	background-image: url("../../../public/assets/eye.png");
+}

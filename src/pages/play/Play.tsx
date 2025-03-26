@@ -11,7 +11,7 @@ import { reducer, init, Action } from "./play.reducer"
 
 // Hooks.
 import { useTheme } from "../../context/Theme"
-import { useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { useAuthentication } from "../../context/Authentication"
 
 // Game "logic".
@@ -32,6 +32,7 @@ import { PieceType } from "../../game/pieceType"
 
 export default function Play() {
 	const { theme } = useTheme()
+	const { roomId } = useParams()
 	const navigate = useNavigate()
 	const engine = useRef<Worker | null>(null)
 	const { user, accessToken } = useAuthentication()
@@ -39,8 +40,7 @@ export default function Play() {
 	const [state, dispatch] = useReducer(reducer, init)
 
 	useEffect(() => {
-		const id = window.location.href.substring(22)
-		const s = new _WebSocket(`/room?id=${id}&`, accessToken)
+		const s = new _WebSocket(`/room?id=${roomId}&`, accessToken)
 
 		// Recieve and store the messages from the server.
 		s.socket.onmessage = (raw) => {

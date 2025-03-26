@@ -1,61 +1,42 @@
-import { CompletedMove, LegalMove } from "../game/move"
-import User from "./user"
+import { Register } from "./types"
 
-export default class HTTP {
-	private serverUrl: string
+const serverUrl = "http://localhost:3502"
 
-	constructor() {
-		this.serverUrl = "http://localhost:3502"
+export async function signUp(r: Register): Promise<boolean> {
+	try {
+		const res = await fetch(`${serverUrl}/auth/signup`, {
+			method: "POST",
+			body: JSON.stringify(r)
+		})
+		return res.ok
+	} catch {
+		return false
 	}
+}
 
-	// Registers a new guest.
-	async createGuest(): Promise<User | null> {
-		try {
-			const r = await fetch(`${this.serverUrl}/auth/`, {
-				method: "PUT",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
-			if (!r.ok) { return null }
+export async function sendVerify(id: string): Promise<string | null> {
+	try {
+		const res = await fetch(`${serverUrl}/auth/verify?id=${id}`, {
+			method: "GET"
+		})
+		if (!res.ok) return null
 
-			return await r.json()
-		} catch {
-			return null
-		}
+		return await res.text()
+	} catch {
+		return null
 	}
+}
 
-	// Fetches the user info by refresh token provided in a request cookie.
-	async getUserByRefreshToken(): Promise<User | null> {
-		try {
-			const r = await fetch(`${this.serverUrl}/auth/`, {
-				method: "GET",
-				credentials: "include",
-			})
+export async function refresh(): Promise<string | null> {
+	try {
+		const res = await fetch(`${serverUrl}/auth/`, {
+			method: "GET",
+			credentials: "include",
+		})
+		if (!res.ok) { return null }
 
-			if (!r.ok) { return null }
-
-			return await r.json()
-		} catch {
-			return null
-		}
-	}
-
-	// Tries to update refresh and access tokens.
-	// It only will succeed if the refresh token is valid and
-	// is stored in a http-only cookie.
-	async refreshTokens(): Promise<string | null> {
-		try {
-			const r = await fetch(`${this.serverUrl}/auth/tokens`, {
-				method: "GET",
-				credentials: "include",
-			})
-			if (!r.ok) { return null }
-
-			return await r.text()
-		} catch {
-			return null
-		}
+		return await res.text()
+	} catch {
+		return null
 	}
 }

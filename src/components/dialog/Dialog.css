@@ -8,6 +8,8 @@
 }
 
 .dialog-container .dialog {
+	min-width: 20rem;
+	min-height: 30rem;
 	display: flex;
 	flex-direction: column;
 	color: var(--text);
@@ -18,7 +20,7 @@
 }
 
 .dialog-container .dialog p {
-	margin: 1rem auto 0 auto;
+	margin: auto;
 	font-size: xx-large;
 	font-weight: bold;
 }
