@@ -4,8 +4,8 @@
 	border: none;
 	color: white;
 	cursor: pointer;
-	font-size: small;
-	font-weight: 300;
+	font-size: large;
+	font-weight: 500;
 }
 
 .button:hover {

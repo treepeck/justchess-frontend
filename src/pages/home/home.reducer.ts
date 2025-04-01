@@ -17,16 +17,18 @@ export enum Action {
 	SET_TIME_BONUS,
 	SET_TIME_CONTROL,
 	SET_CLIENTS_COUNTER,
+	SET_ERROR_MSG,
 }
 
 type State = {
-	socket: _WebSocket | null,
-	isDialogActive: boolean,
-	rooms: Room[],
-	opponent: string,
-	timeBonus: number,
-	timeControl: number,
+	socket: _WebSocket | null
+	isDialogActive: boolean
+	rooms: Room[]
+	opponent: string
+	timeBonus: number
+	timeControl: number
 	clientsCounter: number
+	errorMsg: string
 }
 
 export const init: State = {
@@ -37,46 +39,40 @@ export const init: State = {
 	timeBonus: 10,
 	timeControl: 10,
 	clientsCounter: 0,
+	errorMsg: "",
 }
 
-interface IAction {
+type _Action = {
 	type: Action,
 	payload: any,
 }
 
-export function reducer(state: State, action: IAction) {
-	switch (action.type) {
-		case Action.SET_SOCKET:
-			return { ...state, socket: action.payload }
+export function reducer(s: State, a: _Action) {
+	switch (a.type) {
+		case Action.SET_SOCKET: return { ...s, socket: a.payload }
 
-		case Action.TOGGLE_DIALOG:
-			return { ...state, isDialogActive: action.payload }
+		case Action.TOGGLE_DIALOG: return { ...s, isDialogActive: a.payload }
 
 		case Action.ADD_ROOM:
 			return {
-				...state,
+				...s,
 				// Do not add duplicates.
-				rooms: state.rooms.some(room => room.id === action.payload.id)
-					? state.rooms
-					: [...state.rooms, action.payload]
+				rooms: s.rooms.some(room => room.id === a.payload.id)
+					? s.rooms
+					: [...s.rooms, a.payload]
 			}
 
 		case Action.REMOVE_ROOM:
-			return {
-				...state,
-				rooms: state.rooms.filter(room => room.id !== action.payload)
-			}
+			return { ...s, rooms: s.rooms.filter(room => room.id !== a.payload) }
 
-		case Action.SET_OPPONENT:
-			return { ...state, opponent: action.payload }
+		case Action.SET_OPPONENT: return { ...s, opponent: a.payload }
 
-		case Action.SET_TIME_CONTROL:
-			return { ...state, timeControl: action.payload }
+		case Action.SET_TIME_CONTROL: return { ...s, timeControl: a.payload }
 
-		case Action.SET_TIME_BONUS:
-			return { ...state, timeBonus: action.payload }
+		case Action.SET_TIME_BONUS: return { ...s, timeBonus: a.payload }
 
-		case Action.SET_CLIENTS_COUNTER:
-			return { ...state, clientsCounter: action.payload }
+		case Action.SET_CLIENTS_COUNTER: return { ...s, clientsCounter: a.payload }
+
+		case Action.SET_ERROR_MSG: return { ...s, errorMsg: a.payload }
 	}
 }

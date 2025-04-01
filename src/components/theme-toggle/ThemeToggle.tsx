@@ -2,7 +2,7 @@ import "./ThemeToggle.css"
 import { useTheme } from "../../context/Theme"
 
 export default function ThemeToggle() {
-	const { theme, setTheme } = useTheme()
+	const { theme, setTheme } = useTheme()!
 
 	return (
 		<button

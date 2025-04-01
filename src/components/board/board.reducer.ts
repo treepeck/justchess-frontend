@@ -23,29 +23,29 @@ export const init: State = {
 	promotionMove: null,
 }
 
-export interface IAction {
+type _Action = {
 	type: Action,
 	payload: any
 }
 
-export function reducer(state: State, action: IAction) {
-	switch (action.type) {
+export function reducer(s: State, a: _Action) {
+	switch (a.type) {
 		case Action.SET_SELECTED:
-			return { ...state, selected: action.payload }
+			return { ...s, selected: a.payload }
 
 		case Action.ADD_MARKED:
-			return { ...state, marked: [...state.marked, action.payload] }
+			return { ...s, marked: [...s.marked, a.payload] }
 
 		case Action.REMOVE_MARKED:
-			return { ...state, marked: state.marked.filter(el => el !== action.payload) }
+			return { ...s, marked: s.marked.filter(el => el !== a.payload) }
 
 		case Action.CLEAR_MARKED:
-			return { ...state, marked: [] }
+			return { ...s, marked: [] }
 
 		case Action.TOGGLE_DIALOG:
-			return { ...state, isDialogActive: action.payload }
+			return { ...s, isDialogActive: a.payload }
 
 		case Action.SET_PROMOTION_MOVE:
-			return { ...state, promotionMove: action.payload }
+			return { ...s, promotionMove: a.payload }
 	}
 }

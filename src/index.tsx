@@ -1,41 +1,53 @@
 import "./index.css"
+
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 
 import {
+	Navigate,
 	Route,
-	RouteObject,
-	RouterProvider,
-	createBrowserRouter,
-	createRoutesFromElements,
+	Routes,
+	BrowserRouter,
 } from "react-router-dom"
 
 import Home from "./pages/home/Home"
-import Play from "./pages/play/Play"
+import AuthProvider from "./context/Auth"
+import Signup from "./pages/signup/Signup"
+import Signin from "./pages/signin/Signin"
 import ThemeProvider from "./context/Theme"
-import Register from "./pages/register/Regiter"
-import EngineConfProvider from "./context/EngineConf"
+import NotFound from "./pages/not-found/NotFound"
 import MailVerify from "./pages/mail-verify/MailVerify"
-import AuthenticationProvider from "./context/Authentication"
-
-const routes: RouteObject[] = createRoutesFromElements(
-	<Route element={<ThemeProvider />}>
-		<Route element={<Register />} path="/register" />
-		<Route element={<MailVerify />} path="/auth/verify/:userId" />
-		<Route element={<AuthenticationProvider />}>
-			<Route element={<EngineConfProvider />}>
-				<Route element={<Home />} path="/" />
-				<Route element={<Play />} path="/:roomId" />
-			</Route>
-		</Route>
-	</Route>
-)
-
-const router = createBrowserRouter(routes)
+import Play from "./pages/play/Play"
+import EngineConfProvider from "./context/EngineConf"
+import PasswordReset from "./pages/password-reset/PasswordReset"
 
 const root = ReactDOM.createRoot(document.getElementById("root")!)
 root.render(
 	<StrictMode>
-		<RouterProvider router={router} />
+		<BrowserRouter>
+			<Routes>
+				<Route element={<ThemeProvider />}>
+					<Route element={<AuthProvider />}>
+						<Route element={<EngineConfProvider />}>
+							<Route path="/" element={<Home />} />
+
+							<Route path="/:roomId" element={<Play />} />
+						</Route>
+
+						<Route path="/signup" element={<Signup />} />
+
+						<Route path="/signin" element={<Signin />} />
+
+						<Route path="/verify" element={<MailVerify />} />
+
+						<Route path="/404" element={<NotFound />} />
+
+						<Route path="/reset" element={<PasswordReset />} />
+
+						<Route path="*" element={<Navigate to="/404" />} />
+					</Route>
+				</Route>
+			</Routes>
+		</BrowserRouter>
 	</StrictMode>
 )

@@ -1,0 +1,39 @@
+form {
+	width: 20rem;
+	max-height: 35rem;
+	display: flex;
+	border-radius: .75rem;
+	flex-direction: column;
+	margin: auto;
+	gap: 2rem;
+	padding: 1rem;
+	background-color: var(--containersBg);
+}
+
+form section p {
+	margin: 5px;
+	font-size: small;
+}
+
+form .button {
+	height: 2rem;
+	width: 100%;
+	margin: auto 0 0 0;
+}
+
+form footer {
+	font-size: small;
+	text-align: center;
+}
+
+form .dialog-container .dialog {
+	min-width: 20rem;
+	min-height: 30rem;
+}
+
+form footer button {
+	color: #2f7ac0;
+	border: none;
+	cursor: pointer;
+	background-color: transparent;
+}

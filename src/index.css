@@ -30,7 +30,8 @@ body {
 	margin: auto auto 1rem 1rem;
 }
 
-.main-container {
+/* Main container. */
+main {
 	width: 100%;
 	min-height: 100vh;
 	display: flex;
@@ -40,10 +41,6 @@ body {
 }
 
 a {
-	color: var(--text);
-	text-decoration: none;
-}
-
-a:hover {
 	color: #2f7ac0;
+	text-decoration: none;
 }

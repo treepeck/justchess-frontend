@@ -1,59 +1,57 @@
-label {
+form label {
 	width: 100%;
 	display: flex;
 	padding: .25rem;
 	gap: .25rem;
-	border-radius: 5px;
+	border-radius: 10px;
 	background-color: var(--inputBg);
 }
 
-label i {
+form label i {
 	width: 1.5rem;
 	height: 1.5rem;
 	background-size: cover;
+	user-select: none;
 }
 
-label input {
-	width: calc(100% - 3rem);
+form label input {
+	width: calc(100% - 4.5rem);
+	margin-right: auto;
 	color: var(--text);
 	border: none;
 	background-color: transparent;
 	box-sizing: border-box;
 }
 
-label input.password {
-	width: calc(100% - 4.5rem);
-}
-
-label:hover {
+form label:hover {
 	outline: 1px solid #7f7f7f;
 }
 
-label input:focus {
+form label input:focus {
 	outline: none;
 }
 
-label .mail {
+form label .email {
 	background-image: url("../../../public/assets/mail.png");
 }
 
-label .username {
+form label .username {
 	background-image: url("../../../public/assets/user.png");
 }
 
-label .password {
+form label .password {
 	background-image: url("../../../public/assets/password.png");
 }
 
-label .check {
+form label .check {
 	background-image: url("../../../public/assets/check.png");
 }
 
-label .error {
+form label .error {
 	background-image: url("../../../public/assets/error.png");
 }
 
-label .eye {
+form label .eye {
 	user-select: none;
 	background-image: url("../../../public/assets/eye.png");
 }

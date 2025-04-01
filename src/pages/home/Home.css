@@ -7,7 +7,7 @@
 .button {
 	width: 10rem;
 	margin: 0 auto auto auto;
-	height: 1rem;
+	text-align: center;
 }
 
 .dialog-container .dialog .slider-container {

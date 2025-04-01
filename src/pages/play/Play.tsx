@@ -10,9 +10,9 @@ import { useEffect, useRef, useReducer } from "react"
 import { reducer, init, Action } from "./play.reducer"
 
 // Hooks.
+import { useAuth } from "../../context/Auth"
 import { useTheme } from "../../context/Theme"
 import { useParams, useNavigate } from "react-router-dom"
-import { useAuthentication } from "../../context/Authentication"
 
 // Game "logic".
 import { LegalMove } from "../../game/move"
@@ -31,11 +31,11 @@ import Miniprofile from "../../components/miniprofile/Miniprofile"
 import { PieceType } from "../../game/pieceType"
 
 export default function Play() {
-	const { theme } = useTheme()
+	const { theme } = useTheme()!
 	const { roomId } = useParams()
 	const navigate = useNavigate()
+	const { user, accessToken } = useAuth()!
 	const engine = useRef<Worker | null>(null)
-	const { user, accessToken } = useAuthentication()
 
 	const [state, dispatch] = useReducer(reducer, init)
 
@@ -140,7 +140,7 @@ export default function Play() {
 	}
 
 	return (
-		<div className="main-container" data-theme={theme}>
+		<main data-theme={theme}>
 			<Header />
 
 			<div className="play-container">
@@ -250,6 +250,6 @@ export default function Play() {
 					isTurn={getActivePlayerName() != user.username}
 				/>
 			)}
-		</div >
+		</main>
 	)
 }

@@ -1,38 +1,33 @@
 import {
 	useState,
+	useEffect,
 	useContext,
 	createContext,
-	useEffect,
 } from "react"
 import { Outlet } from "react-router-dom"
 
 type ThemeCtx = {
-	theme: string,
-	setTheme: (_: string) => void,
+	theme: string
+	setTheme: React.Dispatch<React.SetStateAction<string>>
 }
 
-const ThemeContext = createContext<ThemeCtx>({ theme: "dark", setTheme: () => { } })
+const ThemeContext = createContext<ThemeCtx | null>(null)
 
 export default function ThemeProvider() {
-	const [_theme, _setTheme] = useState<string>("dark")
+	const [theme, setTheme] = useState<string>("dark")
 
 	useEffect(() => {
 		const themeFromLocal = localStorage.getItem("theme")
-		if (!themeFromLocal) {
-			const preference = window.matchMedia("(prefers-color-scheme: dark)").matches
-			localStorage.setItem("theme", preference ? "dark" : "light")
-		}
-		_setTheme(localStorage.getItem("theme") === "light" ? "light" : "dark")
+
+		// Set dark by default.
+		if (!themeFromLocal) localStorage.setItem("theme", "dark")
+
+		setTheme(localStorage.getItem("theme") === "light" ? "light" : "dark")
 	}, [])
 
-	return (
-		<ThemeContext.Provider value={{
-			theme: _theme,
-			setTheme: _setTheme,
-		}}>
-			<Outlet />
-		</ThemeContext.Provider>
-	)
+	return <ThemeContext.Provider value={{ theme, setTheme }}>
+		{<Outlet />}
+	</ThemeContext.Provider>
 }
 
-export function useTheme() { return useContext(ThemeContext) }
+export function useTheme() { return useContext(ThemeContext) } 

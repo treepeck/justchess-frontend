@@ -30,7 +30,7 @@ export default function EngineConfProvider() {
 			difficulty: _difficulty, setThreads: _setThreads,
 			setHashSize: _setHashSize, setDifficulty: _setDifficulty
 		}}>
-			<Outlet />
+			{<Outlet />}
 		</EngineConfContext.Provider>
 	)
 }

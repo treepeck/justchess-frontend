@@ -1,8 +1,9 @@
-import { useState } from "react"
 import "./Input.css"
+import { useState } from "react"
 
 type InputProps = {
 	type: string,
+	hasIcon: boolean,
 	isValid: boolean,
 	minLength: number,
 	maxLength: number,
@@ -11,7 +12,7 @@ type InputProps = {
 }
 
 export default function Input({ type, isValid, minLength, maxLength,
-	placeholder, onChange }: InputProps) {
+	placeholder, onChange, hasIcon, }: InputProps) {
 
 	const [_type, setType] = useState<string>(type)
 
@@ -26,7 +27,7 @@ export default function Input({ type, isValid, minLength, maxLength,
 			{type == "password" && (<i className="eye" onClick={() =>
 				setType(_type === "password" ? "text" : "password")
 			} />)}
-			<i className={isValid ? "check" : "error"} />
+			{hasIcon && <i className={isValid ? "check" : "error"} />}
 		</label>
 	)
 }

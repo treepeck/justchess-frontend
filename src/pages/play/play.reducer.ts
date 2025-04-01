@@ -45,61 +45,61 @@ export const init: State = {
 	chat: [],
 }
 
-export interface IAction {
+type _Action = {
 	type: Action,
 	payload: any
 }
 
-export function reducer(state: State, action: IAction) {
-	switch (action.type) {
+export function reducer(s: State, a: _Action) {
+	switch (a.type) {
 		case Action.SET_SOCKET:
-			return { ...state, socket: action.payload }
+			return { ...s, socket: a.payload }
 
 		case Action.SET_GAME:
-			const isWhiteMove = (state.game.moves.length + 1) % 2 !== 0
+			const isWhiteMove = (s.game.moves.length + 1) % 2 !== 0
 			return {
-				...state,
+				...s,
 				game: {
-					moves: [...state.game.moves, action.payload],
-					currentFEN: action.payload.f,
-					legalMoves: action.payload.l
+					moves: [...s.game.moves, a.payload],
+					currentFEN: a.payload.f,
+					legalMoves: a.payload.l
 				},
-				whiteTime: isWhiteMove ? action.payload.t : state.whiteTime,
-				blackTime: !isWhiteMove ? action.payload.t : state.blackTime,
+				whiteTime: isWhiteMove ? a.payload.t : s.whiteTime,
+				blackTime: !isWhiteMove ? a.payload.t : s.blackTime,
 			}
 
 		case Action.SET_RESULT:
 			return {
-				...state,
-				result: action.payload.r,
-				winner: action.payload.w,
+				...s,
+				result: a.payload.r,
+				winner: a.payload.w,
 				isDialogActive: true
 			}
 
 		case Action.TOGGLE_DIALOG:
-			return { ...state, isDialogActive: action.payload }
+			return { ...s, isDialogActive: a.payload }
 
 		case Action.SET_WHITE_TIME:
-			return { ...state, whiteTime: action.payload }
+			return { ...s, whiteTime: a.payload }
 
 		case Action.SET_BLACK_TIME:
-			return { ...state, blackTime: action.payload }
+			return { ...s, blackTime: a.payload }
 
 		case Action.SET_ROOM_STATUS:
 			return {
-				...state,
+				...s,
 				roomStatus: {
-					status: action.payload.s,
-					white: action.payload.w,
-					black: action.payload.b,
-					clients: action.payload.c,
-					isVSEngine: action.payload.e
+					status: a.payload.s,
+					white: a.payload.w,
+					black: a.payload.b,
+					clients: a.payload.c,
+					isVSEngine: a.payload.e
 				},
-				whiteTime: action.payload.wt,
-				blackTime: action.payload.bt
+				whiteTime: a.payload.wt,
+				blackTime: a.payload.bt
 			}
 
 		case Action.ADD_CHAT:
-			return { ...state, chat: [...state.chat, action.payload] }
+			return { ...s, chat: [...s.chat, a.payload] }
 	}
 }

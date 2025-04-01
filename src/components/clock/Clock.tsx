@@ -1,11 +1,11 @@
 import "./Clock.css"
 import { useEffect } from "react"
-import { Action, IAction } from "../../pages/play/play.reducer"
+import { Action } from "../../pages/play/play.reducer"
 
 type ClockProps = {
 	time: number, // In seconds.
 	color: string,
-	dispatch: React.ActionDispatch<[action: IAction]>
+	dispatch: React.ActionDispatch<[action: any]>
 	isActive: boolean,
 }
 
