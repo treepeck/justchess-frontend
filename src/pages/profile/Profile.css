@@ -1,0 +1,58 @@
+main .profile {
+	margin: 1rem auto 1rem auto;
+	display: flex;
+	flex-direction: row;
+	background-color: var(--containersBg);
+	padding: 1rem;
+	text-align: center;
+	align-items: center;
+}
+
+main.profile-container .table {
+	margin: 1rem auto auto auto;
+}
+
+main .profile .item {
+	margin: auto;
+}
+
+main .profile .commend {
+	background-image: url("../../../public/assets/commend.png");
+	background-size: cover;
+	border-radius: 50%;
+	border: none;
+	width: 2rem;
+	height: 2rem;
+	background-color: transparent;
+	cursor: pointer;
+	margin-left: auto;
+	position: relative;
+}
+
+main .profile .commend:hover::after {
+	content: attr(data-tooltip);
+	color: var(--text);
+	position: absolute;
+	bottom: -15px;
+	left: -15px;
+}
+
+@media (min-width: 640px) {
+	main .profile {
+		width: 40rem;
+	}
+
+	main.profile-container .table {
+		width: 40rem;
+	}
+}
+
+@media (min-width: 1024px) {
+	main .profile {
+		width: 50rem;
+	}
+
+	main.profile-container .table {
+		width: 50rem;
+	}
+}

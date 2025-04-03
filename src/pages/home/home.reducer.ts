@@ -63,7 +63,7 @@ export function reducer(s: State, a: _Action) {
 			}
 
 		case Action.REMOVE_ROOM:
-			return { ...s, rooms: s.rooms.filter(room => room.id !== a.payload) }
+			return { ...s, rooms: s.rooms.filter(room => room.id !== a.payload.id) }
 
 		case Action.SET_OPPONENT: return { ...s, opponent: a.payload }
 

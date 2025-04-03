@@ -27,7 +27,7 @@ export default function Signup() {
 					})
 				} else {
 					dispatch({
-						type: Action.SET_RESULT_MSG, payload: "The user cannot be registered. Username and email must be unique."
+						type: Action.SET_RESULT_MSG, payload: "The player cannot be registered. Username and email must be unique."
 					})
 				}
 

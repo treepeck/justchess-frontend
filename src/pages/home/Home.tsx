@@ -27,7 +27,7 @@ import { Role } from "../../http/http"
 export default function Home() {
 	// Custom hooks.
 	const { theme } = useTheme()!
-	const { user, accessToken } = useAuth()!
+	const { player, accessToken } = useAuth()!
 	const { threads, hashSize, difficulty, setThreads, setHashSize, setDifficulty } = useEngineConf()
 
 	// React-router hook.
@@ -61,15 +61,8 @@ export default function Home() {
 				break
 
 			case MessageType.ADD_ROOM:
-				if (msg.d.cr == user.username) {
+				if (msg.d.cr == player.username) {
 					navigate(`/${msg.d.id}`)
-				}
-
-				for (const id of msg.d.p) {
-					if (id == user.id) {
-						navigate(`/${id}`)
-						return
-					}
 				}
 
 				dispatch({ type: Action.ADD_ROOM, payload: msg.d })
@@ -84,9 +77,9 @@ export default function Home() {
 	function handleCreateGame() {
 		console.log("I am here")
 		const isVsEngine = state.opponent == "Computer"
-		console.log(isVsEngine, user)
-		if (!isVsEngine && user.role == Role.Guest) {
-			dispatch({ type: Action.SET_ERROR_MSG, payload: "Sign in to play against other players" })
+		console.log(isVsEngine, player)
+		if (!isVsEngine && player.role == Role.Guest) {
+			dispatch({ type: Action.SET_ERROR_MSG, payload: "Sign up to play against other users" })
 			return
 		}
 
@@ -106,6 +99,11 @@ export default function Home() {
 					}
 				})}
 				bodyOnClick={(e) => {
+					if (player.role == Role.Guest) {
+						dispatch({ type: Action.SET_ERROR_MSG, payload: "Sign up to play against other users" })
+						return
+					}
+
 					const index = e.currentTarget.dataset.row!
 					if (state.rooms[parseInt(index)]) {
 						navigate(`/${state.rooms[parseInt(index)].id}`)

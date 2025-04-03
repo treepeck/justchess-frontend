@@ -11,13 +11,14 @@ import {
 } from "react-router-dom"
 
 import Home from "./pages/home/Home"
+import Play from "./pages/play/Play"
 import AuthProvider from "./context/Auth"
 import Signup from "./pages/signup/Signup"
 import Signin from "./pages/signin/Signin"
 import ThemeProvider from "./context/Theme"
+import Profile from "./pages/profile/Profile"
 import NotFound from "./pages/not-found/NotFound"
 import MailVerify from "./pages/mail-verify/MailVerify"
-import Play from "./pages/play/Play"
 import EngineConfProvider from "./context/EngineConf"
 import PasswordReset from "./pages/password-reset/PasswordReset"
 
@@ -33,6 +34,8 @@ root.render(
 
 							<Route path="/:roomId" element={<Play />} />
 						</Route>
+
+						<Route path="/player/:name" element={<Profile />} />
 
 						<Route path="/signup" element={<Signup />} />
 

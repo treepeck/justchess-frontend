@@ -52,6 +52,14 @@
 	margin: auto auto 1rem auto;
 }
 
+.dialog-container .dialog p.winner {
+	font-size: large;
+}
+
+.dialog-container .dialog p.result {
+	font-size: medium;
+}
+
 .dots {
 	display: flex;
 	flex-direction: row;

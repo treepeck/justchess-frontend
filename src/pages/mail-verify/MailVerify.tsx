@@ -20,7 +20,7 @@ export default function MailVerify() {
 			const res = await sendVerify(action, token)
 			if (res) {
 				setAccessToken(res.accessToken)
-				setUser({ ...res.user, role: res.role })
+				setUser({ ...res.player, role: res.role })
 				navigate("/")
 			}
 		}

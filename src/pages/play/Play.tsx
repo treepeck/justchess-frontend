@@ -1,24 +1,18 @@
-// Styling.
 import "./Play.css"
 
-// Connection with the server.
 import _WebSocket from "../../ws/ws"
 import { Message, MessageType } from "../../ws/message"
 
-// React stuff.
 import { useEffect, useRef, useReducer } from "react"
 import { reducer, init, Action } from "./play.reducer"
 
-// Hooks.
 import { useAuth } from "../../context/Auth"
 import { useTheme } from "../../context/Theme"
 import { useParams, useNavigate } from "react-router-dom"
 
-// Game "logic".
 import { LegalMove } from "../../game/move"
 import { Result, Status, Winner } from "../../game/enums"
 
-// Components.
 import Chat from "../../components/chat/Chat"
 import Table from "../../components/table/Table"
 import Clock from "../../components/clock/Clock"
@@ -34,7 +28,7 @@ export default function Play() {
 	const { theme } = useTheme()!
 	const { roomId } = useParams()
 	const navigate = useNavigate()
-	const { user, accessToken } = useAuth()!
+	const { player, accessToken } = useAuth()!
 	const engine = useRef<Worker | null>(null)
 
 	const [state, dispatch] = useReducer(reducer, init)
@@ -144,11 +138,11 @@ export default function Play() {
 			<Header />
 
 			<div className="play-container">
-				<div className={`board-container ${user.username == state.roomStatus.white
+				<div className={`board-container ${player.username == state.roomStatus.white
 					? "white" : "blackL"}`}>
 					<div className="row">
 						<Miniprofile
-							id={state.roomStatus.black}
+							username={state.roomStatus.black}
 						/>
 						<Clock
 							time={state.blackTime}
@@ -159,7 +153,7 @@ export default function Play() {
 					</div>
 					<Board
 						fen={state.game.currentFEN}
-						side={user.username == state.roomStatus.white ? 0 : 1}
+						side={player.username == state.roomStatus.white ? 0 : 1}
 						legalMoves={state.game.legalMoves}
 						onMove={(m: LegalMove) => {
 							state.socket!.sendMakeMove(m)
@@ -168,7 +162,7 @@ export default function Play() {
 					/>
 					<div className="row">
 						<Miniprofile
-							id={state.roomStatus.white}
+							username={state.roomStatus.white}
 						/>
 						<Clock
 							time={state.whiteTime}
@@ -226,12 +220,12 @@ export default function Play() {
 					payload: false
 				})}>
 					<>
-						<div className="winner">
+						<p className="winner">
 							{formatWinner()}
-						</div>
-						<div className="result">
+						</p>
+						<p className="result">
 							{formatResult()}
-						</div>
+						</p>
 						<Button
 							text="Home page"
 							onClick={() => navigate("/")}
@@ -247,7 +241,7 @@ export default function Play() {
 					engine={engine}
 					currentFEN={state.game.currentFEN}
 					legalMoves={state.game.legalMoves}
-					isTurn={getActivePlayerName() != user.username}
+					isTurn={getActivePlayerName() != player.username}
 				/>
 			)}
 		</main>

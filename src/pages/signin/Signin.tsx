@@ -19,7 +19,7 @@ export default function Signin() {
 		signIn(state.login, state.password)
 			.then(res => {
 				if (res) {
-					setUser(res.user)
+					setUser(res.player)
 					setAccessToken(res.accessToken)
 					navigate("/")
 				} else {

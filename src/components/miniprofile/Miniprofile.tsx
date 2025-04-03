@@ -1,4 +1,5 @@
 import "./Miniprofile.css"
+import { useEffect } from "react"
 
 type MiniprofileProps = {
 	id: string,
@@ -6,9 +7,13 @@ type MiniprofileProps = {
 
 export default function Miniprofile({ id }: MiniprofileProps) {
 
+	useEffect(() => {
+
+	}, [])
+
 	return (
-		<div className="miniprofile">
+		<a className="miniprofile" href={`http://localhost:3000/player/${id}`}>
 			{id}
-		</div>
+		</a>
 	)
 }
