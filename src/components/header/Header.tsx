@@ -8,14 +8,11 @@ export default function Header() {
 
 	return (
 		<header>
-			<i>
-				<a href="http://localhost:3000/">JustChess.org</a>
-			</i>
+			<a href="http://localhost:3000/">JustChess.org</a>
 
 			{player.role == Role.Guest ? <a href="http://localhost:3000/signup">SIGN UP</a>
-				: <a href={`http://localhost:3000/player/${player.username}`}>{player.username}
+				: <a href={`http://localhost:3000/player/${player.id}`}>{player.username}
 				</a>}
-
 			<ThemeToggle />
 		</header>
 	)

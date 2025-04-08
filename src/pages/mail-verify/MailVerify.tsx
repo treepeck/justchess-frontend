@@ -1,37 +1,27 @@
 import { useEffect } from "react"
 import { useAuth } from "../../context/Auth"
 import { sendVerify } from "../../http/http"
-import { useTheme } from "../../context/Theme"
-import { useNavigate, useSearchParams } from "react-router-dom"
+
+const action = window.location.search.substring(8, window.location.search.lastIndexOf("&"))
+const token = window.location.search.substring(window.location.search.lastIndexOf("=") + 1)
 
 export default function MailVerify() {
-	const { theme } = useTheme()!
-	const navigate = useNavigate()
-	const [params, _] = useSearchParams()
+
 	const { setUser, setAccessToken } = useAuth()!
 
 	useEffect(() => {
 		const verify = async function () {
-			const action = params.get("action")
-			const token = params.get("token")
-
-			if (!action || !token) { return }
+			if (!action || !token) { window.location.replace("/404"); return }
 
 			const res = await sendVerify(action, token)
 			if (res) {
 				setAccessToken(res.accessToken)
 				setUser({ ...res.player, role: res.role })
-				navigate("/")
+				window.location.replace("/")
 			}
 		}
 		verify()
 	}, [])
 
-	return <main data-theme={theme}>
-		<h1>
-			The requested token wasn't found.
-			<br />
-			<a href="http://localhost:3000/signin">Sign in</a>
-		</h1>
-	</main>
+	return <div></div>
 }

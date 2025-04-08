@@ -3,7 +3,6 @@ import {
 	useContext,
 	createContext,
 } from "react"
-import { Outlet } from "react-router-dom"
 
 type EngineConfCtx = {
 	threads: number,
@@ -19,7 +18,7 @@ const EngineConfContext = createContext<EngineConfCtx>({
 	setThreads: () => { }, setHashSize: () => { }, setDifficulty: () => { },
 })
 
-export default function EngineConfProvider() {
+export default function EngineConfProvider({ children }: any) {
 	const [_threads, _setThreads] = useState<number>(1)
 	const [_hashSize, _setHashSize] = useState<number>(32)
 	const [_difficulty, _setDifficulty] = useState<number>(10)
@@ -30,7 +29,7 @@ export default function EngineConfProvider() {
 			difficulty: _difficulty, setThreads: _setThreads,
 			setHashSize: _setHashSize, setDifficulty: _setDifficulty
 		}}>
-			{<Outlet />}
+			{children}
 		</EngineConfContext.Provider>
 	)
 }

@@ -41,6 +41,10 @@ main {
 }
 
 a {
-	color: #2f7ac0;
+	color: var(--text);
 	text-decoration: none;
+}
+
+a:hover {
+	color: #2f7ac0;
 }

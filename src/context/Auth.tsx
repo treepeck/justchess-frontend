@@ -5,7 +5,6 @@ import {
 	createContext,
 } from "react"
 import { Role, Player, guest, refresh } from "../http/http"
-import { Outlet } from "react-router-dom"
 
 type AuthCtx = {
 	player: Player
@@ -16,11 +15,11 @@ type AuthCtx = {
 
 const AuthContext = createContext<AuthCtx | null>(null)
 
-export default function AuthProvider() {
+export default function AuthProvider({ children }: any) {
 	const [isReady, setIsReady] = useState<boolean>(false)
 	const [accessToken, setAccessToken] = useState<string>("")
 	const [player, setUser] = useState<Player>({
-		id: "", username: "", createdAt: "",
+		id: "", username: "", createdAt: "", isEngine: false,
 		role: Role.Guest
 	})
 
@@ -44,7 +43,7 @@ export default function AuthProvider() {
 	}, [])
 
 	return <AuthContext.Provider value={{ player, setUser, accessToken, setAccessToken }}>
-		{isReady && <Outlet />}
+		{isReady && children}
 	</AuthContext.Provider>
 }
 

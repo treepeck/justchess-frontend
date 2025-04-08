@@ -4,7 +4,6 @@ import {
 	useContext,
 	createContext,
 } from "react"
-import { Outlet } from "react-router-dom"
 
 type ThemeCtx = {
 	theme: string
@@ -13,7 +12,7 @@ type ThemeCtx = {
 
 const ThemeContext = createContext<ThemeCtx | null>(null)
 
-export default function ThemeProvider() {
+export default function ThemeProvider({ children }: any) {
 	const [theme, setTheme] = useState<string>("dark")
 
 	useEffect(() => {
@@ -26,7 +25,7 @@ export default function ThemeProvider() {
 	}, [])
 
 	return <ThemeContext.Provider value={{ theme, setTheme }}>
-		{<Outlet />}
+		{children}
 	</ThemeContext.Provider>
 }
 

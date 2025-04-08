@@ -8,10 +8,9 @@ import { reducer, init, Action } from "./play.reducer"
 
 import { useAuth } from "../../context/Auth"
 import { useTheme } from "../../context/Theme"
-import { useParams, useNavigate } from "react-router-dom"
 
 import { LegalMove } from "../../game/move"
-import { Result, Status, Winner } from "../../game/enums"
+import { Status, formatWinner, formatResult } from "../../game/enums"
 
 import Chat from "../../components/chat/Chat"
 import Table from "../../components/table/Table"
@@ -24,10 +23,10 @@ import Engine from "../../components/engine/Engine"
 import Miniprofile from "../../components/miniprofile/Miniprofile"
 import { PieceType } from "../../game/pieceType"
 
+const roomId = window.location.pathname.substring(1)
+
 export default function Play() {
 	const { theme } = useTheme()!
-	const { roomId } = useParams()
-	const navigate = useNavigate()
 	const { player, accessToken } = useAuth()!
 	const engine = useRef<Worker | null>(null)
 
@@ -69,31 +68,6 @@ export default function Play() {
 		}
 	}
 
-	function formatResult(): string {
-		switch (state.result) {
-			case Result.Checkmate: return "by checkmate"
-			case Result.Timeout: return "by timeout"
-			case Result.Stalemate: return "by stalemate"
-			case Result.InsufficientMaterial: return "by insufficient material"
-			case Result.FiftyMoves: return "by fifty moves rule"
-			case Result.Repetition: return "by threefold repetition"
-			case Result.Resignation: return "by resignation"
-			default: return "by unknown reason"
-		}
-	}
-
-	function formatWinner(): string {
-		switch (state.winner) {
-			case Winner.White:
-				return "White won"
-
-			case Winner.Black:
-				return "Black won"
-
-			default: return "Draw"
-		}
-	}
-
 	function formatFullmovePairs(): {
 		index: number,
 		white: string,
@@ -112,7 +86,7 @@ export default function Play() {
 		return pairs
 	}
 
-	function getActivePlayerName(): string | undefined {
+	function getActivePlayerId(): string | undefined {
 		if (state.roomStatus.status == Status.OPEN ||
 			state.roomStatus.status == Status.OVER) {
 			return undefined
@@ -138,22 +112,22 @@ export default function Play() {
 			<Header />
 
 			<div className="play-container">
-				<div className={`board-container ${player.username == state.roomStatus.white
+				<div className={`board-container ${player.id == state.roomStatus.white
 					? "white" : "blackL"}`}>
 					<div className="row">
 						<Miniprofile
-							username={state.roomStatus.black}
+							id={state.roomStatus.black}
 						/>
 						<Clock
 							time={state.blackTime}
 							color={"black"}
 							dispatch={dispatch}
-							isActive={state.roomStatus.black == getActivePlayerName()}
+							isActive={state.roomStatus.black == getActivePlayerId()}
 						/>
 					</div>
 					<Board
 						fen={state.game.currentFEN}
-						side={player.username == state.roomStatus.white ? 0 : 1}
+						side={player.id == state.roomStatus.white ? 0 : 1}
 						legalMoves={state.game.legalMoves}
 						onMove={(m: LegalMove) => {
 							state.socket!.sendMakeMove(m)
@@ -162,13 +136,13 @@ export default function Play() {
 					/>
 					<div className="row">
 						<Miniprofile
-							username={state.roomStatus.white}
+							id={state.roomStatus.white}
 						/>
 						<Clock
 							time={state.whiteTime}
 							color={"white"}
 							dispatch={dispatch}
-							isActive={state.roomStatus.white == getActivePlayerName()}
+							isActive={state.roomStatus.white == getActivePlayerId()}
 						/>
 					</div>
 				</div>
@@ -221,14 +195,14 @@ export default function Play() {
 				})}>
 					<>
 						<p className="winner">
-							{formatWinner()}
+							{formatWinner(state.winner)}
 						</p>
 						<p className="result">
-							{formatResult()}
+							{formatResult(state.result)}
 						</p>
 						<Button
 							text="Home page"
-							onClick={() => navigate("/")}
+							onClick={() => window.location.replace("/")}
 						/>
 					</>
 				</Dialog>
@@ -241,7 +215,7 @@ export default function Play() {
 					engine={engine}
 					currentFEN={state.game.currentFEN}
 					legalMoves={state.game.legalMoves}
-					isTurn={getActivePlayerName() != player.username}
+					isTurn={getActivePlayerId() != player.id}
 				/>
 			)}
 		</main>

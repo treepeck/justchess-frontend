@@ -1,3 +1,5 @@
+import { Color, Result } from "../game/enums"
+
 const serverUrl = "http://localhost:3502"
 
 export enum Role {
@@ -9,6 +11,7 @@ export type Player = {
 	id: string
 	username: string
 	createdAt: string
+	isEngine: boolean
 	role: Role
 }
 
@@ -27,6 +30,20 @@ type PlayerDTO = {
 export type PasswordReset = {
 	mail: string
 	password: string // New password.
+}
+
+export type ShortGameDTO = {
+	id: string
+	wn: string // White username.
+	bn: string // Black username.
+	wid: string // White id.
+	bid: string // Black id.
+	r: Result
+	w: Color // Winner.
+	m: number // Number or completed moves.
+	tc: number // Time control.
+	tb: number // Time bonus.
+	ca: string // Created at.
 }
 
 export async function signUp(r: Register): Promise<boolean> {
@@ -111,23 +128,7 @@ export async function reset(pr: PasswordReset): Promise<boolean> {
 	}
 }
 
-export async function getUserByName(name: string, accessToken: string): Promise<Player | null> {
-	try {
-		const res = await fetch(`${serverUrl}/player/name/${name}`, {
-			method: "GET",
-			headers: {
-				"Authorization": "Bearer " + accessToken
-			}
-		})
-		if (!res.ok) return null
-
-		return res.json()
-	} catch {
-		return null
-	}
-}
-
-export async function getUserById(id: string, accessToken: string): Promise<Player | null> {
+export async function getPlayerById(id: string, accessToken: string): Promise<Player | null> {
 	try {
 		const res = await fetch(`${serverUrl}/player/id/${id}`, {
 			method: "GET",
@@ -143,16 +144,18 @@ export async function getUserById(id: string, accessToken: string): Promise<Play
 	}
 }
 
-export async function commend(name: string, accessToken: string): Promise<boolean> {
+export async function getGamesByPlayerId(id: string, accessToken: string): Promise<ShortGameDTO[]> {
 	try {
-		const res = await fetch(`${serverUrl}/player/${name}`, {
-			method: "POST",
+		const res = await fetch(`${serverUrl}/game/player/${id}`, {
+			method: "GET",
 			headers: {
 				"Authorization": "Bearer " + accessToken
 			}
 		})
-		return res.ok
+		if (!res.ok) return []
+
+		return res.json()
 	} catch {
-		return false
+		return []
 	}
 }

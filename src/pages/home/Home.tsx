@@ -1,39 +1,28 @@
-// Styling.
 import "./Home.css"
 
-// Connection with server.
 import _WebSocket from "../../ws/ws"
+import { Role } from "../../http/http"
 import { Message, MessageType } from "../../ws/message"
 
-// React stuff.
 import { useEffect, useReducer } from "react"
 import { reducer, Action, init } from "./home.reducer"
 
-// Hooks.
 import { useAuth } from "../../context/Auth"
 import { useTheme } from "../../context/Theme"
-import { useNavigate } from "react-router-dom"
 import { useEngineConf } from "../../context/EngineConf"
 
-// Components.
 import Table from "../../components/table/Table"
 import Dialog from "../../components/dialog/Dialog"
 import Slider from "../../components/slider/Slider"
 import Header from "../../components/header/Header"
 import Button from "../../components/button/Button"
 import RadioButtons from "../../components/radio-buttons/RadioButtons"
-import { Role } from "../../http/http"
 
 export default function Home() {
-	// Custom hooks.
 	const { theme } = useTheme()!
 	const { player, accessToken } = useAuth()!
 	const { threads, hashSize, difficulty, setThreads, setHashSize, setDifficulty } = useEngineConf()
 
-	// React-router hook.
-	const navigate = useNavigate()
-
-	// Reducer.
 	const [state, dispatch] = useReducer(reducer, init)
 
 	// Connect to the Hub on page load.
@@ -62,7 +51,7 @@ export default function Home() {
 
 			case MessageType.ADD_ROOM:
 				if (msg.d.cr == player.username) {
-					navigate(`/${msg.d.id}`)
+					window.location.replace(`/${msg.d.id}`)
 				}
 
 				dispatch({ type: Action.ADD_ROOM, payload: msg.d })
@@ -75,7 +64,6 @@ export default function Home() {
 	}
 
 	function handleCreateGame() {
-		console.log("I am here")
 		const isVsEngine = state.opponent == "Computer"
 		console.log(isVsEngine, player)
 		if (!isVsEngine && player.role == Role.Guest) {
@@ -83,7 +71,7 @@ export default function Home() {
 			return
 		}
 
-		state.socket?.sendCreateRoom(isVsEngine, state.timeControl, state.timeBonus)
+		state.socket?.sendCreateRoom(isVsEngine, state.timeControl * 60, state.timeBonus)
 	}
 
 	return (
@@ -106,13 +94,13 @@ export default function Home() {
 
 					const index = e.currentTarget.dataset.row!
 					if (state.rooms[parseInt(index)]) {
-						navigate(`/${state.rooms[parseInt(index)].id}`)
+						window.location.replace(`/${state.rooms[parseInt(index)].id}`)
 					}
 				}}
 			/>
 
 			<Button
-				text="CREATE A NEW GAME"
+				text="CREATE A GAME"
 				onClick={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: true })}
 			/>
 

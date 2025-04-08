@@ -1,6 +1,6 @@
 import Game from "../../game/game"
 import _WebSocket from "../../ws/ws"
-import { Result, Status, Winner } from "../../game/enums"
+import { Result, Status, Color } from "../../game/enums"
 
 type RoomStatus = {
 	status: Status,
@@ -29,7 +29,7 @@ type State = {
 	whiteTime: number,
 	blackTime: number,
 	result: Result,
-	winner: Winner,
+	winner: Color,
 	chat: string[],
 }
 
@@ -41,7 +41,7 @@ export const init: State = {
 	whiteTime: 0,
 	blackTime: 0,
 	result: Result.Unknown,
-	winner: Winner.None,
+	winner: Color.None,
 	chat: [],
 }
 

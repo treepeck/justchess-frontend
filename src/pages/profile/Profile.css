@@ -16,25 +16,9 @@ main .profile .item {
 	margin: auto;
 }
 
-main .profile .commend {
-	background-image: url("../../../public/assets/commend.png");
-	background-size: cover;
-	border-radius: 50%;
-	border: none;
-	width: 2rem;
-	height: 2rem;
-	background-color: transparent;
-	cursor: pointer;
-	margin-left: auto;
-	position: relative;
-}
-
-main .profile .commend:hover::after {
-	content: attr(data-tooltip);
-	color: var(--text);
-	position: absolute;
-	bottom: -15px;
-	left: -15px;
+main .table .t-body .row {
+	height: 3rem;
+	flex: 1;
 }
 
 @media (min-width: 640px) {

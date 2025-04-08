@@ -8,7 +8,7 @@ header {
 	overflow: hidden;
 }
 
-header i a {
+header a {
 	color: var(--text);
 	font-style: normal;
 	font-size: x-large;
@@ -18,7 +18,7 @@ header a:hover {
 	color: #2f7ac0;
 }
 
-header a {
+header a:nth-child(2) {
 	margin-left: auto;
 	padding: 1rem;
 	font-size: medium;

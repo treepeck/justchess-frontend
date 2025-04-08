@@ -7,11 +7,9 @@ import { reducer, Action, init } from "./signin.reducer"
 import Dialog from "../../components/dialog/Dialog"
 import { useAuth } from "../../context/Auth"
 import { reset, signIn } from "../../http/http"
-import { useNavigate } from "react-router-dom"
 
 export default function Signin() {
 	const { theme } = useTheme()!
-	const navigate = useNavigate()
 	const { setUser, setAccessToken } = useAuth()!
 	const [state, dispatch] = useReducer(reducer, init)
 
@@ -21,7 +19,7 @@ export default function Signin() {
 				if (res) {
 					setUser(res.player)
 					setAccessToken(res.accessToken)
-					navigate("/")
+					window.location.replace("/")
 				} else {
 					dispatch({ type: Action.SET_RESULT_MSG, payload: "Incorrect username or password." })
 				}

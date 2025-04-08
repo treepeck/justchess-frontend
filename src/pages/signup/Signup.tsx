@@ -1,12 +1,16 @@
 import "./Signup.css"
+
 import { useReducer } from "react"
+import { Action, init, reducer } from "./signup.reducer"
+
 import { signUp } from "../../http/http"
 import { useTheme } from "../../context/Theme"
+
 import Input from "../../components/input/Input"
 import Header from "../../components/header/Header"
 import Button from "../../components/button/Button"
-import { Action, init, reducer } from "./signup.reducer"
 import Dialog from "../../components/dialog/Dialog"
+
 
 export default function Signup() {
 	const { theme } = useTheme()!
