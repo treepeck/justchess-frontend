@@ -1,8 +1,8 @@
 import "./Button.css"
 
 type ButtonProps = {
-	text: string,
-	onClick: React.MouseEventHandler<HTMLButtonElement>
+	text: string
+	onClick: React.ReactEventHandler
 }
 
 export default function Button({ text, onClick }: ButtonProps) {

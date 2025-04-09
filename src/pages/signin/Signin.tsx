@@ -99,7 +99,7 @@ export default function Signin() {
 			</footer>
 		</form>
 
-		{state.isValidating && <Dialog caption="Processing..." onClick={() => { }}>
+		{/* {state.isValidating && <Dialog caption="Processing..." onClick={() => { }}>
 			<></>
 		</Dialog>}
 
@@ -131,6 +131,6 @@ export default function Signin() {
 				/>
 				<Button text="Reset" onClick={passwordResetHandler} />
 			</form>
-		</Dialog>}
+		</Dialog>} */}
 	</main>
 }

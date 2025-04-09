@@ -4,29 +4,24 @@ import "./Slider.css"
 type SliderProps = {
 	value: number,
 	setValue: React.Dispatch<React.SetStateAction<number>>
-	min: number,
-	max: number,
-	text: string,
+	min: number
+	max: number
+	text: string
 }
 
-export default function Slider(props: SliderProps) {
+export default function Slider({ value, setValue,
+	min, max, text
+}: SliderProps) {
 	return (
-		<div className="slider-container">
-			<div className="label">
-				{props.text} {props.value}
-			</div>
-
-			<div className="input-container">
-				{props.min}
-				<input
-					type="range"
-					value={props.value}
-					onChange={(e) => props.setValue(parseInt(e.target.value))}
-					min={props.min}
-					max={props.max}
-				/>
-				{props.max}
-			</div>
-		</div>
+		<label className="slider-container">
+			{text} {value}
+			<input
+				type="range"
+				value={value}
+				onChange={e => setValue(parseInt(e.target.value))}
+				min={min}
+				max={max}
+			/>
+		</label>
 	)
 }

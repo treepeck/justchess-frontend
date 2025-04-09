@@ -148,12 +148,12 @@ export default function Play() {
 				</div>
 
 				<div className="moves-container">
-					<Table
+					{/* <Table
 						caption="Completed moves"
 						headerCols={["#", "White", "Black"]}
 						bodyRows={formatFullmovePairs()}
 						bodyOnClick={() => { }}
-					/>
+					/> */}
 
 					{<Button
 						text="Resign"
@@ -177,18 +177,10 @@ export default function Play() {
 				Players in room: {state.roomStatus.clients}
 			</div>
 
-			{state.roomStatus.status == Status.OPEN && (
-				<Dialog caption="Waiting for the second player" onClick={() => { }}
-				>
-					<div className="dots">
-						<div className="loading-dot" />
-						<div className="loading-dot" />
-						<div className="loading-dot" />
-					</div>
-				</Dialog>
-			)}
+			{state.roomStatus.status == Status.OPEN
+			}
 
-			{state.isDialogActive && (
+			{/* {state.isDialogActive && (
 				<Dialog caption="Game over" onClick={() => dispatch({
 					type: Action.TOGGLE_DIALOG,
 					payload: false
@@ -206,7 +198,7 @@ export default function Play() {
 						/>
 					</>
 				</Dialog>
-			)}
+			)} */}
 
 			{/* Spawn engine worker. */}
 			{state.roomStatus.isVSEngine && (

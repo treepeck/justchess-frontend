@@ -5,6 +5,7 @@ import { useTheme } from "../../context/Theme"
 import Header from "../../components/header/Header"
 import { formatResult, formatWinner } from "../../game/enums"
 import { getGamesByPlayerId, getPlayerById, Player, ShortGameDTO } from "../../http/http"
+import Table from "../../components/table/Table"
 
 const id = window.location.pathname.substring(8)
 
@@ -55,53 +56,8 @@ export default function Profile() {
 			<p className="item">Registered <br /> {formatDate(profileUser?.createdAt)}</p>
 		</section>
 
-		{profileGames.length ? <div className="table">
-			<div className="t-caption">Completed games</div>
-
-			<div className="t-header">
-				<div className="col">
-					Control
-				</div>
-				<div className="col">
-					Players
-				</div>
-				<div className="col">
-					Result
-				</div>
-				<div className="col">
-					Moves
-				</div>
-				<div className="col">
-					Date
-				</div>
-			</div>
-
-			<div className="t-body">
-				{profileGames.map((game, index) => (
-					<div className="row" key={index}>
-						<div className="col">
-							{game.tc / 60} + {game.tb}
-						</div>
-						<div className="col">
-							W: <a href={`http://localhost:3000/player/${game.wid}`}>{game.wn}</a>
-							<br />
-							B: <a href={`http://localhost:3000/player/${game.bid}`}>{game.bn}</a>
-						</div>
-						<div className="col">
-							{formatWinner(game.w)}
-							<br />
-							{formatResult(game.r)}
-						</div>
-						<div className="col">
-							{game.m}
-						</div>
-						<div className="col">
-							{formatDate(game.ca)}
-						</div>
-					</div>
-				))}
-			</div>
-		</div>
-			: <p>Completed games will be displayed here.</p>}
+		<Table
+			caption={"completed games"}
+		/>
 	</main>
 }

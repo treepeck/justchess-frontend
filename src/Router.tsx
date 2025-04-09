@@ -36,7 +36,7 @@ export default function Router() {
 					: <Play />}
 			</EngineConfProvider>
 		}
-		else if (currentPath.match(/^\/player\/[a-zA-Z0-9/]{2,}$/)) {
+		else if (currentPath.match(/^\/player\/[a-zA-Z0-9\-]{2,}$/)) {
 			return <Profile />
 		}
 		else if (currentPath.match(/^\/verify\?action\=((reset)|(registration))\&token\=[A-Z0-9]+$/)) {

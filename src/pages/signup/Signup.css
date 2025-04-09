@@ -37,3 +37,7 @@ form footer button {
 	cursor: pointer;
 	background-color: transparent;
 }
+
+form a {
+	color: #2f7ac0;
+}

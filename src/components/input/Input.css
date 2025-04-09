@@ -1,6 +1,5 @@
 form label {
 	width: 100%;
-	display: flex;
 	padding: .25rem;
 	gap: .25rem;
 	border-radius: 10px;

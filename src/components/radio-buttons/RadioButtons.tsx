@@ -10,11 +10,11 @@ type RadioButtonsProps = {
 
 export default function RadioButtons({ caption, options, value, setValue }: RadioButtonsProps) {
 	return (
-		<div className="radio-group">
-			<div className="r-caption">{caption}</div>
+		<fieldset>
+			<legend>{caption}</legend>
 
 			{options.map((option, index) => (
-				<div key={index} className="r-option">
+				<label key={index}>
 					<input
 						type="radio"
 						name={caption}
@@ -28,9 +28,9 @@ export default function RadioButtons({ caption, options, value, setValue }: Radi
 						}}
 						checked={value == option}
 					/>
-					<label htmlFor={option}>{option}</label>
-				</div>
+					<p>{option == "User" ? "Human" : option}</p>
+				</label>
 			))}
-		</div >
+		</fieldset>
 	)
 }

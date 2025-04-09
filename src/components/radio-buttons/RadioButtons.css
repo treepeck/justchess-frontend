@@ -1,5 +1,32 @@
-.radio-group {
+fieldset {
+	padding: .4rem;
 	display: flex;
-	flex-direction: row;
-	gap: 1.5rem;
+}
+
+/* Direct labels in a column. */
+fieldset label {
+	display: flex;
+	margin: .4rem;
+	cursor: pointer;
+	border-radius: .5rem;
+	height: 2rem;
+	flex: 1;
+}
+
+fieldset label p {
+	margin: auto;
+}
+
+fieldset label:hover {
+	background-color: #7aa8d3;
+	color: white;
+}
+
+fieldset label input {
+	display: none;
+}
+
+fieldset label:has(input:checked) {
+	color: white;
+	background-color: #3692e7;
 }

@@ -1,19 +1,37 @@
 import "./Dialog.css"
-import { ReactNode } from "react"
+
+import Button from "../button/Button"
+
+import { useEffect, useRef } from "react"
 
 type DialogProps = {
-	caption: string,
-	children: ReactNode,
-	onClick: () => void,
+	isActive: boolean
+	onConfirm: React.ReactEventHandler
+	onClose: React.ReactEventHandler
+	children: any
 }
 
-export default function Dialog({ caption, children, onClick }: DialogProps) {
-	return (
-		<div className="dialog-container" onClick={() => onClick()}>
-			<div className="dialog" onClick={e => e.stopPropagation()}>
-				<p>{caption}</p>
-				{children}
-			</div>
-		</div>
-	)
+export default function Dialog({ isActive,
+	onConfirm, onClose, children
+}: DialogProps) {
+	const ref = useRef<HTMLDialogElement>(null)
+
+	useEffect(() => {
+		if (isActive) {
+			ref.current?.showModal()
+		} else {
+			ref.current?.close()
+		}
+	}, [isActive])
+
+	return <dialog ref={ref} onCancel={onClose}>
+		{children}
+
+		<Button
+			text="Confirm"
+			onClick={onConfirm}
+		/>
+
+		<button id="close" onClick={onClose} />
+	</dialog>
 }
