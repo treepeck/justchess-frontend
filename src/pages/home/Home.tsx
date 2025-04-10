@@ -16,6 +16,7 @@ import Button from "../../components/button/Button"
 import Dialog from "../../components/dialog/Dialog"
 import RadioButtons from "../../components/radio-buttons/RadioButtons"
 import Slider from "../../components/slider/Slider"
+import Table from "../../components/table/Table"
 
 export default function Home() {
 	const { theme } = useTheme()!
@@ -76,6 +77,21 @@ export default function Home() {
 	return (
 		<main data-theme={theme}>
 			<Header />
+
+			<Table
+				caption="Active games"
+				headerCols={["Creator", "Control", "Bonus"]}
+			>
+				{state.rooms.map((room, ind) => <a
+					key={ind}
+					className="row"
+					href={`http://localhost:3000/${room.id}`}
+				>
+					<div className="col">{room.cr}</div>
+					<div className="col">{room.c}</div>
+					<div className="col">{room.b}</div>
+				</a>)}
+			</Table>
 
 			<Button
 				text="Create game"

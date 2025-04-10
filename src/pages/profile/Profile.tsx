@@ -56,8 +56,8 @@ export default function Profile() {
 			<p className="item">Registered <br /> {formatDate(profileUser?.createdAt)}</p>
 		</section>
 
-		<Table
+		{/* <Table
 			caption={"completed games"}
-		/>
+		/> */}
 	</main>
 }

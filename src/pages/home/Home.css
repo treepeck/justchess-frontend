@@ -2,14 +2,27 @@ main dialog {
 	width: 95%;
 }
 
-main .button {
-	width: 20rem;
+main .table {
+	width: 95%;
+	height: 400px;
 	margin: auto;
-	height: 2rem;
+}
+
+main .button {
+	width: 320px;
+	margin: auto;
+	height: 32px;
+}
+
+@media (min-width: 500px) {
+	main dialog {
+		width: 500px;
+	}
 }
 
 @media (min-width: 640px) {
-	main dialog {
-		width: 30em;
+	main .table {
+		width: 640px;
+		height: 500px;
 	}
 }

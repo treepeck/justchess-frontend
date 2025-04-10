@@ -14,14 +14,14 @@ type EngineConfCtx = {
 }
 
 const EngineConfContext = createContext<EngineConfCtx>({
-	threads: 1, hashSize: 32, difficulty: 10,
+	threads: 1, hashSize: 32, difficulty: 1,
 	setThreads: () => { }, setHashSize: () => { }, setDifficulty: () => { },
 })
 
 export default function EngineConfProvider({ children }: any) {
 	const [_threads, _setThreads] = useState<number>(1)
 	const [_hashSize, _setHashSize] = useState<number>(32)
-	const [_difficulty, _setDifficulty] = useState<number>(10)
+	const [_difficulty, _setDifficulty] = useState<number>(1)
 
 	return (
 		<EngineConfContext.Provider value={{

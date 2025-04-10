@@ -1,19 +1,28 @@
 import "./Table.css"
 
 type TableProps = {
-	caption: string,
+	caption: string
+	headerCols: string[]
+	children: any
 }
 
-export default function Table({ caption }: TableProps) {
+export default function Table({ caption, headerCols,
+	children
+}: TableProps) {
 
-	return <table>
-		{/* Caption */}
-		<h2>{caption}</h2>
+	return <div className="table">
+		<div className="t-caption">{caption}</div>
 
-		{/* Header */}
-		<tr>
-			<th></th>
-		</tr>
+		<div className="t-header">
+			{headerCols.map((col, index) => (
+				<div className="col" key={index}>
+					{col}
+				</div>
+			))}
+		</div>
 
-	</table>
+		<div className="t-body">
+			{children}
+		</div>
+	</div>
 }
