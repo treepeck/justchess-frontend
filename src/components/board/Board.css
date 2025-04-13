@@ -182,20 +182,28 @@
 
 @media (min-width: 600px) {
 	.board {
-		width: 550px;
-		height: 550px;
+		width: 500px;
+		height: 500px;
 	}
 
 	.ranks,
 	.files {
 		font-size: large;
 	}
+
+	main .play-container .table {
+		width: 400px;
+	}
+
+	main .play-container .chat {
+		width: 400px;
+	}
 }
 
 @media (min-width: 1024px) {
 	.board {
-		width: 650px;
-		height: 650px;
+		width: 600px;
+		height: 600px;
 	}
 
 	.ranks,

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../../context/Auth"
 import { useTheme } from "../../context/Theme"
 import Header from "../../components/header/Header"
-import { formatResult, formatWinner } from "../../game/enums"
+import { Color, formatResult, formatWinner } from "../../game/enums"
 import { getGamesByPlayerId, getPlayerById, Player, ShortGameDTO } from "../../http/http"
 import Table from "../../components/table/Table"
 
@@ -12,8 +12,8 @@ const id = window.location.pathname.substring(8)
 export default function Profile() {
 	const { theme } = useTheme()!
 	const { accessToken } = useAuth()!
-	const [profileUser, setProfileUser] = useState<Player | null>(null)
-	const [profileGames, setProfileGames] = useState<ShortGameDTO[]>([])
+	const [profile, setProfile] = useState<Player | null>(null)
+	const [games, setGames] = useState<ShortGameDTO[]>([])
 
 	useEffect(() => {
 		const fetchUser = async function () {
@@ -23,17 +23,17 @@ export default function Profile() {
 				window.location.replace("/404")
 				return
 			}
-			setProfileUser(_player)
+			setProfile(_player)
 		}
 		fetchUser()
 
 		const fetchGames = async function () {
-			if (profileUser?.isEngine) return
+			if (profile?.isEngine) return
 
 			const _games = await getGamesByPlayerId(id ?? "", accessToken)
 
 			if (_games) {
-				setProfileGames(_games)
+				setGames(_games)
 			}
 		}
 		fetchGames()
@@ -48,16 +48,54 @@ export default function Profile() {
 		})
 	}
 
+	function formatColor(winner: Color, whiteId: string, blackId: string): string {
+		if (winner == Color.None) return ""
+
+		if ((winner == Color.White && whiteId == profile?.id) ||
+			(winner == Color.Black && blackId == profile?.id)) {
+			return "green"
+		}
+		return "red"
+	}
+
 	return <main className="profile-container" data-theme={theme}>
 		<Header />
 
-		<section className="profile">
-			<h2 className="item">{profileUser?.username}</h2>
-			<p className="item">Registered <br /> {formatDate(profileUser?.createdAt)}</p>
+		<section>
+			<b>{profile?.username}</b>
+
+			<p>Registered at <br /> {formatDate(profile?.createdAt)}</p>
 		</section>
 
-		{/* <Table
-			caption={"completed games"}
-		/> */}
+		<Table
+			caption="Completed games"
+			headerCols={["Result", "Players", "Control", "Moves", "Date"]}
+		>
+			{games.map((game, ind) => <a key={ind} className="row" href={`http://localhost:3000/${game.id}`}>
+				<div className={`col ${formatColor(game.w, game.wid, game.bid)}`}>
+					{formatWinner(game.w)}
+					<br />
+					{formatResult(game.r)}
+				</div>
+
+				<div className="col">
+					{game.wn}
+					<br />
+					{game.bn}
+				</div>
+
+				<div className="col">
+					{game.tc / 60}m + {game.tb}s
+				</div>
+
+				<div className="col">
+					{game.m}
+				</div>
+
+				<div className="col">
+					{formatDate(game.ca)}
+				</div>
+			</a>)}
+		</Table>
 	</main>
 }
