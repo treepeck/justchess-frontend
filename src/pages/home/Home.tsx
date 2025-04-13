@@ -74,87 +74,106 @@ export default function Home() {
 		state.socket?.sendCreateRoom(isVsEngine, state.timeControl * 60, state.timeBonus)
 	}
 
-	return (
-		<main data-theme={theme}>
-			<Header />
+	return <main data-theme={theme}>
+		<Header />
 
-			<Table
-				caption="Active games"
-				headerCols={["Creator", "Control", "Bonus"]}
+		<Table
+			caption="Active games"
+			headerCols={["Creator", "Control", "Bonus"]}
+		>
+			{state.rooms.map((room, ind) => <a
+				key={ind}
+				className="row"
+				href={`http://localhost:3000/${room.id}`}
+				onClick={e => {
+					e.preventDefault()
+					if (player.role == Role.Guest) {
+						dispatch({ type: Action.SET_ERROR_MSG, payload: "Sign up to play against other humans" })
+						return
+					}
+					window.location.replace(`/${room.id}`)
+				}}
 			>
-				{state.rooms.map((room, ind) => <a
-					key={ind}
-					className="row"
-					href={`http://localhost:3000/${room.id}`}
-				>
-					<div className="col">{room.cr}</div>
-					<div className="col">{room.c}</div>
-					<div className="col">{room.b}</div>
-				</a>)}
-			</Table>
+				<div className="col">{room.cr}</div>
+				<div className="col">{room.c}</div>
+				<div className="col">{room.b}</div>
+			</a>)}
+		</Table>
 
-			<Button
-				text="Create game"
-				onClick={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: true })}
+		<Button
+			text="Create game"
+			onClick={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: true })}
+		/>
+
+		<Dialog
+			isActive={state.isDialogActive}
+			onClose={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: false })}
+			hasClose={true}
+		>
+			<h2>Create a new game</h2>
+
+			<RadioButtons
+				caption="Choose your opponent"
+				value={state.opponent}
+				setValue={val => dispatch({ type: Action.SET_OPPONENT, payload: val })}
+				options={["User", "Computer"]}
 			/>
 
-			<Dialog
-				isActive={state.isDialogActive}
-				onConfirm={handleCreateGame}
-				onClose={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: false })}
-			>
-				<h2>Create a new game</h2>
+			<Slider
+				value={state.timeControl}
+				setValue={val => dispatch({ type: Action.SET_TIME_CONTROL, payload: val })}
+				min={1}
+				max={180}
+				text="Time control in minutes: "
+			/>
+
+			<Slider
+				value={state.timeBonus}
+				setValue={val => dispatch({ type: Action.SET_TIME_BONUS, payload: val })}
+				min={1}
+				max={180}
+				text="Time bonus in seconds: "
+			/>
+
+			{state.opponent == "Computer" && <section>
+				<p>Engine: Stockfish</p>
+
+				<Slider
+					value={threads}
+					setValue={setThreads}
+					min={1}
+					max={navigator.hardwareConcurrency / 2}
+					text="Number of CPU threads used for searching: "
+				/>
 
 				<RadioButtons
-					caption="Choose your opponent"
-					value={state.opponent}
-					setValue={val => dispatch({ type: Action.SET_OPPONENT, payload: val })}
-					options={["User", "Computer"]}
+					caption="Size of the hash table in MB: "
+					options={["32", "64", "128", "256"]}
+					value={hashSize}
+					setValue={setHashSize}
 				/>
 
 				<Slider
-					value={state.timeControl}
-					setValue={val => dispatch({ type: Action.SET_TIME_CONTROL, payload: val })}
+					value={difficulty}
+					setValue={setDifficulty}
 					min={1}
-					max={180}
-					text="Time control in minutes: "
+					max={20}
+					text="Difficulty level: "
 				/>
+			</section>}
 
-				<Slider
-					value={state.timeBonus}
-					setValue={val => dispatch({ type: Action.SET_TIME_BONUS, payload: val })}
-					min={1}
-					max={180}
-					text="Time bonus in seconds: "
-				/>
+			<Button
+				text="Create"
+				onClick={handleCreateGame}
+			/>
+		</Dialog>
 
-				{state.opponent == "Computer" && <section>
-					<p>Engine: Stockfish</p>
-
-					<Slider
-						value={threads}
-						setValue={setThreads}
-						min={1}
-						max={navigator.hardwareConcurrency / 2}
-						text="Number of CPU threads used for searching: "
-					/>
-
-					<RadioButtons
-						caption="Size of the hash table in MB: "
-						options={["32", "64", "128", "256"]}
-						value={hashSize}
-						setValue={setHashSize}
-					/>
-
-					<Slider
-						value={difficulty}
-						setValue={setDifficulty}
-						min={1}
-						max={20}
-						text="Difficulty level: "
-					/>
-				</section>}
-			</Dialog>
-		</main>
-	)
+		<Dialog
+			isActive={state.errorMsg != ""}
+			onClose={() => dispatch({ type: Action.SET_ERROR_MSG, payload: "" })}
+			hasClose={true}
+		>
+			<h2>{state.errorMsg}</h2>
+		</Dialog>
+	</main>
 }

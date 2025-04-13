@@ -112,8 +112,8 @@ export default function Signup() {
 			</footer>
 		</form>
 
-		{/* {state.isValidating && (<Dialog caption="Processing..." onClick={() => { }}>
-			<></>
-		</Dialog>)} */}
+		<Dialog isActive={state.isValidating} onClose={() => { }} hasClose={false}>
+			<h2>Processing...</h2>
+		</Dialog>
 	</main>
 }

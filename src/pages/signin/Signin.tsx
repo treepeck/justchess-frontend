@@ -99,14 +99,18 @@ export default function Signin() {
 			</footer>
 		</form>
 
-		{/* {state.isValidating && <Dialog caption="Processing..." onClick={() => { }}>
-			<></>
-		</Dialog>}
+		<Dialog isActive={state.isValidating} onClose={() => { }} hasClose={false}>
+			<h2>Processing...</h2>
+		</Dialog>
 
-		{state.isDialogActive && <Dialog caption="Password reset" onClick={() =>
-			dispatch({ type: Action.SET_IS_DIALOG_ACTIVE, payload: false })
-		}>
+		<Dialog
+			isActive={state.isDialogActive}
+			onClose={() => dispatch({ type: Action.SET_IS_DIALOG_ACTIVE, payload: false })}
+			hasClose={true}
+		>
 			<form onSubmit={e => e.preventDefault()}>
+				<h2>Password reset </h2>
+
 				<Input
 					type="email"
 					hasIcon={false}
@@ -118,6 +122,7 @@ export default function Signin() {
 						dispatch({ type: Action.SET_LOGIN, payload: e.target.value })
 					}
 				/>
+
 				<Input
 					type="password"
 					hasIcon={false}
@@ -129,8 +134,12 @@ export default function Signin() {
 						dispatch({ type: Action.SET_PASSWORD, payload: e.target.value })
 					}
 				/>
-				<Button text="Reset" onClick={passwordResetHandler} />
 			</form>
-		</Dialog>} */}
+
+			<Button
+				text="Reset"
+				onClick={passwordResetHandler}
+			/>
+		</Dialog>
 	</main>
 }

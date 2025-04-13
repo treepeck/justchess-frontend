@@ -1,63 +1,44 @@
-.play-container {
-	width: 100%;
+main .play-container {
 	display: flex;
 	flex-direction: column;
-	gap: .5rem;
-}
-
-.play-container .board-container {
-	width: 20rem;
-	height: 25rem;
 	margin: auto;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
+	gap: 16px;
 }
 
+main .play-container .table {
+	height: 200px;
+	width: 350px;
+	order: 2;
+	margin: auto;
+}
 
-.play-container .board-container.blackL {
+main .play-container .row {
+	display: flex;
+}
+
+main .play-container .board-container {
+	margin: auto;
+	order: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+main .play-container .board-container.black {
+	margin: auto;
+	order: 1;
+	display: flex;
 	flex-direction: column-reverse;
 }
 
-.play-container .board-container .row {
-	display: flex;
-	width: 100%;
-	padding: .2rem;
+main .play-container .table .current {
+	background-color: #74b3d2;
 }
 
-.play-container .moves-container {
-	height: 11.5rem;
-	width: 20rem;
-	display: flex;
-	flex-direction: column;
-	margin: auto auto 1rem auto;
-}
-
-.play-container .moves-container .table {
-	width: 100%;
-	height: calc(100%-4rem);
-	margin: auto auto 1rem auto;
-}
-
-.play-container .moves-container .button {
-	width: 70%;
-	height: 3rem;
+main .play-container .chat {
 	margin: auto;
-}
-
-.play-container .chat {
-	width: 20rem;
-	height: 10rem;
-	margin: auto auto 1rem auto;
-}
-
-.dialog-container .dialog p.winner {
-	font-size: large;
-}
-
-.dialog-container .dialog p.result {
-	font-size: medium;
+	order: 3;
+	height: 200px;
+	width: 350px;
 }
 
 .dots {
@@ -83,52 +64,51 @@
 	animation-delay: 200ms;
 }
 
+.winner {
+	margin: auto;
+	font-size: large;
+}
+
+.result {
+	margin: auto;
+}
+
 @keyframes loading {
 	100% {
 		translate: 0 -1rem
 	}
 }
 
-@media (min-width: 640px) {
-	.play-container .board-container {
-		width: 35rem;
-		height: 40rem;
+@media (min-width: 600px) {
+	main .play-container .table {
+		height: 250px;
+		width: 550px;
 	}
 
-	.play-container .moves-container {
-		width: 35rem;
-		height: 11.5rem;
-	}
-
-	.play-container .chat {
-		width: 35rem;
-		height: 10rem;
+	main .play-container .chat {
+		height: 250px;
+		width: 550px;
 	}
 }
 
 @media (min-width: 1024px) {
-	.play-container {
+	main .play-container {
 		flex-direction: row;
-		margin: auto;
 	}
 
-	.play-container .board-container {
-		width: 25rem;
-		height: 28rem;
+	main .play-container .chat {
+		order: 1;
+		width: 300px;
+		height: 500px;
+	}
+
+	main .play-container .board-container {
 		order: 2;
 	}
 
-	.play-container .moves-container {
-		height: 20rem;
-		width: 20rem;
-		margin: auto;
+	main .play-container .table {
 		order: 3;
-	}
-
-	.play-container .chat {
-		height: 20rem;
-		width: 20rem;
-		margin: auto;
-		order: 1;
+		width: 300px;
+		height: 500px;
 	}
 }

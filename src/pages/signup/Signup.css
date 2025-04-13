@@ -1,12 +1,11 @@
 form {
-	width: 20rem;
-	max-height: 35rem;
+	width: 95%;
 	display: flex;
-	border-radius: .75rem;
+	border-radius: 10px;
 	flex-direction: column;
 	margin: auto;
-	gap: 2rem;
-	padding: 1rem;
+	gap: 32px;
+	padding: 16px;
 	background-color: var(--containersBg);
 }
 
@@ -16,7 +15,7 @@ form section p {
 }
 
 form .button {
-	height: 2rem;
+	height: 32px;
 	width: 100%;
 	margin: auto 0 0 0;
 }
@@ -27,8 +26,8 @@ form footer {
 }
 
 form .dialog-container .dialog {
-	min-width: 20rem;
-	min-height: 30rem;
+	min-width: 320px;
+	min-height: 480px;
 }
 
 form footer button {
@@ -40,4 +39,14 @@ form footer button {
 
 form a {
 	color: #2f7ac0;
+}
+
+@media (min-width: 640px) {
+	form {
+		width: 640px;
+	}
+
+	dialog form {
+		width: 450px;
+	}
 }

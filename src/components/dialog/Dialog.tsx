@@ -1,18 +1,16 @@
 import "./Dialog.css"
 
-import Button from "../button/Button"
-
 import { useEffect, useRef } from "react"
 
 type DialogProps = {
 	isActive: boolean
-	onConfirm: React.ReactEventHandler
-	onClose: React.ReactEventHandler
+	onClose: Function
 	children: any
+	hasClose: boolean
 }
 
 export default function Dialog({ isActive,
-	onConfirm, onClose, children
+	onClose, children, hasClose
 }: DialogProps) {
 	const ref = useRef<HTMLDialogElement>(null)
 
@@ -24,14 +22,8 @@ export default function Dialog({ isActive,
 		}
 	}, [isActive])
 
-	return <dialog ref={ref} onCancel={onClose}>
+	return <dialog ref={ref} onCancel={e => { e.preventDefault(); onClose() }}>
 		{children}
-
-		<Button
-			text="Confirm"
-			onClick={onConfirm}
-		/>
-
-		<button id="close" onClick={onClose} />
+		{hasClose && <button id="close" onClick={e => onClose()} />}
 	</dialog>
 }

@@ -2,3 +2,7 @@ main h1 {
 	margin: auto;
 	text-align: center;
 }
+
+main h1 a {
+	color: #2f7ac0;
+}

@@ -20,7 +20,12 @@
 	overflow-y: auto;
 }
 
-.chat .input-container input {
+.chat .input-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.chat .input-container .input-label {
 	width: calc(100% - 1.5rem);
 }
 
@@ -32,4 +37,5 @@
 	background-color: transparent;
 	background-image: url("../../../public/assets/send.png");
 	cursor: pointer;
+	margin: auto;
 }

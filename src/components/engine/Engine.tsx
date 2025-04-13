@@ -1,7 +1,7 @@
 import _WebSocket from "../../ws/ws"
 import { useEffect, useState } from "react"
-import { useEngineConf } from "../../context/EngineConf"
 import { fromUCI, LegalMove } from "../../game/move"
+import { useEngineConf } from "../../context/EngineConf"
 
 type EngineProps = {
 	socket: _WebSocket,

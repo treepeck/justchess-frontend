@@ -1,4 +1,5 @@
-form label {
+.input-label {
+	display: flex;
 	width: 100%;
 	padding: .25rem;
 	gap: .25rem;
@@ -6,14 +7,14 @@ form label {
 	background-color: var(--inputBg);
 }
 
-form label i {
+.input-label i {
 	width: 1.5rem;
 	height: 1.5rem;
 	background-size: cover;
 	user-select: none;
 }
 
-form label input {
+.input-label input {
 	width: calc(100% - 4.5rem);
 	margin-right: auto;
 	color: var(--text);
@@ -22,35 +23,35 @@ form label input {
 	box-sizing: border-box;
 }
 
-form label:hover {
+.input-label:hover {
 	outline: 1px solid #7f7f7f;
 }
 
-form label input:focus {
+.input-label input:focus {
 	outline: none;
 }
 
-form label .email {
+.input-label .email {
 	background-image: url("../../../public/assets/mail.png");
 }
 
-form label .username {
+.input-label .username {
 	background-image: url("../../../public/assets/user.png");
 }
 
-form label .password {
+.input-label .password {
 	background-image: url("../../../public/assets/password.png");
 }
 
-form label .check {
+.input-label .check {
 	background-image: url("../../../public/assets/check.png");
 }
 
-form label .error {
+.input-label .error {
 	background-image: url("../../../public/assets/error.png");
 }
 
-form label .eye {
+.input-label .eye {
 	user-select: none;
 	background-image: url("../../../public/assets/eye.png");
 }

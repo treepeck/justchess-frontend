@@ -1,18 +1,17 @@
-// Styling.
 import "./Board.css"
 
-// React stuff.
 import { useReducer } from "react"
 import { reducer, init, Action } from "./board.reducer"
 
-// Game "logic".
 import { PieceType } from "../../game/pieceType"
 import { LegalMove } from "../../game/move"
 import { FEN2Board, parseActiveColor, piece2ClassName } from "../../game/fen"
+import { Color } from "../../game/enums"
+import Dialog from "../dialog/Dialog"
 
 type BoardProps = {
 	fen: string
-	side: number // 0 - White, 1 - Black.
+	side: Color
 	onMove: Function
 	checked: PieceType
 	legalMoves: LegalMove[]
@@ -24,113 +23,116 @@ const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"]
 export default function Board({ fen, side, onMove, checked, legalMoves }: BoardProps) {
 	const [state, dispatch] = useReducer(reducer, init)
 
-	function getClassName(index: number, piece: PieceType): string {
-		let name = "board-square " + piece2ClassName(piece)
-
-		name += index == state.selected ? " selected" : ""
-
-		if (legalMoves.find(el => el.s == state.selected && el.d == index)) {
-			name += " legal"
-		}
-
-		if (state.marked.find(el => el === index)) {
-			name += " marked"
-		}
-
-		return piece === checked ? name + " checked" : name
-	}
-
-	function handleClickSquare(index: number, piece: PieceType) {
+	function onSquareClick(ind: number, pt: PieceType) {
 		dispatch({ type: Action.CLEAR_MARKED, payload: null })
 
-		if ((piece + 1) % 2 == (side ^ 1) && piece != PieceType.NoPiece) {
-			dispatch({ type: Action.SET_SELECTED, payload: index })
+		// If the clicked piece has the same color.
+		if ((pt + 1) % 2 == (side ^ 1) && pt != PieceType.NoPiece) {
+			dispatch({ type: Action.SET_SELECTED, payload: ind })
 			return
 		}
 
-		for (const legalMove of legalMoves) {
-			if (legalMove.s == state.selected && legalMove.d == index) {
-				if (legalMove.t < 6) { // If move type is not promotion.
-					onMove(legalMove)
+		for (const move of legalMoves) {
+			if (move.s === state.selected && move.d === ind) {
+				if (move.t < 6) {
+					onMove(move)
 					dispatch({ type: Action.SET_SELECTED, payload: null })
 				} else {
 					dispatch({ type: Action.TOGGLE_DIALOG, payload: true })
-					dispatch({ type: Action.SET_PROMOTION_MOVE, payload: legalMove })
+					dispatch({ type: Action.SET_PROMOTION_MOVE, payload: move })
 				}
 				return
 			}
 		}
 	}
 
-	// pieceType - 0 - knight, 1 - bishop, 2 - rook, 3 - queen.
-	function handlePromotion(pieceType: number) {
+	function onPromotion(pt: PieceType) {
 		if (!state.promotionMove) return
 
-		let mt = state.promotionMove.t >= 10 ? 10 + pieceType : 6 + pieceType
-		onMove(new LegalMove(state.promotionMove.d, state.promotionMove.s, mt))
+		const mt = state.promotionMove.t >= 10 ? 10 + pt : 6 + pt
+		onMove(new LegalMove(state.isDialogActive.d, state.promotionMove.s, mt))
 
 		dispatch({ type: Action.SET_SELECTED, payload: null })
 		dispatch({ type: Action.TOGGLE_DIALOG, payload: false })
 	}
 
-	function handleMarkSquare(index: number) {
-		if (state.marked.find(el => el === index)) {
-			dispatch({ type: Action.REMOVE_MARKED, payload: index })
+	function onMarkSquare(ind: number) {
+		if (state.marked.find(el => el === ind)) {
+			dispatch({ type: Action.REMOVE_MARKED, payload: ind })
 		} else {
-			dispatch({ type: Action.ADD_MARKED, payload: index })
+			dispatch({ type: Action.ADD_MARKED, payload: ind })
 		}
 	}
 
-	return (
-		<div className={`board ${side && "black"}`}>
-			{state.isDialogActive && (
-				<div className="piece-selection-container" onClick={() => dispatch({
-					type: Action.TOGGLE_DIALOG, payload: false
-				})}>
-					<div className={`${parseActiveColor(fen)}-knight`}
-						onClick={() => handlePromotion(0)}
-					/>
-					<div className={`${parseActiveColor(fen)}-bishop`}
-						onClick={() => handlePromotion(1)}
-					/>
-					<div className={`${parseActiveColor(fen)}-rook`}
-						onClick={() => handlePromotion(2)}
-					/>
-					<div className={`${parseActiveColor(fen)}-queen`}
-						onClick={() => handlePromotion(3)}
-					/>
+	function formatClassName(ind: number, pt: PieceType): string {
+		let name = "square " + piece2ClassName(pt)
+
+		if (ind == state.selected) {
+			name += " selected"
+		}
+
+		if (legalMoves.find(el => el.s === state.selected && el.d === ind)) {
+			name += " legal"
+		}
+
+		if (state.marked.find(el => el === ind)) {
+			name += " marked"
+		}
+
+		if (pt === checked && pt != PieceType.NoPiece) {
+			name += " checked"
+		}
+
+		return name
+	}
+
+	return <div className={`board ${side == Color.White ? "white" : "black"}`}>
+		{FEN2Board(fen).map((piece, ind) => <div
+			key={ind}
+			className={formatClassName(ind, piece)}
+			// Left click.
+			onClick={() => onSquareClick(ind, piece)}
+			// Right click.
+			onContextMenu={e => {
+				e.preventDefault()
+				onMarkSquare(ind)
+			}}
+		>
+		</div>)}
+
+		<Dialog
+			isActive={state.isDialogActive}
+			onClose={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: false })}
+			hasClose={true}
+		>
+			<div className={`${parseActiveColor(fen)}-knight`}
+				onClick={() => onPromotion(0)}
+			/>
+			<div className={`${parseActiveColor(fen)}-bishop`}
+				onClick={() => onPromotion(1)}
+			/>
+			<div className={`${parseActiveColor(fen)}-rook`}
+				onClick={() => onPromotion(2)}
+			/>
+			<div className={`${parseActiveColor(fen)}-queen`}
+				onClick={() => onPromotion(3)}
+			/>
+		</Dialog>
+
+		<div className="files">
+			{files.map((file, index) => (
+				<div key={index}>
+					{file}
 				</div>
-			)}
-
-			{FEN2Board(fen).map((piece, index) =>
-				<div
-					key={index}
-					className={getClassName(index, piece)}
-					// Left click.
-					onClick={() => handleClickSquare(index, piece)}
-					// Right click.
-					onContextMenu={e => {
-						e.preventDefault()
-						handleMarkSquare(index)
-					}}
-				/>
-			)}
-
-			<div className="files">
-				{files.map((file, index) => (
-					<div key={index}>
-						{file}
-					</div>
-				))}
-			</div>
-
-			<div className="ranks">
-				{ranks.map((rank, index) => (
-					<div key={index}>
-						{rank}
-					</div>
-				))}
-			</div>
+			))}
 		</div>
-	)
+
+		<div className="ranks">
+			{ranks.map((rank, index) => (
+				<div key={index}>
+					{rank}
+				</div>
+			))}
+		</div>
+	</div>
 }

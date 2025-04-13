@@ -1,4 +1,5 @@
 main dialog {
+
 	/* Center the dialog. */
 	margin: auto;
 	color: var(--text);
@@ -66,10 +67,14 @@ main dialog button#close::after {
 }
 
 main dialog::backdrop {
-	backdrop-filter: blur(2px);
+	backdrop-filter: blur(12px);
 }
 
 /* To be able to close the dialog with display: flex. */
 main dialog:not([open]) {
 	display: none;
+}
+
+main dialog:focus {
+	outline: none;
 }

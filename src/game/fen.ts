@@ -1,6 +1,8 @@
 import { PieceType } from "./pieceType"
 
 export function FEN2Board(fen: string): PieceType[] {
+	if (!fen || fen == "") return []
+
 	const rows = fen.split(" ")[0].split("/")
 	const _board: PieceType[] = new Array(64)
 
@@ -38,6 +40,8 @@ export function FEN2Board(fen: string): PieceType[] {
 
 // parseActiveColor returns "w" for white or "b" for black.
 export function parseActiveColor(FEN: string): string {
+	if (!FEN || FEN == "") return ""
+
 	const fields = FEN.split(" ")
 	if (fields[1] == "w") { return "white" }
 	return "black"

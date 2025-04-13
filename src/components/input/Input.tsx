@@ -17,7 +17,7 @@ export default function Input({ type, isValid, minLength, maxLength,
 	const [_type, setType] = useState<string>(type)
 
 	return (
-		<label>
+		<label className="input-label">
 			<i className={type} />
 			<input className={type} type={_type} placeholder={placeholder}
 				minLength={minLength}
