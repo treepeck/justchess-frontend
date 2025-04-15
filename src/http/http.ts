@@ -1,3 +1,4 @@
+import { Game } from "../game/game"
 import { Color, Result } from "../game/enums"
 
 const serverUrl = "http://localhost:3502"
@@ -138,7 +139,7 @@ export async function getPlayerById(id: string, accessToken: string): Promise<Pl
 		})
 		if (!res.ok) return null
 
-		return res.json()
+		return await res.json()
 	} catch {
 		return null
 	}
@@ -154,8 +155,24 @@ export async function getGamesByPlayerId(id: string, accessToken: string): Promi
 		})
 		if (!res.ok) return []
 
-		return res.json()
+		return await res.json()
 	} catch {
 		return []
+	}
+}
+
+export async function getGameById(id: string, accessToken: string): Promise<Game | null> {
+	try {
+		const res = await fetch(`${serverUrl}/game/id/${id}`, {
+			method: "GET",
+			headers: {
+				"Authorization": "Bearer " + accessToken
+			}
+		})
+		if (!res) return null
+
+		return await res.json()
+	} catch {
+		return null
 	}
 }

@@ -8,6 +8,7 @@ import { LegalMove } from "../../game/move"
 import { FEN2Board, parseActiveColor, piece2ClassName } from "../../game/fen"
 import { Color } from "../../game/enums"
 import Dialog from "../dialog/Dialog"
+import PromotionDialog from "../promotion-dialog/PromotionDialog"
 
 type BoardProps = {
 	fen: string
@@ -50,10 +51,11 @@ export default function Board({ fen, side, onMove, checked, legalMoves }: BoardP
 		if (!state.promotionMove) return
 
 		const mt = state.promotionMove.t >= 10 ? 10 + pt : 6 + pt
-		onMove(new LegalMove(state.isDialogActive.d, state.promotionMove.s, mt))
+		onMove(new LegalMove(state.promotionMove.d, state.promotionMove.s, mt))
 
 		dispatch({ type: Action.SET_SELECTED, payload: null })
 		dispatch({ type: Action.TOGGLE_DIALOG, payload: false })
+		dispatch({ type: Action.SET_PROMOTION_MOVE, payload: null })
 	}
 
 	function onMarkSquare(ind: number) {
@@ -100,24 +102,12 @@ export default function Board({ fen, side, onMove, checked, legalMoves }: BoardP
 		>
 		</div>)}
 
-		<Dialog
-			isActive={state.isDialogActive}
+		{state.isDialogActive && <PromotionDialog
+			activeColor={parseActiveColor(fen)}
+			onClick={onPromotion}
 			onClose={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: false })}
-			hasClose={true}
-		>
-			<div className={`${parseActiveColor(fen)}-knight`}
-				onClick={() => onPromotion(0)}
-			/>
-			<div className={`${parseActiveColor(fen)}-bishop`}
-				onClick={() => onPromotion(1)}
-			/>
-			<div className={`${parseActiveColor(fen)}-rook`}
-				onClick={() => onPromotion(2)}
-			/>
-			<div className={`${parseActiveColor(fen)}-queen`}
-				onClick={() => onPromotion(3)}
-			/>
-		</Dialog>
+			toFile={state.promotionMove?.d}
+		/>}
 
 		<div className="files">
 			{files.map((file, index) => (

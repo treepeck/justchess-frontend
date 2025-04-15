@@ -8,15 +8,19 @@ type MiniprofileProps = {
 }
 
 export default function Miniprofile({ id }: MiniprofileProps) {
-	const { accessToken } = useAuth()!
-	const [player, setPlayer] = useState<Player | null>(null)
+	const { player, accessToken } = useAuth()!
+	const [profile, setProfile] = useState<Player | null>(null)
 
 	useEffect(() => {
-		const fetchUser = async function () {
-			const _player = await getPlayerById(id ?? "", accessToken)
-			if (_player) { setPlayer(_player) }
+		if (id == player.id) {
+			setProfile(player)
+		} else {
+			const fetchUser = async function () {
+				const _player = await getPlayerById(id ?? "", accessToken)
+				if (_player) { setProfile(_player) }
+			}
+			fetchUser()
 		}
-		fetchUser()
 	}, [id])
 
 	if (!player) {
@@ -24,10 +28,10 @@ export default function Miniprofile({ id }: MiniprofileProps) {
 	}
 
 	return (
-		<>{player.isEngine ? <div className="miniprofile">
-			{player.username}
+		<>{profile?.isEngine ? <div className="miniprofile">
+			{profile?.username}
 		</div>
-			: <a className="miniprofile" href={`http://localhost:3000/player/${player.id}`}>{player.username}</a>
+			: <a className="miniprofile" href={`http://localhost:3000/player/${profile?.id}`}>{profile?.username}</a>
 		}</>
 	)
 }

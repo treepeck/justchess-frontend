@@ -7,10 +7,12 @@ import { Action, init, reducer } from "./play.reducer"
 
 import _WebSocket from "../../ws/ws"
 import { LegalMove } from "../../game/move"
+import { getGameById } from "../../http/http"
 import { PieceType } from "../../game/pieceType"
 import { Message, MessageType } from "../../ws/message"
 import { Color, Result, Status } from "../../game/enums"
 
+import NotFound from "../not-found/NotFound"
 import Chat from "../../components/chat/Chat"
 import Table from "../../components/table/Table"
 import Board from "../../components/board/Board"
@@ -37,6 +39,29 @@ export default function Play() {
 			onMessage(msg as Message)
 		}
 
+		s.socket.onerror = async () => {
+			// If the room wasn't found.
+			const game = await getGameById(id, accessToken)
+
+			if (!game) { return }
+
+			dispatch({
+				type: Action.SET_ROOM_STATE, payload: {
+					s: Status.OVER,
+					w: game.whiteId,
+					b: game.blackId,
+					c: 0, // Does not matter.
+					e: false, // Does not matter.
+				}
+			})
+
+			for (const m of game.moves) {
+				dispatch({ type: Action.ADD_MOVE, payload: m })
+			}
+
+			dispatch({ type: Action.SET_ENDGAME_INFO, payload: { r: game.result, w: game.winner } })
+		}
+
 		s.socket.onopen = () => {
 			dispatch({ type: Action.SET_SOCKET, payload: s })
 		}
@@ -52,7 +77,7 @@ export default function Play() {
 	function onMessage(msg: Message) {
 		switch (msg.t) {
 			case MessageType.ROOM_STATUS:
-				dispatch({ type: Action.SET_ROOM_STATUS, payload: msg.d })
+				dispatch({ type: Action.SET_ROOM_STATE, payload: msg.d })
 				break
 
 			case MessageType.LAST_MOVE:
@@ -60,11 +85,11 @@ export default function Play() {
 				break
 
 			case MessageType.GAME_RESULT:
-				dispatch({ type: Action.SET_RESULT, payload: msg.d })
+				dispatch({ type: Action.SET_ENDGAME_INFO, payload: msg.d })
 				break
 
 			case MessageType.CHAT:
-				dispatch({ type: Action.ADD_CHAT, payload: msg.d })
+				dispatch({ type: Action.ADD_CHAT_MESSAGE, payload: msg.d })
 				break
 		}
 	}
@@ -72,19 +97,19 @@ export default function Play() {
 	function onKeyDown(e: KeyboardEvent) {
 		switch (e.code) {
 			case "ArrowUp":
-				dispatch({ type: Action.SET_CURRENT_MOVE_INDEX, payload: 0 })
+				dispatch({ type: Action.SET_CURRENT_MOVE_IND, payload: 0 })
 				break
 
 			case "ArrowRight":
-				dispatch({ type: Action.INCR_CURRENT_MOVE_INDEX, payload: null })
+				dispatch({ type: Action.INC_CURRENT_MOVE_IND, payload: null })
 				break
 
 			case "ArrowDown":
-				dispatch({ type: Action.SET_CURRENT_MOVE_INDEX_TO_LAST, payload: null })
+				dispatch({ type: Action.END_CURRENT_MOVE_IND, payload: null })
 				break
 
 			case "ArrowLeft":
-				dispatch({ type: Action.DECR_CURRENT_MOVE_INDEX, payload: null })
+				dispatch({ type: Action.DEC_CURRENT_MOVE_IND, payload: null })
 				break
 		}
 	}
@@ -109,32 +134,31 @@ export default function Play() {
 	}
 
 	function onMoveClick(ind: number) {
-		console.log(ind)
 		if (!state.moves[ind]) return
 
-		dispatch({ type: Action.SET_CURRENT_MOVE_INDEX, payload: ind })
+		dispatch({ type: Action.SET_CURRENT_MOVE_IND, payload: ind })
 	}
 
 	function getCheckedKing(): PieceType {
-		if (state.moves.length < 1) return PieceType.NoPiece
+		const move = state.moves[state.currentMoveInd]
+		if (!move) return PieceType.NoPiece
 
-		const lastMove = state.moves[state.moves.length - 1]
-		if (lastMove?.s.includes("#") || lastMove?.s.includes("+")) {
-			return (state.moves.length + 1) % 2 == 0 ? PieceType.BlackKing : PieceType.WhiteKing
+		if (move.s.includes("#") || move.s.includes("+")) {
+			return state.currentMoveInd % 2 == 0 ? PieceType.BlackKing : PieceType.WhiteKing
 		}
 		return PieceType.NoPiece
 	}
 
 	function getActiveId(): string | undefined {
-		if (state.roomStatus.status == Status.OPEN ||
-			state.roomStatus.status == Status.OVER) {
+		if (state.room.status == Status.OPEN ||
+			state.room.status == Status.OVER) {
 			return undefined
 		}
 
 		if ((state.moves.length + 1) % 2 == 0) {
-			return state.roomStatus.black
+			return state.room.black
 		}
-		return state.roomStatus.white
+		return state.room.white
 	}
 
 	function formatWinner() {
@@ -162,45 +186,47 @@ export default function Play() {
 		}
 	}
 
+	if (!state.socket && state.result == Result.Unknown) return <NotFound />
+
 	return <main data-theme={theme}>
 		<Header />
 
 		<div className="play-container">
-			{!state.roomStatus.isVSEngine && <Chat
+			{!state.room.isVSEngine && state.socket && <Chat
 				socket={state.socket}
 				chat={state.chat}
 			/>}
 
-			<div className={`board-container ${player.id == state.roomStatus.white ? "" : "black"}`}>
+			<div className={`board-container ${player.id == state.room.black ? "black" : "white"}`}>
 				<div className="row">
-					<Miniprofile id={state.roomStatus.black} />
+					<Miniprofile id={state.room.black} />
 
 					<Clock
 						time={state.blackTime}
 						color={"black"}
 						dispatch={dispatch}
-						isActive={state.roomStatus.black == getActiveId()}
+						isActive={state.room.black == getActiveId()}
 					/>
 				</div>
 
 				<Board
 					fen={state.moves[state.currentMoveInd]?.f ?? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}
-					side={player.id === state.roomStatus.white ? Color.White : Color.Black}
+					side={player.id === state.room.black ? Color.Black : Color.White}
 					onMove={(m: LegalMove) => {
-						state.socket!.sendMakeMove(m)
+						state.socket?.sendMakeMove(m)
 					}}
 					checked={getCheckedKing()}
 					legalMoves={state.legalMoves}
 				/>
 
 				<div className="row">
-					<Miniprofile id={state.roomStatus.white} />
+					<Miniprofile id={state.room.white} />
 
 					<Clock
 						time={state.whiteTime}
 						color={"white"}
 						dispatch={dispatch}
-						isActive={state.roomStatus.white == getActiveId()}
+						isActive={state.room.white == getActiveId()}
 					/>
 				</div>
 			</div>
@@ -230,7 +256,7 @@ export default function Play() {
 			</Table>
 
 			{/* Spawn engine worker. */}
-			{state.roomStatus.isVSEngine && <Engine
+			{state.room.isVSEngine && state.socket && <Engine
 				socket={state.socket}
 				legalMoves={state.legalMoves}
 				isTurn={getActiveId() != player.id}
@@ -240,7 +266,7 @@ export default function Play() {
 		</div>
 
 		<Dialog
-			isActive={state.roomStatus.status == Status.OPEN}
+			isActive={state.room.status == Status.OPEN}
 			onClose={() => { }}
 			hasClose={false}
 		>
@@ -268,5 +294,7 @@ export default function Play() {
 				onClick={() => window.location.replace("/")}
 			/>
 		</Dialog>
+
+		{state.socket && !state.room.isVSEngine && <div className="clients-counter">Players: {state.room.clients}</div>}
 	</main>
 }

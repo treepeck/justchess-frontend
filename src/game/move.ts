@@ -16,7 +16,6 @@ export enum MoveType {
 }
 
 export class CompletedMove {
-	// Standard Algebraic Notation.
 	s: string
 	// Forsyth-Edwards Notation after completing the move.
 	f: string

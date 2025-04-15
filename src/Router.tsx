@@ -48,11 +48,8 @@ export default function Router() {
 		else if (currentPath.match(/^\/signin$/)) {
 			return <Signin />
 		}
-		else if (currentPath.match(/^\/404$/)) {
-			return <NotFound />
-		}
 
-		window.location.replace("/404")
+		return <NotFound />
 	}
 
 	return <ThemeProvider>
