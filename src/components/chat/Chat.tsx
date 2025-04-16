@@ -1,37 +1,63 @@
 import "./Chat.css"
-import _WebSocket from "../../ws/ws"
-import { useState } from "react"
 import Input from "../input/Input"
+import _WebSocket from "../../ws/ws"
+import { useEffect, useRef, useState } from "react"
 
 type ChatProps = {
-	socket: _WebSocket,
-	chat: string[],
+	socket: _WebSocket
+	messages: string[]
 }
 
-export default function Chat({ socket, chat }: ChatProps) {
-	const [msg, setMsg] = useState("")
+export default function Chat({ socket, messages }: ChatProps) {
+	const [msg, setMsg] = useState<string>("")
+	const isInFocus = useRef<boolean>(false)
+	const scrollRef = useRef<HTMLDivElement>(null)
+
+	useEffect(() => {
+		window.addEventListener("keydown", onKeyDown)
+
+		return () => {
+			window.removeEventListener("keydown", onKeyDown)
+		}
+	}, [isInFocus, msg])
+
+	useEffect(() => {
+		scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" })
+	}, [messages])
+
+	function onKeyDown(e: KeyboardEvent) {
+		if (!isInFocus.current || (e.code != "Enter" && e.code != "NumpadEnter") ||
+			msg.length < 1) return
+
+		socket.sendChat(msg)
+		setMsg("")
+	}
 
 	return (
 		<div className="chat">
 			<p>Chat</p>
 
 			<div className="messages">
-				{chat.map((msg, index) => (
+				{messages.map((msg, index) => (
 					<div className="message" key={index}>
 						{msg}
 					</div>
 				))}
+
+				<div ref={scrollRef} />
 			</div>
 
 			<div className="input-container">
-				<Input
+				<input
 					type="text"
+					value={msg}
 					placeholder="Enter your messages here"
+					autoComplete="off"
+					onFocus={() => isInFocus.current = true}
+					onBlur={() => isInFocus.current = false}
 					onChange={e => setMsg(e.target.value)}
 					maxLength={200}
 					minLength={1}
-					hasIcon={false}
-					isValid={false}
 				/>
 				<button
 					onClick={() => {

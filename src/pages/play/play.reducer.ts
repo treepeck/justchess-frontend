@@ -16,6 +16,7 @@ export enum Action {
 	SET_ROOM_STATE,
 	SET_WHITE_TIME,
 	SET_BLACK_TIME,
+	SET_IS_DONE_FETCHING,
 	SET_CURRENT_MOVE_IND,
 	END_CURRENT_MOVE_IND,
 	INC_CURRENT_MOVE_IND,
@@ -34,6 +35,7 @@ type State = {
 	whiteTime: number
 	blackTime: number
 	currentMoveInd: number
+	isDoneFetching: boolean
 	moves: CompletedMove[]
 	legalMoves: LegalMove[]
 	isDialogActive: boolean
@@ -93,6 +95,9 @@ export function reducer(s: State, a: _Action) {
 		case Action.SET_BLACK_TIME:
 			return { ...s, blackTime: a.payload }
 
+		case Action.SET_IS_DONE_FETCHING:
+			return { ...s, isDoneFetching: a.payload }
+
 		case Action.SET_CURRENT_MOVE_IND:
 			return onCurrentMoveIndChange(a.payload)
 
@@ -144,6 +149,7 @@ export const init: State = {
 	currentMoveInd: 0,
 	moves: [],
 	legalMoves: [],
+	isDoneFetching: false,
 	isDialogActive: false,
 	socket: null,
 }

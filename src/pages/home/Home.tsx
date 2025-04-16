@@ -4,19 +4,19 @@ import _WebSocket from "../../ws/ws"
 import { Role } from "../../http/http"
 import { Message, MessageType } from "../../ws/message"
 
-import { useEffect, useReducer, useRef } from "react"
+import { useEffect, useReducer } from "react"
 import { reducer, Action, init } from "./home.reducer"
 
 import { useAuth } from "../../context/Auth"
 import { useTheme } from "../../context/Theme"
 import { useEngineConf } from "../../context/EngineConf"
 
+import Table from "../../components/table/Table"
+import Slider from "../../components/slider/Slider"
 import Header from "../../components/header/Header"
 import Button from "../../components/button/Button"
 import Dialog from "../../components/dialog/Dialog"
 import RadioButtons from "../../components/radio-buttons/RadioButtons"
-import Slider from "../../components/slider/Slider"
-import Table from "../../components/table/Table"
 
 export default function Home() {
 	const { theme } = useTheme()!
@@ -81,29 +81,33 @@ export default function Home() {
 			caption="Active games"
 			headerCols={["Creator", "Control", "Bonus"]}
 		>
-			{state.rooms.map((room, ind) => <a
-				key={ind}
-				className="row"
-				href={`http://localhost:3000/${room.id}`}
-				onClick={e => {
-					e.preventDefault()
-					if (player.role == Role.Guest) {
-						dispatch({ type: Action.SET_ERROR_MSG, payload: "Sign up to play against other humans" })
-						return
-					}
-					window.location.replace(`/${room.id}`)
-				}}
-			>
-				<div className="col">{room.cr}</div>
-				<div className="col">{room.c}</div>
-				<div className="col">{room.b}</div>
-			</a>)}
+			<div className="t-body">
+				{state.rooms.map((room, ind) => <a
+					key={ind}
+					className="row"
+					href={`http://localhost:3000/${room.id}`}
+					onClick={e => {
+						e.preventDefault()
+						if (player.role == Role.Guest) {
+							dispatch({ type: Action.SET_ERROR_MSG, payload: "Sign up to play against other humans" })
+							return
+						}
+						window.location.replace(`/${room.id}`)
+					}}
+				>
+					<div className="col">{room.cr}</div>
+					<div className="col">{room.c}</div>
+					<div className="col">{room.b}</div>
+				</a>)}
+			</div>
 		</Table>
 
 		<Button
 			text="Create game"
 			onClick={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: true })}
 		/>
+
+		<div className="clients-counter">Players: {state.clientsCounter}</div>
 
 		<Dialog
 			isActive={state.isDialogActive}

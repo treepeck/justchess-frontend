@@ -29,6 +29,7 @@ export default function Play() {
 	const { theme } = useTheme()!
 	const engine = useRef<Worker | null>(null)
 	const { player, accessToken } = useAuth()!
+	const scrollRef = useRef<HTMLDivElement>(null)
 	const [state, dispatch] = useReducer(reducer, init)
 
 	useEffect(() => {
@@ -42,6 +43,7 @@ export default function Play() {
 		s.socket.onerror = async () => {
 			// If the room wasn't found.
 			const game = await getGameById(id, accessToken)
+			dispatch({ type: Action.SET_IS_DONE_FETCHING, payload: true })
 
 			if (!game) { return }
 
@@ -63,6 +65,7 @@ export default function Play() {
 		}
 
 		s.socket.onopen = () => {
+			dispatch({ type: Action.SET_IS_DONE_FETCHING, payload: true })
 			dispatch({ type: Action.SET_SOCKET, payload: s })
 		}
 
@@ -113,6 +116,10 @@ export default function Play() {
 				break
 		}
 	}
+
+	useEffect(() => {
+		scrollRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" })
+	}, [state.moves])
 
 	function formatMovePairs(): {
 		ind: number,
@@ -186,7 +193,9 @@ export default function Play() {
 		}
 	}
 
-	if (!state.socket && state.result == Result.Unknown) return <NotFound />
+	if (!state.socket && state.result == Result.Unknown && state.isDoneFetching)
+		return <NotFound />
+
 
 	return <main data-theme={theme}>
 		<Header />
@@ -194,7 +203,7 @@ export default function Play() {
 		<div className="play-container">
 			{!state.room.isVSEngine && state.socket && <Chat
 				socket={state.socket}
-				chat={state.chat}
+				messages={state.chat}
 			/>}
 
 			<div className={`board-container ${player.id == state.room.black ? "black" : "white"}`}>
@@ -235,24 +244,28 @@ export default function Play() {
 				caption="Moves"
 				headerCols={["#", "White", "Black"]}
 			>
-				{formatMovePairs().map((move, ind) => <div
-					key={ind}
-					className="row"
-				>
-					<div className="col">{move.ind}</div>
-
-					<div className={"col" + (state.currentMoveInd == ind * 2 ? " current" : "")}
-						onClick={() => onMoveClick(ind * 2)}
+				<div className="t-body">
+					{formatMovePairs().map((move, ind) => <div
+						key={ind}
+						className="row"
 					>
-						{move.whiteSAN}
-					</div>
+						<div className="col">{move.ind}</div>
 
-					<div className={"col" + (state.currentMoveInd == ind * 2 + 1 ? " current" : "")}
-						onClick={() => onMoveClick(ind * 2 + 1)}
-					>
-						{move.blackSAN}
-					</div>
-				</div>)}
+						<div className={"col" + (state.currentMoveInd == ind * 2 ? " current" : "")}
+							onClick={() => onMoveClick(ind * 2)}
+						>
+							{move.whiteSAN}
+						</div>
+
+						<div className={"col" + (state.currentMoveInd == ind * 2 + 1 ? " current" : "")}
+							onClick={() => onMoveClick(ind * 2 + 1)}
+						>
+							{move.blackSAN}
+						</div>
+					</div>)}
+
+					<div ref={scrollRef} />
+				</div>
 			</Table>
 
 			{/* Spawn engine worker. */}
@@ -293,6 +306,14 @@ export default function Play() {
 				text="Home page"
 				onClick={() => window.location.replace("/")}
 			/>
+		</Dialog>
+
+		<Dialog
+			isActive={!state.isDoneFetching}
+			onClose={() => { }}
+			hasClose={false}
+		>
+			<h2>Processing...</h2>
 		</Dialog>
 
 		{state.socket && !state.room.isVSEngine && <div className="clients-counter">Players: {state.room.clients}</div>}

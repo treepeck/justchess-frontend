@@ -71,31 +71,34 @@ export default function Profile() {
 			caption="Completed games"
 			headerCols={["Result", "Players", "Control", "Moves", "Date"]}
 		>
-			{games.map((game, ind) => <a key={ind} className="row" href={`http://localhost:3000/${game.id}`}>
-				<div className={`col ${formatColor(game.w, game.wid, game.bid)}`}>
-					{formatWinner(game.w)}
-					<br />
-					{formatResult(game.r)}
-				</div>
+			<div className="t-body">
 
-				<div className="col">
-					{game.wn}
-					<br />
-					{game.bn}
-				</div>
+				{games.map((game, ind) => <a key={ind} className="row" href={`http://localhost:3000/${game.id}`}>
+					<div className={`col ${formatColor(game.w, game.wid, game.bid)}`}>
+						{formatWinner(game.w)}
+						<br />
+						{formatResult(game.r)}
+					</div>
 
-				<div className="col">
-					{game.tc / 60}m + {game.tb}s
-				</div>
+					<div className="col">
+						{game.wn}
+						<br />
+						{game.bn}
+					</div>
 
-				<div className="col">
-					{game.m}
-				</div>
+					<div className="col">
+						{game.tc / 60}m + {game.tb}s
+					</div>
 
-				<div className="col">
-					{formatDate(game.ca)}
-				</div>
-			</a>)}
+					<div className="col">
+						{game.m}
+					</div>
+
+					<div className="col">
+						{formatDate(game.ca)}
+					</div>
+				</a>)}
+			</div>
 		</Table>
 	</main>
 }

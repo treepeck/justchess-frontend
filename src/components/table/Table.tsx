@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react"
 import "./Table.css"
 
 type TableProps = {
@@ -21,8 +22,6 @@ export default function Table({ caption, headerCols,
 			))}
 		</div>
 
-		<div className="t-body">
-			{children}
-		</div>
+		{children}
 	</div>
 }

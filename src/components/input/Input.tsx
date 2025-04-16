@@ -2,12 +2,12 @@ import "./Input.css"
 import { useState } from "react"
 
 type InputProps = {
-	type: string,
-	hasIcon: boolean,
-	isValid: boolean,
-	minLength: number,
-	maxLength: number,
-	placeholder: string,
+	type: string
+	hasIcon: boolean
+	isValid: boolean
+	minLength: number
+	maxLength: number
+	placeholder: string
 	onChange: React.ChangeEventHandler<HTMLInputElement>,
 }
 
@@ -19,7 +19,10 @@ export default function Input({ type, isValid, minLength, maxLength,
 	return (
 		<label className="input-label">
 			<i className={type} />
-			<input className={type} type={_type} placeholder={placeholder}
+			<input
+				className={type}
+				type={_type}
+				placeholder={placeholder}
 				minLength={minLength}
 				maxLength={maxLength}
 				onChange={onChange}
