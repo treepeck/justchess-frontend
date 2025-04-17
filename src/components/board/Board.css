@@ -192,14 +192,6 @@
 	.files {
 		font-size: large;
 	}
-
-	main .play-container .table {
-		width: 400px;
-	}
-
-	main .play-container .chat {
-		width: 400px;
-	}
 }
 
 @media (min-width: 1024px) {

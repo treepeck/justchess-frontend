@@ -55,6 +55,22 @@ export default class _WebSocket {
 		this.socket.send(msg)
 	}
 
+	sendDrawOffer() {
+		const msg = JSON.stringify({
+			t: MessageType.DRAW_OFFER,
+			d: null
+		})
+		this.socket.send(msg)
+	}
+
+	sendDeclineDraw() {
+		const msg = JSON.stringify({
+			t: MessageType.DECLINE_DRAW,
+			d: null
+		})
+		this.socket.send(msg)
+	}
+
 	close() {
 		this.socket.close()
 	}

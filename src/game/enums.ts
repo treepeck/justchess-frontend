@@ -14,7 +14,8 @@ export enum Result {
 	InsufficientMaterial,
 	FiftyMoves,
 	Repetition,
-	Resignation
+	Resignation,
+	Agreement,
 }
 
 export function formatResult(r: Result): string {
@@ -26,6 +27,7 @@ export function formatResult(r: Result): string {
 		case Result.FiftyMoves: return "by fifty moves rule"
 		case Result.Repetition: return "by threefold repetition"
 		case Result.Resignation: return "by resignation"
+		case Result.Agreement: return "by agreement"
 		default: return "by unknown reason"
 	}
 }

@@ -5,11 +5,23 @@ main .play-container {
 	gap: 16px;
 }
 
-main .play-container .table {
-	height: 200px;
-	width: 350px;
+main .play-container .moves-container {
 	order: 2;
 	margin: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	height: 250px;
+	width: 350px;
+}
+
+main .play-container .moves-container .confirm-container .button {
+	width: 100%;
+}
+
+main .play-container .moves-container .table {
+	width: 100%;
+	height: calc(100% - 64px);
 }
 
 main .play-container .row {
@@ -39,6 +51,22 @@ main .play-container .chat {
 	order: 3;
 	height: 200px;
 	width: 350px;
+}
+
+main .play-container .controls-container {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+main .play-container .controls-container .button {
+	width: 100%;
+}
+
+main .play-container .controls-container .confirm-container {
+	display: flex;
+	gap: 10px;
 }
 
 .dots {
@@ -80,14 +108,14 @@ main .play-container .chat {
 }
 
 @media (min-width: 600px) {
-	main .play-container .table {
+	main .play-container .moves-container {
 		height: 250px;
-		width: 550px;
+		width: 450px;
 	}
 
 	main .play-container .chat {
 		height: 250px;
-		width: 550px;
+		width: 450px;
 	}
 }
 
@@ -106,9 +134,9 @@ main .play-container .chat {
 		order: 2;
 	}
 
-	main .play-container .table {
+	main .play-container .moves-container {
 		order: 3;
-		width: 300px;
+		width: 350px;
 		height: 500px;
 	}
 }

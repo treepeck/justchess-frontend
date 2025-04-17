@@ -21,5 +21,5 @@ header a:hover {
 header a:nth-child(2) {
 	margin-left: auto;
 	padding: 1rem;
-	font-size: medium;
+	font-size: larger;
 }

@@ -5,12 +5,12 @@ main dialog {
 main .table {
 	width: 95%;
 	height: 400px;
-	margin: auto;
+	margin: auto auto 16px auto;
 }
 
 main .button {
 	width: 320px;
-	margin: auto;
+	margin: 0 auto auto auto;
 	height: 32px;
 }
 

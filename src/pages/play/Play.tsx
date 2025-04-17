@@ -10,7 +10,7 @@ import { LegalMove } from "../../game/move"
 import { getGameById } from "../../http/http"
 import { PieceType } from "../../game/pieceType"
 import { Message, MessageType } from "../../ws/message"
-import { Color, Result, Status } from "../../game/enums"
+import { Color, formatResult, formatWinner, Result, Status } from "../../game/enums"
 
 import NotFound from "../not-found/NotFound"
 import Chat from "../../components/chat/Chat"
@@ -94,6 +94,10 @@ export default function Play() {
 			case MessageType.CHAT:
 				dispatch({ type: Action.ADD_CHAT_MESSAGE, payload: msg.d })
 				break
+
+			case MessageType.DRAW_OFFER:
+				dispatch({ type: Action.SET_IS_PENDING_DRAW_OFFER, payload: true })
+				break
 		}
 	}
 
@@ -168,31 +172,6 @@ export default function Play() {
 		return state.room.white
 	}
 
-	function formatWinner() {
-		switch (state.winner) {
-			case Color.White:
-				return "White won"
-
-			case Color.Black:
-				return "Black won"
-
-			default: return "Draw"
-		}
-	}
-
-	function formatResult() {
-		switch (state.result) {
-			case Result.Checkmate: return "by checkmate"
-			case Result.Timeout: return "by timeout"
-			case Result.Stalemate: return "by stalemate"
-			case Result.InsufficientMaterial: return "by insufficient material"
-			case Result.FiftyMoves: return "by fifty moves rule"
-			case Result.Repetition: return "by threefold repetition"
-			case Result.Resignation: return "by resignation"
-			default: return "by unknown reason"
-		}
-	}
-
 	if (!state.socket && state.result == Result.Unknown && state.isDoneFetching)
 		return <NotFound />
 
@@ -240,33 +219,111 @@ export default function Play() {
 				</div>
 			</div>
 
-			<Table
-				caption="Moves"
-				headerCols={["#", "White", "Black"]}
-			>
-				<div className="t-body">
-					{formatMovePairs().map((move, ind) => <div
-						key={ind}
-						className="row"
-					>
-						<div className="col">{move.ind}</div>
-
-						<div className={"col" + (state.currentMoveInd == ind * 2 ? " current" : "")}
-							onClick={() => onMoveClick(ind * 2)}
+			<div className="moves-container">
+				<Table
+					caption="Moves"
+					headerCols={["#", "White", "Black"]}
+				>
+					<div className="t-body">
+						{formatMovePairs().map((move, ind) => <div
+							key={ind}
+							className="row"
 						>
-							{move.whiteSAN}
-						</div>
+							<div className="col">{move.ind}</div>
 
-						<div className={"col" + (state.currentMoveInd == ind * 2 + 1 ? " current" : "")}
-							onClick={() => onMoveClick(ind * 2 + 1)}
-						>
-							{move.blackSAN}
-						</div>
-					</div>)}
+							<div className={"col" + (state.currentMoveInd == ind * 2 ? " current" : "")}
+								onClick={() => onMoveClick(ind * 2)}
+							>
+								{move.whiteSAN}
+							</div>
 
-					<div ref={scrollRef} />
-				</div>
-			</Table>
+							<div className={"col" + (state.currentMoveInd == ind * 2 + 1 ? " current" : "")}
+								onClick={() => onMoveClick(ind * 2 + 1)}
+							>
+								{move.blackSAN}
+							</div>
+						</div>)}
+
+						<div ref={scrollRef} />
+					</div>
+				</Table>
+
+				{/* If the game is in progess. */}
+				{state.socket && state.result == Result.Unknown && state.moves.length > 1 &&
+					<div className="controls-container">
+						{/* Draw offer control. */}
+						{state.isConfirmDrawOfferActive &&
+							!state.isPendingDrawOffer && <div className="confirm-container">
+								<Button
+									text="Draw offer"
+									isConfirm={true}
+									onClick={() => {
+										state.socket?.sendDrawOffer()
+										dispatch({ type: Action.SET_CONFIRM_DRAW, payload: false })
+									}}
+								/>
+
+								<Button
+									text="Cancel"
+									isCancel={true}
+									onClick={() => dispatch({ type: Action.SET_CONFIRM_DRAW, payload: false })}
+								/>
+							</div>}
+						{!state.room.isVSEngine && !state.isConfirmDrawOfferActive &&
+							!state.isPendingDrawOffer && <Button
+								text="Draw offer"
+								onClick={() => {
+									dispatch({ type: Action.SET_CONFIRM_DRAW, payload: true })
+								}}
+							/>}
+
+						{/* Resign control. */}
+						{state.isConfirmResignActive && !state.isPendingDrawOffer &&
+							<div className="confirm-container">
+								<Button
+									text="Resign"
+									isConfirm={true}
+									onClick={() => {
+										state.socket?.sendResign()
+										dispatch({ type: Action.SET_CONFIRM_RESIGN, payload: false })
+									}}
+								/>
+
+								<Button
+									text="Cancel"
+									isCancel={true}
+									onClick={() => dispatch({ type: Action.SET_CONFIRM_RESIGN, payload: false })}
+								/>
+							</div>}
+						{!state.isConfirmResignActive && !state.isPendingDrawOffer && <Button
+							text="Resign"
+							onClick={() => {
+								dispatch({ type: Action.SET_CONFIRM_RESIGN, payload: true })
+							}}
+						/>}
+
+						{/* Accept draw control. */}
+						{state.isPendingDrawOffer && <div className="confirm-container">
+							<Button
+								text="Accept draw"
+								isConfirm={true}
+								onClick={() => {
+									state.socket?.sendDrawOffer()
+									dispatch({ type: Action.SET_IS_PENDING_DRAW_OFFER, payload: false })
+								}}
+							/>
+
+							<Button
+								text="Decline draw"
+								isCancel={true}
+								onClick={() => {
+									state.socket?.sendDeclineDraw()
+									dispatch({ type: Action.SET_IS_PENDING_DRAW_OFFER, payload: false })
+								}}
+							/>
+						</div>}
+					</div>}
+			</div>
 
 			{/* Spawn engine worker. */}
 			{state.room.isVSEngine && state.socket && <Engine
@@ -298,9 +355,9 @@ export default function Play() {
 		>
 			<h2>Game over</h2>
 
-			<p className="winner">{formatWinner()}</p>
+			<p className="winner">{formatWinner(state.winner)}</p>
 
-			<p className="result">{formatResult()}</p>
+			<p className="result">{formatResult(state.result)}</p>
 
 			<Button
 				text="Home page"
@@ -317,5 +374,5 @@ export default function Play() {
 		</Dialog>
 
 		{state.socket && !state.room.isVSEngine && <div className="clients-counter">Players: {state.room.clients}</div>}
-	</main>
+	</main >
 }

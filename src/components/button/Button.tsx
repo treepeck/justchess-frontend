@@ -1,13 +1,11 @@
 import "./Button.css"
 
-type ButtonProps = {
-	text: string
-	onClick: React.ReactEventHandler
-}
-
-export default function Button({ text, onClick }: ButtonProps) {
+export default function Button({ text, onClick, isCancel = false, isConfirm = false }: any) {
 	return (
-		<button className="button" onClick={onClick}>
+		<button
+			className={`button ${isCancel ? "cancel" : ""} ${isConfirm ? "confirm" : ""}`}
+			onClick={onClick}
+		>
 			{text}
 		</button>
 	)

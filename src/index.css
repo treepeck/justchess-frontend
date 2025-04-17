@@ -31,6 +31,7 @@ body {
 
 .clients-counter {
 	margin: 16px;
+	font-size: larger;
 }
 
 /* Main container. */

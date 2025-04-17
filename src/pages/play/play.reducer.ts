@@ -16,11 +16,14 @@ export enum Action {
 	SET_ROOM_STATE,
 	SET_WHITE_TIME,
 	SET_BLACK_TIME,
+	SET_CONFIRM_DRAW,
+	SET_CONFIRM_RESIGN,
 	SET_IS_DONE_FETCHING,
 	SET_CURRENT_MOVE_IND,
 	END_CURRENT_MOVE_IND,
 	INC_CURRENT_MOVE_IND,
 	DEC_CURRENT_MOVE_IND,
+	SET_IS_PENDING_DRAW_OFFER,
 	ADD_MOVE,
 	SET_LEGAL_MOVES,
 	TOGGLE_DIALOG,
@@ -40,6 +43,9 @@ type State = {
 	legalMoves: LegalMove[]
 	isDialogActive: boolean
 	socket: _WebSocket | null
+	isPendingDrawOffer: boolean
+	isConfirmResignActive: boolean
+	isConfirmDrawOfferActive: boolean
 }
 
 type _Action = {
@@ -136,6 +142,15 @@ export function reducer(s: State, a: _Action) {
 				// Set default legal moves when the game starts.
 				legalMoves: LegalMove.getDefault(),
 			}
+
+		case Action.SET_IS_PENDING_DRAW_OFFER:
+			return { ...s, isPendingDrawOffer: a.payload }
+
+		case Action.SET_CONFIRM_DRAW:
+			return { ...s, isConfirmDrawOfferActive: a.payload }
+
+		case Action.SET_CONFIRM_RESIGN:
+			return { ...s, isConfirmResignActive: a.payload }
 	}
 }
 
@@ -152,4 +167,7 @@ export const init: State = {
 	isDoneFetching: false,
 	isDialogActive: false,
 	socket: null,
+	isPendingDrawOffer: false,
+	isConfirmResignActive: false,
+	isConfirmDrawOfferActive: false,
 }

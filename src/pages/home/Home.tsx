@@ -107,7 +107,7 @@ export default function Home() {
 			onClick={() => dispatch({ type: Action.TOGGLE_DIALOG, payload: true })}
 		/>
 
-		<div className="clients-counter">Players: {state.clientsCounter}</div>
+		<div className="clients-counter">Players in lobby: {state.clientsCounter}</div>
 
 		<Dialog
 			isActive={state.isDialogActive}
