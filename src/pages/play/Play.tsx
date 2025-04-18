@@ -54,6 +54,9 @@ export default function Play() {
 					b: game.blackId,
 					c: 0, // Does not matter.
 					e: false, // Does not matter.
+					tc: game.timeControl,
+					wt: game.timeControl,
+					bt: game.timeControl,
 				}
 			})
 
@@ -172,9 +175,9 @@ export default function Play() {
 		return state.room.white
 	}
 
-	if (!state.socket && state.result == Result.Unknown && state.isDoneFetching)
+	if (!state.socket && state.result == Result.Unknown && state.isDoneFetching) {
 		return <NotFound />
-
+	}
 
 	return <main data-theme={theme}>
 		<Header />
@@ -374,5 +377,5 @@ export default function Play() {
 		</Dialog>
 
 		{state.socket && !state.room.isVSEngine && <div className="clients-counter">Players: {state.room.clients}</div>}
-	</main >
+	</main>
 }

@@ -7,6 +7,7 @@ type RoomStatus = {
 	white: string
 	black: string
 	clients: number
+	control: number
 	isVSEngine: boolean
 }
 
@@ -56,16 +57,22 @@ type _Action = {
 export function reducer(s: State, a: _Action) {
 	// Helper function to change the current move index and time on players' clocks.
 	const onCurrentMoveIndChange = (ind: number) => {
-		const isWhiteMove = (ind) % 2 !== 0
+		const isWhiteMove = ind % 2 == 0
+		let whiteTime = s.whiteTime
+		let blackTime = s.blackTime
+		if (s.room.status == Status.OVER && isWhiteMove) {
+			whiteTime = s.moves[ind].t
+			blackTime = s.moves[ind - 1]?.t ?? s.room.control
+		}
+		if (s.room.status == Status.OVER && !isWhiteMove) {
+			whiteTime = s.moves[ind - 1]?.t ?? s.room.control
+			blackTime = s.moves[ind].t
+		}
 		return {
 			...s,
 			currentMoveInd: ind,
-			whiteTime: (s.room.status == Status.OVER && isWhiteMove)
-				? s.moves[ind].t
-				: s.whiteTime,
-			blackTime: (s.room.status == Status.OVER && !isWhiteMove)
-				? s.moves[ind].t
-				: s.blackTime,
+			whiteTime: whiteTime,
+			blackTime: blackTime
 		}
 	}
 
@@ -89,7 +96,8 @@ export function reducer(s: State, a: _Action) {
 					white: a.payload.w,
 					black: a.payload.b,
 					clients: a.payload.c,
-					isVSEngine: a.payload.e
+					isVSEngine: a.payload.e,
+					control: a.payload.tc,
 				},
 				whiteTime: a.payload.wt,
 				blackTime: a.payload.bt,
@@ -158,7 +166,7 @@ export const init: State = {
 	chat: [],
 	winner: Color.None,
 	result: Result.Unknown,
-	room: { status: Status.OVER, white: "", black: "", clients: 0, isVSEngine: false },
+	room: { status: Status.OVER, white: "", black: "", control: 0, clients: 0, isVSEngine: false },
 	whiteTime: 0,
 	blackTime: 0,
 	currentMoveInd: 0,
