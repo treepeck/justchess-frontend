@@ -3,12 +3,11 @@ import "./Board.css"
 import { useReducer } from "react"
 import { reducer, init, Action } from "./board.reducer"
 
-import { PieceType } from "../../game/pieceType"
-import { LegalMove } from "../../game/move"
-import { FEN2Board, parseActiveColor, piece2ClassName } from "../../game/fen"
 import { Color } from "../../game/enums"
-import Dialog from "../dialog/Dialog"
+import { LegalMove } from "../../game/move"
+import { PieceType } from "../../game/pieceType"
 import PromotionDialog from "../promotion-dialog/PromotionDialog"
+import { FEN2Board, parseActiveColor, piece2ClassName } from "../../game/fen"
 
 type BoardProps = {
 	fen: string
@@ -51,7 +50,7 @@ export default function Board({ fen, side, onMove, checked, legalMoves }: BoardP
 		if (!state.promotionMove) return
 
 		const mt = state.promotionMove.t >= 10 ? 10 + pt : 6 + pt
-		onMove(new LegalMove(state.promotionMove.d, state.promotionMove.s, mt))
+		onMove(new LegalMove(state.promotionMove.d | (state.promotionMove.s << 6) | (mt << 12)))
 
 		dispatch({ type: Action.SET_SELECTED, payload: null })
 		dispatch({ type: Action.TOGGLE_DIALOG, payload: false })

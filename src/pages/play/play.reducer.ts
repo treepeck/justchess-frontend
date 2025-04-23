@@ -134,7 +134,7 @@ export function reducer(s: State, a: _Action) {
 				blackTime: !isWhiteMove ? a.payload.t : s.blackTime,
 				currentMoveInd: s.moves.length,
 				moves: [...s.moves, a.payload],
-				legalMoves: a.payload.l ?? [],
+				legalMoves: a.payload.l?.map((move: number) => new LegalMove(move)) ?? [],
 			}
 
 		case Action.SET_LEGAL_MOVES:

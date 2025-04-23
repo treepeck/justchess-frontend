@@ -1,5 +1,5 @@
 .profile-container section {
-	margin: auto auto auto auto;
+	margin: 16px auto 16px auto;
 	display: flex;
 	font-size: larger;
 	background-color: var(--containersBg);
@@ -8,6 +8,11 @@
 	align-items: center;
 	justify-content: center;
 	gap: 100px;
+}
+
+.profile-container h2 {
+	margin: 16px auto auto auto;
+	height: 65%;
 }
 
 .profile-container .table {

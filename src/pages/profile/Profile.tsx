@@ -67,7 +67,7 @@ export default function Profile() {
 			<p>Registered at <br /> {formatDate(profile?.createdAt)}</p>
 		</section>
 
-		<Table
+		{games.length ? <Table
 			caption="Completed games"
 			headerCols={["Result", "Players", "Control", "Moves", "Date"]}
 		>
@@ -99,6 +99,6 @@ export default function Profile() {
 					</div>
 				</a>)}
 			</div>
-		</Table>
+		</Table> : <h2>Completed games will be displayed here.</h2>}
 	</main>
 }

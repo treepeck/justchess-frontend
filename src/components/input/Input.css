@@ -19,6 +19,7 @@
 	margin-right: auto;
 	color: var(--text);
 	border: none;
+	font-size: large;
 	background-color: transparent;
 	box-sizing: border-box;
 }
