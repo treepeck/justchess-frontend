@@ -73,7 +73,7 @@ export default function Profile() {
 		>
 			<div className="t-body">
 
-				{games.map((game, ind) => <a key={ind} className="row" href={`http://localhost:3000/${game.id}`}>
+				{games.map((game, ind) => <a key={ind} className="row" href={`${process.env.REACT_APP_DOMAIN}${game.id}`}>
 					<div className={`col ${formatColor(game.w, game.wid, game.bid)}`}>
 						{formatWinner(game.w)}
 						<br />

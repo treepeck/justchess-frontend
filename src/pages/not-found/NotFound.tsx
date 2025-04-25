@@ -11,7 +11,7 @@ export default function NotFound() {
 		<h1>
 			The requested page wasn't found.
 			<br />
-			<a href="http://localhost:3000/">Home page</a>
+			<a href={process.env.REACT_APP_DOMAIN}>Home page</a>
 		</h1>
 	</main>
 }

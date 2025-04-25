@@ -1,7 +1,7 @@
 import { Game } from "../game/game"
 import { Color, Result } from "../game/enums"
 
-const serverUrl = "http://localhost:3502"
+const serverUrl = process.env.REACT_APP_API_DOMAIN
 
 export enum Role {
 	Guest,

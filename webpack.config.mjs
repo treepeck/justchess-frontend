@@ -1,3 +1,4 @@
+import DotenvWebpackPlugin from "dotenv-webpack"
 import HtmlWebpackPlugin from "html-webpack-plugin"
 import MiniCssExtractPlugin from "mini-css-extract-plugin"
 
@@ -33,7 +34,8 @@ export default {
 		}),
 		new MiniCssExtractPlugin({
 			filename: "[name].[contenthash].css"
-		})
+		}),
+		new DotenvWebpackPlugin(),
 	],
 	devServer: {
 		historyApiFallback: true,

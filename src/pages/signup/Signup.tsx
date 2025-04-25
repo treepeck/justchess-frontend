@@ -108,7 +108,7 @@ export default function Signup() {
 			/>
 
 			<footer>
-				Already registered? <a href="http://localhost:3000/signin">Sign In</a>
+				Already registered? <a href={`${process.env.REACT_APP_DOMAIN}signin`}>Sign In</a>
 			</footer>
 		</form>
 
