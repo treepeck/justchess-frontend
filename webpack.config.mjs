@@ -30,7 +30,8 @@ export default {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			template: "./public/index.html"
+			template: "./public/index.html",
+			favicon: "./public/assets/justchess.ico"
 		}),
 		new MiniCssExtractPlugin({
 			filename: "[name].[contenthash].css"

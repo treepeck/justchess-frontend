@@ -90,7 +90,7 @@ export default function Signin() {
 			/>
 
 			<footer>
-				Not registered? <a href={`${process.env.REACT_APP_DOMAIN}signup`}>Sign Up</a>
+				Not registered? <a href={`${process.env.REACT_APP_DOMAIN}/signup`}>Sign Up</a>
 				<br />
 				<br />
 				Forgot password? <button onClick={() =>

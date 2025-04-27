@@ -1,7 +1,7 @@
 import { Game } from "../game/game"
 import { Color, Result } from "../game/enums"
 
-const serverUrl = process.env.REACT_APP_API_DOMAIN
+const serverUrl = process.env.REACT_APP_DOMAIN
 
 export enum Role {
 	Guest,
@@ -131,7 +131,7 @@ export async function reset(pr: PasswordReset): Promise<boolean> {
 
 export async function getPlayerById(id: string, accessToken: string): Promise<Player | null> {
 	try {
-		const res = await fetch(`${serverUrl}/player/id/${id}`, {
+		const res = await fetch(`${serverUrl}/api/player/id/${id}`, {
 			method: "GET",
 			headers: {
 				"Authorization": "Bearer " + accessToken

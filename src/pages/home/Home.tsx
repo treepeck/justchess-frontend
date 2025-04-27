@@ -85,7 +85,7 @@ export default function Home() {
 				{state.rooms.map((room, ind) => <a
 					key={ind}
 					className="row"
-					href={`${process.env.REACT_APP_DOMAIN}${room.id}`}
+					href={`${process.env.REACT_APP_DOMAIN}/${room.id}`}
 					onClick={e => {
 						e.preventDefault()
 						if (player.role == Role.Guest) {

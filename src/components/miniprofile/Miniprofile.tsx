@@ -31,7 +31,7 @@ export default function Miniprofile({ id }: MiniprofileProps) {
 		<>{profile?.isEngine ? <div className="miniprofile">
 			{profile?.username}
 		</div>
-			: <a className="miniprofile" href={`${process.env.REACT_APP_DOMAIN}player/${profile?.id}`}>{profile?.username}</a>
+			: <a className="miniprofile" href={`${process.env.REACT_APP_DOMAIN}/player/${profile?.id}`}>{profile?.username}</a>
 		}</>
 	)
 }
