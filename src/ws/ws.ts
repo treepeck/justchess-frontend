@@ -10,8 +10,8 @@ export default class _WebSocket {
 	// The connection is stored in the socket field.
 	// It also defines the serverUrl and WebSocket`s protocol fields.
 	constructor(url: string, accessToken: string) {
-		this.serverUrl = "localhost:3502"
-		this.protocol = "ws://"
+		this.serverUrl = process.env.REACT_APP_WEBSOCK_URL!
+		this.protocol = process.env.REACT_APP_WEBSOCK_PROTO!
 
 		// Establish a WebSocket connection.
 		this.socket = new WebSocket(`${this.protocol}${this.serverUrl}${url}access=${accessToken}`)
