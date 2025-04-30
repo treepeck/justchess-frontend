@@ -165,7 +165,8 @@ export default function Play() {
 
 	function getActiveId(): string | undefined {
 		if (state.room.status == Status.OPEN ||
-			state.room.status == Status.OVER) {
+			state.room.status == Status.OVER ||
+			state.result != Result.Unknown) {
 			return undefined
 		}
 

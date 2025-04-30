@@ -91,7 +91,7 @@ export default function Profile() {
 					</div>
 
 					<div className="col">
-						{game.m}
+						{Math.floor(game.m / 2)}
 					</div>
 
 					<div className="col">
