@@ -1,10 +1,10 @@
-import "./globals.css"
+import "@/app/ui/globals.css"
 
 import React from "react"
 import type { Metadata } from "next"
 
-import Header from "./components/Header"
-import Footer from "./components/Footer"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 export const metadata: Metadata = {
 	icons: { icon: "/favicon.png" },
