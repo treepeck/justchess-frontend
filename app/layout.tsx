@@ -1,36 +1,27 @@
-import "@/app/ui/globals.css"
+import '@/app/ui/globals.css';
 
-import React from "react"
-import type { Metadata } from "next"
+import React from 'react';
+import type { Metadata } from 'next';
 
-import Header from "@/components/header"
-import Footer from "@/components/footer"
+import Header from '@/components/header';
+import Footer from '@/components/footer';
 
 export const metadata: Metadata = {
-	icons: { icon: "/favicon.png" },
-}
+  icons: { icon: '/favicon.png' },
+};
 
-export default function RootLayout({ children }: Readonly<{
-	children: React.ReactNode
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="en">
-			<body className="
-				h-screen
-				w-full
-				leading-[1.5]
-				flex
-				flex-col
-				bg-[var(--background)]
-				text-[var(--foreground)]
-				font-sans
-			">
-				<React.StrictMode>
-					<Header />
-					<main className="flex grow">{children}</main>
-					<Footer />
-				</React.StrictMode>
-			</body>
-		</html>
-	)
+  return (
+    <html lang="en">
+      <body className="h-dvh bg-white dark:bg-gray-900 text-black dark:text-white ">
+        <Header />
+        {children}
+        <Footer />
+      </body>
+    </html>
+  );
 }

@@ -6,8 +6,10 @@ export const metadata: Metadata = {
 
 export default function Home() {
 	return (
-		<p className="text-4xl m-auto">
-			Home page
-		</p>
+		<main className="h-full max-w-screen-xl mx-auto" >
+			<p className="flex justify-center items-center h-full text-4xl">
+				Home page
+			</p>
+		</main>
 	)
 }
