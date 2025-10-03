@@ -28,7 +28,7 @@ export default function Header() {
     <header className="h-16 w-full fixed border-b border-gray-700">
       <div className="mx-auto max-w-screen-xl h-full flex justify-between">
         <div className="flex">
-          <Link href="/" className="group flex items-center text-3xl px-4 me-1 hover:text-indigo-500">
+          <Link href="/" className="group flex items-center text-3xl px-4 me-1 transition hover:text-indigo-500">
             JustChess<span className="text-gray-400 group-hover:text-indigo-400">.org</span>
           </Link>
           <nav className="flex items-center h-full gap-x-1">
@@ -43,7 +43,7 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex items-center me-4">
-          <Link href="/login" className=" py-1 px-4 border rounded-lg hover:opacity-75">
+          <Link href="/login" className=" py-1 px-4 border rounded-lg transition hover:opacity-75">
             Sign in
           </Link>
         </div>
