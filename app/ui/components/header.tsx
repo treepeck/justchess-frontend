@@ -25,7 +25,7 @@ const navItems: { name: string; href: string }[] = [
 
 export default function Header() {
   return (
-    <header className="h-16 w-full fixed border-gray-600 bg-gradient-to-b from-gray-900 to-gray-950">
+    <header className="h-16 w-full fixed border-b border-gray-700">
       <div className="mx-auto max-w-screen-xl h-full flex justify-between">
         <div className="flex">
           <Link href="/" className="group flex items-center text-3xl px-4 me-1 hover:text-indigo-500">
@@ -36,14 +36,14 @@ export default function Header() {
               <Link
                 key={index}
                 href={link.href}
-                className="px-4 py-1 hover:bg-slate-800 transition-colors rounded-md">
+                className="px-4 py-1 hover:bg-neutral-700 transition-colors rounded-md">
                 {link.name}
               </Link>
             ))}
           </nav>
         </div>
         <div className="flex items-center me-4">
-          <Link href="/login" className=" py-1 px-4 border rounded-lg">
+          <Link href="/login" className=" py-1 px-4 border rounded-lg hover:opacity-75">
             Sign in
           </Link>
         </div>
