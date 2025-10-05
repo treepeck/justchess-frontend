@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Page() {
   return (
-    <main className="flex min-h-full flex-col justify-center">
+    <>
       <h2 className="mt-10 text-center text-2xl font-bold tracking-tight">
         Sign in to your account
       </h2>
@@ -21,6 +21,6 @@ export default function Page() {
           </Link>
         </p>
       </div>
-    </main>
+    </>
   );
 }

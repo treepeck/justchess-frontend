@@ -1,9 +1,9 @@
-import Link from 'next/link'
-import SignUpForm from '@/components/form/sign-up-form'
+import Link from 'next/link';
+import SignUpForm from '@/components/form/sign-up-form';
 
 export default function Page() {
-     return (
-    <main className="flex min-h-full flex-col justify-center">
+  return (
+    <>
       <h2 className="mt-10 text-center text-2xl font-bold tracking-tight">
         Sign up for JustChess
       </h2>
@@ -21,6 +21,6 @@ export default function Page() {
           </Link>
         </p>
       </div>
-    </main>
+    </>
   );
 }
