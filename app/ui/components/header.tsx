@@ -29,7 +29,7 @@ export default function Header() {
       <div className="mx-auto max-w-screen-xl h-full flex justify-between">
         <div className="flex">
           <Link href="/" className="group flex items-center text-3xl px-4 me-1 transition hover:text-indigo-500">
-            JustChess<span className="text-gray-400 group-hover:text-indigo-400">.org</span>
+            JustChess<span className="text-gray-400 transition group-hover:text-indigo-400">.org</span>
           </Link>
           <nav className="flex items-center h-full gap-x-1">
             {navItems.map((link, index) => (
