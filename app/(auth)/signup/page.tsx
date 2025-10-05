@@ -1,23 +1,23 @@
-import SignInForm from '@/components/sign-in-form';
-import Link from 'next/link';
+import Link from 'next/link'
+import SignUpForm from '@/components/form/sign-up-form'
 
 export default function Page() {
-  return (
+     return (
     <main className="flex min-h-full flex-col justify-center">
       <h2 className="mt-10 text-center text-2xl font-bold tracking-tight">
-        Sign in to your account
+        Sign up for JustChess
       </h2>
 
       <div className="mt-10 w-full max-w-xs mx-auto">
-        <SignInForm />
+        <SignUpForm />
 
         <p className="mt-10 text-center text-sm/6 text-gray-400">
-          Don't have an account?{' '}
+          Already have an account?{' '}
           <Link
-            href="/signup"
+            href="/login"
             className="font-semibold text-indigo-500 hover:text-indigo-400"
           >
-            Sign up
+            Sign in
           </Link>
         </p>
       </div>
