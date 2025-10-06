@@ -6,7 +6,6 @@ export default function EmailInput() {
       </label>
       <div className="mt-2">
         <input
-          id="email"
           type="email"
           name="email"
           required

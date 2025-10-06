@@ -4,7 +4,6 @@ import EyeOpen from '@/icons/eye-open';
 import EyeClosed from '@/icons/eye-closed';
 import { useState } from 'react';
 
-
 export default function PasswordInput() {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -16,7 +15,6 @@ export default function PasswordInput() {
       <div className="mt-2">
         <div className="relative flex items-center">
           <input
-            id="password"
             type={showPassword ? 'text' : 'password'}
             name="password"
             required
