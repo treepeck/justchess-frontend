@@ -1,4 +1,4 @@
-import PasswordInput from '@/app/ui/components/form/password-input';
+import PasswordInput from '@/components/form/password-input';
 import EmailInput from '@/components/form/email-input';
 
 export default function SignInForm() {

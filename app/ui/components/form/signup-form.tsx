@@ -1,9 +1,10 @@
-import PasswordInput from '@/app/ui/components/form/password-input';
+import PasswordInput from '@/components/form/password-input';
 import EmailInput from '@/components/form/email-input';
+import { signup } from '@/app/lib/actions';
 
 export default function SignInForm() {
   return (
-    <form action="#" className="space-y-6">
+    <form action={signup} className="space-y-6">
       <div>
         <label className="block text-sm/6 font-medium text-gray-100">
           Username
