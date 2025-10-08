@@ -1,7 +1,7 @@
 import PasswordInput from '@/components/form/password-input';
 import EmailInput from '@/components/form/email-input';
 
-export default function SignInForm() {
+export default function SigninForm() {
   return (
     <form action="#" className="space-y-6">
       <EmailInput />
