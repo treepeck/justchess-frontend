@@ -1,9 +1,8 @@
-'use server';
+'use client';
 
 import { z } from 'zod';
 import { SignupState, SignupFormSchema } from '@/app/lib/definitions';
-
-const BASE_URL = process.env.API_BASE_URL;
+import { fetchSignup } from './api';
 
 export async function signup(prevState: SignupState, formData: FormData) {
   const { name, email, password } = Object.fromEntries(formData) as {
@@ -29,11 +28,15 @@ export async function signup(prevState: SignupState, formData: FormData) {
 
   // Create search params from valid form object
   const params = new URLSearchParams(validationResult.data);
-
   try {
-    const response = await fetch(`${BASE_URL}/auth/signup`, {
-      method: 'POST',
-      body: params,
-    });
-  } catch {}
+    const response = await fetchSignup(params);
+    // console.log('response:', response);
+  } catch (error) {
+    if (error instanceof Error) {
+      return {
+        defaultValues: { name: name, email: email, password: password },
+        message: `Failed to Sign up: ${error.message}`,
+      };
+    }
+  }
 }

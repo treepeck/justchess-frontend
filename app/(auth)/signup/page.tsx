@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import SignUpForm from '@/components/form/signup-form';
+import SignupForm from '@/components/form/signup-form';
 
 export default function Page() {
   return (
@@ -9,7 +9,7 @@ export default function Page() {
       </h2>
 
       <div className="mt-10 w-full max-w-xs mx-auto">
-        <SignUpForm />
+        <SignupForm />
 
         <p className="mt-10 text-center text-sm/6 text-gray-400">
           Already have an account?{' '}
