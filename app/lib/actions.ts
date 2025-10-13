@@ -1,8 +1,8 @@
 'use client';
 
-import { z } from 'zod';
 import { SignupState, SignupFormSchema } from '@/app/lib/definitions';
 import { fetchSignup } from './api';
+import { redirect } from 'next/navigation';
 
 export async function signup(prevState: SignupState, formData: FormData) {
   const { name, email, password } = Object.fromEntries(formData) as {
@@ -21,7 +21,7 @@ export async function signup(prevState: SignupState, formData: FormData) {
   if (!validationResult.success) {
     return {
       defaultValues: { name: name, email: email, password: password },
-      errors: z.flattenError(validationResult.error).fieldErrors,
+      errors: validationResult.error.flatten().fieldErrors,
       message: 'Failed to Sign up: Invalid input',
     };
   }
@@ -30,7 +30,26 @@ export async function signup(prevState: SignupState, formData: FormData) {
   const params = new URLSearchParams(validationResult.data);
   try {
     const response = await fetchSignup(params);
-    // console.log('response:', response);
+
+    // Handle API response errors
+    if (!response.ok) {
+      const statusMessages: Record<number, string> = {
+        406: 'Invalid input',
+        409: 'Not unique name or email',
+        500: 'Server error',
+      };
+
+      const message: string =
+        statusMessages[response.status] || 'Unexpected error';
+
+      return {
+        defaultValues: { name: name, email: email, password: password },
+        message: `Failed to Sign up: ${message}`,
+      };
+    }
+
+    // If successful, redirect to main page
+    redirect('/');
   } catch (error) {
     if (error instanceof Error) {
       return {
