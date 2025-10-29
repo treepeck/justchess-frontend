@@ -1,7 +1,6 @@
 'use server';
 
 import Link from 'next/link';
-// import { fetchVerify } from '@/app/lib/api';
 
 const navItems: { name: string; href: string }[] = [
   {
@@ -27,9 +26,6 @@ const navItems: { name: string; href: string }[] = [
 ];
 
 export default async function Header() {
-  // const respone = await fetchVerify();
-  // console.log(respone);
-
   return (
     <header className="h-16 w-full fixed border-b border-gray-700">
       <div className="mx-auto max-w-7xl h-full flex justify-between">
