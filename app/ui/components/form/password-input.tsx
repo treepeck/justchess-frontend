@@ -6,10 +6,10 @@ import { useState } from 'react';
 
 export default function PasswordInput({
   defaultValue,
-  errorMessage,
+  errorMessages,
 }: {
   defaultValue?: string;
-  errorMessage?: string[];
+  errorMessages?: string[];
 }) {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -37,9 +37,12 @@ export default function PasswordInput({
         </div>
       </div>
 
-      {errorMessage && (
-        <p className="text-sm mt-1 text-red-400">{errorMessage}</p>
-      )}
+      {errorMessages &&
+        errorMessages.map((error, index) => (
+          <p key={index} className="text-sm mt-1 text-red-400">
+            {error}
+          </p>
+        ))}
     </div>
   );
 }

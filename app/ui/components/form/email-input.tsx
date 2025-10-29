@@ -1,9 +1,9 @@
 export default function EmailInput({
   defaultValue,
-  errorMessage,
+  errorMessages
 }: {
   defaultValue?: string;
-  errorMessage?: string[];
+  errorMessages?: string[];
 }) {
   return (
     <div>
@@ -21,8 +21,8 @@ export default function EmailInput({
         />
       </div>
 
-      {errorMessage &&
-        errorMessage.map((error, index) => (
+      {errorMessages &&
+        errorMessages.map((error, index) => (
           <p key={index} className="text-sm mt-1 text-red-400">
             {error}
           </p>

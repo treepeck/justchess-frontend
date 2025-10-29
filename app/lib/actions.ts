@@ -1,61 +1,42 @@
-'use client';
+'use server';
 
-import { SignupState, SignupFormSchema } from '@/app/lib/definitions';
-import { fetchSignup } from './api';
-import { redirect } from 'next/navigation';
+import { z } from 'zod';
 
-export async function signup(prevState: SignupState, formData: FormData) {
-  const { name, email, password } = Object.fromEntries(formData) as {
-    name: string;
-    email: string;
-    password: string;
-  };
+const SignupFormSchema = z.object({
+  name: z
+    .string()
+    .min(2, 'Must be at least 2 characters long')
+    .max(60, 'Must not exceed 60 characters')
+    .regex(/^[a-zA-Z0-9]+$/, 'Can only contain letters and numbers'),
+  email: z.email(),
+  password: z
+    .string()
+    .min(2, 'Must be at least 5 characters long')
+    .max(71, 'Must not exceed 71 characters')
+    .regex(
+      /^[a-zA-Z0-9!@#$%^&*()_+-/.<>]+$/,
+      'Can only contain letters, numbers, and !@#$%^&*()_+-/.<>'
+    ),
+});
 
+export async function validateSignup(formData: FormData) {
   // Validate form using Zod
   const validationResult = SignupFormSchema.safeParse({
-    name: name,
-    email: email,
-    password: password,
+    name: formData.get('name'),
+    email: formData.get('email'),
+    password: formData.get('password'),
   });
 
   if (!validationResult.success) {
     return {
-      defaultValues: { name: name, email: email, password: password },
-      errors: validationResult.error.flatten().fieldErrors,
-      message: 'Failed to Sign up: Invalid input',
+      success: false,
+      errors: z.flattenError(validationResult.error).fieldErrors, // Input field errors
     };
   }
 
-  // Create search params from valid form object
-  const params = new URLSearchParams(validationResult.data);
-  try {
-    const response = await fetchSignup(params);
-
-    // Handle API response errors
-    if (!response.ok) {
-      const statusMessages: Record<number, string> = {
-        406: 'Invalid input',
-        409: 'Not unique name or email',
-        500: 'Server error',
-      };
-
-      const message: string =
-        statusMessages[response.status] || 'Unexpected error';
-
-      return {
-        defaultValues: { name: name, email: email, password: password },
-        message: `Failed to Sign up: ${message}`,
-      };
-    }
-
-    // If successful, redirect to main page
-    redirect('/');
-  } catch (error) {
-    if (error instanceof Error) {
-      return {
-        defaultValues: { name: name, email: email, password: password },
-        message: `Failed to Sign up: ${error.message}`,
-      };
-    }
-  }
+  // If validation success return data
+  return {
+    success: true,
+    data: validationResult.data,
+  };
 }
