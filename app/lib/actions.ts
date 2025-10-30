@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { cookies } from 'next/headers';
 import { User } from '@/app/lib/definitions';
 
-const API_URL = process.env.API_URL || 'http://localhost:3502';
+const API_URL = process.env.API_URL;
 const APP_ORIGIN = process.env.APP_ORIGIN || 'http://localhost:3000';
 
 const SignupFormSchema = z.object({
@@ -57,7 +57,7 @@ export async function getUser() {
 
   try {
     const response = await fetch(`${API_URL}/auth/verify`, {
-      method: 'POST',
+      method: 'GET',
       headers: {
         Cookie: `${authCookie.name}=${authCookie.value}`,
         Origin: APP_ORIGIN, // Add Origin for CORS
