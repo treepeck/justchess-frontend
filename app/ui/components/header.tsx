@@ -1,6 +1,5 @@
-'use server';
-
 import Link from 'next/link';
+import { getUser } from '@/app/lib/actions';
 
 const navItems: { name: string; href: string }[] = [
   {
@@ -26,8 +25,10 @@ const navItems: { name: string; href: string }[] = [
 ];
 
 export default async function Header() {
+  const user = await getUser();
+
   return (
-    <header className="h-16 w-full fixed border-b border-gray-700">
+    <header className="bg-re h-16 w-full fixed border-b border-gray-700">
       <div className="mx-auto max-w-7xl h-full flex justify-between">
         <div className="flex">
           <Link
@@ -52,12 +53,16 @@ export default async function Header() {
           </nav>
         </div>
         <div className="flex items-center me-4">
-          <Link
-            href="/login"
-            className=" py-1 px-4 border rounded-lg transition hover:opacity-75"
-          >
-            Sign in
-          </Link>
+          {user ? (
+            <strong> {user.name}</strong>
+          ) : (
+            <Link
+              href="/login"
+              className=" py-1 px-4 border rounded-lg transition hover:opacity-75"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>

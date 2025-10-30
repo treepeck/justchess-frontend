@@ -1,6 +1,11 @@
 'use server';
 
 import { z } from 'zod';
+import { cookies } from 'next/headers';
+import { User } from '@/app/lib/definitions';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3502';
+const APP_ORIGIN = process.env.APP_ORIGIN || 'http://localhost:3000';
 
 const SignupFormSchema = z.object({
   name: z
@@ -39,4 +44,33 @@ export async function validateSignup(formData: FormData) {
     success: true,
     data: validationResult.data,
   };
+}
+
+export async function getUser() {
+  // Get 'Auth' cookie from browser's request
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('Auth');
+
+  if (!authCookie) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/auth/verify`, {
+      method: 'POST',
+      headers: {
+        Cookie: `${authCookie.name}=${authCookie.value}`,
+        Origin: APP_ORIGIN, // Add Origin for CORS
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const user = (await response.json()) as User;
+    return user;
+  } catch (error) {
+    console.error(error);
+  }
 }
