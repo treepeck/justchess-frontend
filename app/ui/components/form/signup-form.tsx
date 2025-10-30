@@ -16,7 +16,7 @@ export default function SignupForm() {
     password?: string[] | undefined;
   }>();
   const [errorMessage, setErrorMessage] = useState<string>();
-  const route = useRouter();
+  const router = useRouter();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,10 +53,12 @@ export default function SignupForm() {
         const statusErrorMessage: string =
           statusErrorMessages[response.status] || 'Unexpected error';
         setErrorMessage(`Failed to Sign up: ${statusErrorMessage}`);
-      } else {
-        // Redirect to home page on success
-        route.push('/'); 
+        return;
       }
+
+      // Redirect to home page on success
+      router.push('/');
+      router.refresh();
     } catch (error) {
       if (error instanceof Error) {
         setErrorMessage(`Failed to Sign up: ${error.message}`);

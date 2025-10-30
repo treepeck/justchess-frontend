@@ -54,7 +54,7 @@ export default async function Header() {
         </div>
         <div className="flex items-center me-4">
           {user ? (
-            <strong> {user.name}</strong>
+            <strong>{user.name}</strong>
           ) : (
             <Link
               href="/login"
