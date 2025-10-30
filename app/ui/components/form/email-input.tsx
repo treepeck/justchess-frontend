@@ -1,6 +1,6 @@
 export default function EmailInput({
   defaultValue,
-  errorMessages
+  errorMessages,
 }: {
   defaultValue?: string;
   errorMessages?: string[];
