@@ -16,7 +16,7 @@ const SignupFormSchema = z.object({
   email: z.email(),
   password: z
     .string()
-    .min(2, 'Must be at least 5 characters long')
+    .min(5, 'Must be at least 5 characters long')
     .max(71, 'Must not exceed 71 characters')
     .regex(
       /^[a-zA-Z0-9!@#$%^&*()_+-/.<>]+$/,
@@ -35,7 +35,33 @@ export async function validateSignup(formData: FormData) {
   if (!validationResult.success) {
     return {
       success: false,
-      errors: z.flattenError(validationResult.error).fieldErrors, // Input field errors
+      errors: validationResult.error.flatten().fieldErrors, // Input field errors
+    };
+  }
+
+  // If validation success return data
+  return {
+    success: true,
+    data: validationResult.data,
+  };
+}
+
+const SigninFormSchema = z.object({
+  email: z.string().min(1, 'Please fill out this field'),
+  password: z.string().min(1, 'Please fill out this field'),
+});
+
+export async function validateSignin(formData: FormData) {
+  // Validate form using Zod
+  const validationResult = SigninFormSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
+
+  if (!validationResult.success) {
+    return {
+      success: false,
+      errors: validationResult.error.flatten().fieldErrors, // Input field errors
     };
   }
 

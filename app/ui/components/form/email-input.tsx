@@ -1,9 +1,11 @@
 export default function EmailInput({
   defaultValue,
   errorMessages,
+  placeholder,
 }: {
   defaultValue?: string;
   errorMessages?: string[];
+  placeholder?: boolean;
 }) {
   return (
     <div>
@@ -15,7 +17,7 @@ export default function EmailInput({
           type="text"
           name="email"
           autoComplete="email"
-          placeholder="magnus.carlsen@example.com"
+          placeholder={placeholder ? 'magnus.carlsen@example.com' : undefined}
           defaultValue={defaultValue}
           className="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
         />

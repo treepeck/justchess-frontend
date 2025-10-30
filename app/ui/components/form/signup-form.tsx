@@ -11,16 +11,20 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export default function SignupForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{
-    name?: string[] | undefined;
-    email?: string[] | undefined;
-    password?: string[] | undefined;
+    name?: string[];
+    email?: string[];
+    password?: string[];
   }>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const router = useRouter();
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setIsLoading(true); // Set loading to true when the request starts
+    // Set loading to true when the request starts
+    setIsLoading(true);
+    // Clear previous errors when a new request starts
+    setErrors(undefined);
+    setErrorMessage(undefined);
 
     try {
       const formData = new FormData(event.currentTarget);
@@ -90,7 +94,7 @@ export default function SignupForm() {
             </p>
           ))}
       </div>
-      <EmailInput errorMessages={errors?.email} />
+      <EmailInput errorMessages={errors?.email} placeholder />
       <PasswordInput errorMessages={errors?.password} />
 
       <div>
