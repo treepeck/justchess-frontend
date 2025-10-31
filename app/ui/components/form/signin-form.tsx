@@ -46,7 +46,15 @@ export default function SigninForm() {
       });
 
       if (!response.ok) {
-        setErrorMessage('Failed to Sign in');
+        const statusErrorMessages: Record<number, string> = {
+          400: 'Malformed request body',
+          401: 'Incorrect email or password',
+          406: 'Incorrect email or password',
+          500: 'Server error',
+        };
+        const statusErrorMessage: string =
+          statusErrorMessages[response.status] || 'Unexpected error';
+        setErrorMessage(`Failed to Sign in: ${statusErrorMessage}`);
         return;
       }
 
@@ -54,7 +62,9 @@ export default function SigninForm() {
       router.push('/');
       router.refresh();
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        setErrorMessage(`Failed to Sign ip: ${error.message}`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +81,7 @@ export default function SigninForm() {
         <button
           disabled={isLoading}
           type="submit"
-          className="flex w-full justify-center rounded-md cursor-pointer bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          className="flex w-full justify-center rounded-md cursor-pointer bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:bg-indigo-800"
         >
           Sign in
         </button>
