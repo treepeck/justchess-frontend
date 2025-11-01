@@ -1,29 +1,30 @@
 {
-	"name": "justchess-frontend",
-	"version": "1.0.0",
-	"main": "index.js",
-	"scripts": {
-		"start": "webpack serve --port 3000",
-		"build": "set NODE_ENV=production && webpack"
-	},
-	"author": "Artem Bielikov",
-	"license": "BSD-3-Clause",
-	"description": "",
-	"dependencies": {
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0"
-	},
-	"devDependencies": {
-		"@types/react": "^19.0.8",
-		"@types/react-dom": "^19.0.3",
-		"css-loader": "^7.1.2",
-		"dotenv-webpack": "^8.1.0",
-		"html-webpack-plugin": "^5.6.3",
-		"mini-css-extract-plugin": "^2.9.2",
-		"ts-loader": "^9.5.2",
-		"typescript": "^5.7.3",
-		"webpack": "^5.97.1",
-		"webpack-cli": "^6.0.1",
-		"webpack-dev-server": "^5.2.0"
-	}
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "^16.0.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@types/node": "^24.9.2",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "eslint": "^9.39.0",
+    "eslint-config-next": "16.0.1",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd"
 }

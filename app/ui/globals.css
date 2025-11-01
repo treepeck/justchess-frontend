@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+
+/* White theme colors. */
+:root {
+  --background: var(--color-neutral-900);
+  --foreground: white;
+}
+
+/* TODO: Theme variables
+  @theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-container-background: var(--container-background);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+} */
+
+/* TODO: Dark theme colors
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #292b2f;
+    --foreground: #ededed;
+    --container-background: #343a46;
+  }
+} */
+
+body {
+  background: var(--background);
+  color: var(--foreground)
+}
+
+header {
+	background: var(--background);
+}
