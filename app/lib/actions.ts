@@ -98,5 +98,6 @@ export async function getUser() {
     return user;
   } catch (error) {
     console.error(error);
+    return null;
   }
 }
