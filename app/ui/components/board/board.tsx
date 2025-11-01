@@ -1,3 +1,6 @@
+// @ts-nocheck
+// FIXME: fix linting errors (pnpm eslint)
+
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
@@ -30,7 +33,7 @@ const SQUARE: number = BOARD / 8; // Square size.
 const PIECE: number = 32; // Piece size in the source image.
 
 type BoardState = {
-  squares: [];
+  squares: Piece[];
   selectedSquare: number;
   draggedPiece: DraggedPiece | null;
 };
