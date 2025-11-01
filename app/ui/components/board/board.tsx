@@ -1,9 +1,6 @@
-// @ts-nocheck
-// FIXME: fix linting errors (pnpm eslint)
-
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 
 enum Piece {
   WP = 0,
@@ -61,49 +58,11 @@ export default function Board() {
   });
 
   /*
-  Called once when the Board component mounts.
-  */
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    ctx.current = canvas.getContext('2d');
-
-    const img = new Image();
-    img.src = '/sheet.png';
-
-    const onSheetLoad = () => {
-      sheet.current = img;
-      draw();
-    };
-
-    // Add event listeners.
-    img.addEventListener('load', onSheetLoad);
-    canvas.addEventListener('mousedown', onMouseDown);
-    canvas.addEventListener('mousemove', onMouseMove);
-    canvas.addEventListener('mouseup', onMouseUp);
-
-    // Remove event listeners.
-    return () => {
-      img.removeEventListener('load', onSheetLoad);
-      canvas.removeEventListener('mousedown', onMouseDown);
-      canvas.removeEventListener('mousemove', onMouseMove);
-      canvas.removeEventListener('mouseup', onMouseUp);
-    };
-  });
-
-  /*
-  Called when the user interacts with the board (drags a piece or clicks on a square).
-  */
-  useEffect(() => {
-    if (sheet.current !== null) {
-      // Redraw the board.
-      draw();
-    }
-  }, [board]);
-
-  /*
   draw draws the chessboard on the canvas.
   */
-  function draw() {
+  const draw = useCallback(() => {
+    if (sheet.current === null) return;
+
     for (let rank = 0; rank < 8; rank++) {
       for (let file = 0; file < 8; file++) {
         // Draw board squares.
@@ -156,7 +115,7 @@ export default function Board() {
         }
       }
     }
-  }
+  }, [board]);
 
   /*
   onMouseDown updates selectedSquare and begins piece drag if the user clicks
@@ -175,11 +134,11 @@ export default function Board() {
     // Begin piece drag.
     if (board.squares[board.selectedSquare] !== Piece.NP) {
       // Temporary remove the piece from its square while its being dragged.
-      const squares = board.squares;
+      const squares = [...board.squares];
       const piece = squares[selected];
       squares[selected] = Piece.NP;
 
-      setBoard((curr) => ({
+      setBoard({
         draggedPiece: {
           x: x - SQUARE / 2,
           y: y - SQUARE / 2,
@@ -188,7 +147,7 @@ export default function Board() {
         },
         squares: squares,
         selectedSquare: selected,
-      }));
+      });
     } else {
       setBoard((curr) => ({
         ...curr,
@@ -227,16 +186,46 @@ export default function Board() {
     const rank = Math.floor((BOARD - y) / SQUARE);
 
     if (board.draggedPiece !== null) {
-      const squares = board.squares;
+      const squares = [...board.squares];
       squares[8 * rank + file] = board.draggedPiece.piece;
 
-      setBoard((curr) => ({
+      setBoard({
         squares: squares,
         selectedSquare: -1,
         draggedPiece: null,
-      }));
+      });
     }
   }
+
+  /*
+  Called once when the Board component mounts.
+  */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    ctx.current = canvas.getContext('2d');
+
+    const img = new Image();
+    img.src = '/sheet.png';
+
+    const onSheetLoad = () => {
+      sheet.current = img;
+      draw();
+    };
+
+    // Add event listeners.
+    img.addEventListener('load', onSheetLoad);
+    canvas.addEventListener('mousedown', onMouseDown);
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('mouseup', onMouseUp);
+
+    // Remove event listeners.
+    return () => {
+      img.removeEventListener('load', onSheetLoad);
+      canvas.removeEventListener('mousedown', onMouseDown);
+      canvas.removeEventListener('mousemove', onMouseMove);
+      canvas.removeEventListener('mouseup', onMouseUp);
+    };
+  });
 
   return (
     <canvas
