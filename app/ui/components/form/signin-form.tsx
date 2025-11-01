@@ -46,15 +46,8 @@ export default function SigninForm() {
       });
 
       if (!response.ok) {
-        const statusErrorMessages: Record<number, string> = {
-          400: 'Malformed request body',
-          401: 'Incorrect email or password',
-          406: 'Incorrect email or password',
-          500: 'Server error',
-        };
-        const statusErrorMessage: string =
-          statusErrorMessages[response.status] || 'Unexpected error';
-        setErrorMessage(`Failed to Sign in: ${statusErrorMessage}`);
+        const msg: string = await response.text();
+        setErrorMessage(`Failed to Sign in: ${msg}`);
         return;
       }
 

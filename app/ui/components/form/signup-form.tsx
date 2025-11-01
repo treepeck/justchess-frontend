@@ -49,14 +49,8 @@ export default function SignupForm() {
 
       // Handle API response errors
       if (!response.ok) {
-        const statusErrorMessages: Record<number, string> = {
-          406: 'Invalid input',
-          409: 'Not unique name or email',
-          500: 'Server error',
-        };
-        const statusErrorMessage: string =
-          statusErrorMessages[response.status] || 'Unexpected error';
-        setErrorMessage(`Failed to Sign up: ${statusErrorMessage}`);
+        const msg: string = await response.text();
+        setErrorMessage(`Failed to Sign up: ${msg}`);
         return;
       }
 
