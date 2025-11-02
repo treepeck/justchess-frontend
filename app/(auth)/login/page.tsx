@@ -1,4 +1,4 @@
-import SignInForm from '@/app/ui/components/form/signin-form';
+import SigninForm from '@/app/ui/components/form/signin-form';
 import Link from 'next/link';
 
 export default function Page() {
@@ -9,7 +9,7 @@ export default function Page() {
       </h2>
 
       <div className="mt-10 w-full max-w-xs mx-auto">
-        <SignInForm />
+        <SigninForm />
 
         <p className="mt-10 text-center text-sm/6 text-gray-400">
           Don't have an account?{' '}
