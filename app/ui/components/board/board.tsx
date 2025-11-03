@@ -61,7 +61,7 @@ export default function Board() {
   draw draws the chessboard on the canvas.
   */
   const draw = useCallback(() => {
-    if (sheet.current === null) return;
+    if (sheet.current === null || ctx.current === null) return;
 
     for (let rank = 0; rank < 8; rank++) {
       for (let file = 0; file < 8; file++) {
@@ -122,11 +122,11 @@ export default function Board() {
   on piece.
   */
   function onMouseDown(e: MouseEvent) {
-    const rect = e.originalTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
 
+    const x = e.clientX - rect.left;
     const file = Math.floor(x / SQUARE);
+    const y = e.clientY - rect.top;
     const rank = Math.floor((BOARD - y) / SQUARE);
 
     const selected = 8 * rank + file;
@@ -161,12 +161,13 @@ export default function Board() {
   */
   function onMouseMove(e: MouseEvent) {
     if (board.draggedPiece !== null) {
-      const rect = e.originalTarget.getBoundingClientRect();
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
       // Align dragged piece to the cursor.
       setBoard((curr) => ({
         ...curr,
         draggedPiece: {
-          ...curr.draggedPiece,
+          piece: curr.draggedPiece!.piece,
+          fromSquare: curr.draggedPiece!.fromSquare,
           x: e.clientX - rect.left - SQUARE / 2,
           y: e.clientY - rect.top - SQUARE / 2,
         },
@@ -178,7 +179,7 @@ export default function Board() {
   onMouseUp handles the piece drop.
   */
   function onMouseUp(e: MouseEvent) {
-    const rect = e.originalTarget.getBoundingClientRect();
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
@@ -201,7 +202,7 @@ export default function Board() {
   Called once when the Board component mounts.
   */
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current as HTMLCanvasElement;
     ctx.current = canvas.getContext('2d');
 
     const img = new Image();
