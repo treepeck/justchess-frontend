@@ -226,7 +226,7 @@ export default function Board() {
       canvas.removeEventListener('mousemove', onMouseMove);
       canvas.removeEventListener('mouseup', onMouseUp);
     };
-  });
+  }, []);
 
   return (
     <canvas
